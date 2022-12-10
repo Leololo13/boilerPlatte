@@ -86,6 +86,12 @@ app.post('/api/list/write', auth, (req, res) => {
     return res.status(200).json({ Writesuccess: true });
   });
 });
+app.get('/api/list', (req, res) => {
+  List.find((err, data) => {
+    if (err) return res.json(err);
+    return res.json({ data });
+  });
+});
 
 //db서버 접속
 app.listen(process.env.PORT, () => {

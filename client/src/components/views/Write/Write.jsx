@@ -14,7 +14,6 @@ function Write() {
   const [writtenData, setWrittenData] = useState({
     title: '',
     content: '',
-    date: new Date(),
     id: '',
     postnum: '',
     like: 0,
@@ -31,7 +30,6 @@ function Write() {
     e.preventDefault();
     let body = writtenData;
     dispatch(Writer(body)).then((response) => {
-      console.log(response);
       if (!response.payload) {
         alert('Login이 필요한 기능입니다');
         navigate('/user/login');

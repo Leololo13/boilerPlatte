@@ -39,6 +39,7 @@ function LandingPage() {
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
+          overflowY: 'scroll',
         }}
       >
         <div
@@ -58,6 +59,7 @@ function LandingPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              backgroundColor: 'aqua',
             }}
           >
             main <Outlet></Outlet>

@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 import { Writer } from '../_actions/user_action';
 
 const initialState = {
@@ -11,7 +10,6 @@ const listSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(Writer.fulfilled, (state, { payload }) => {
-      console.log(payload);
       state.WriteSuccess = payload;
     });
   },
