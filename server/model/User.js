@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const userSchema = mongoose.Schema({
   id: {
@@ -40,11 +41,11 @@ const userSchema = mongoose.Schema({
     required: true,
     minlength: 8,
   },
-  token: {
+  access_token: {
     type: String,
   },
-  tokenExp: {
-    type: Number,
+  refresh_token: {
+    type: String,
   },
   signupDate: {
     type: Date,
@@ -89,29 +90,97 @@ userSchema.methods.comparePassword = function (plainPassword, cb) {
 userSchema.methods.genToken = function (cb) {
   let user = this;
   //jwt이용하기
-  let token = jwt.sign(user._id.toHexString(), 'ddosun');
-  user.token = token;
+  let token1 = jwt.sign(
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+    process.env.ACCESS_TOKEN,
+    {
+      expiresIn: '1m',
+      issuer: 'About Tech',
+    }
+  );
+  let token2 = jwt.sign(
+    {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+    process.env.REFRESH_TOKEN,
+    {
+      expiresIn: '24h',
+      issuer: 'About Tech',
+    }
+  );
+  user.access_token = token1;
+  user.refresh_token = token2;
   user.save((err, user) => {
     if (err) return cb(err);
     cb(null, user);
   });
 };
-
-//토큰을 찾아서 비교하기
-userSchema.statics.findByToken = function (token, cb) {
+///refresh token
+userSchema.methods.refreshAcToken = function (token, cb) {
+  //acc토큰 확인 expire시? 재발행해야함
   let user = this;
   //사용자가 쿠키에 가지고있는 token을 받는다
   //token을 decode한다
-  jwt.verify(token, 'ddosun', (err, decode) => {
+  jwt.verify(token, process.env.REFRESH_TOKEN, (err, decode) => {
     //token으로 db에서 사용자 token을 찾아서 비교한다.
-
-    user.findOne({ _id: decode, token: token }, (err, user) => {
+    user.findOne({ id: decode.id, token: token }, (err, user) => {
       //틀리면 no
       if (err) return cb(err);
       //맞으면 ok
       cb(null, user);
     });
   });
+};
+//토큰을 찾아서 비교하기
+userSchema.statics.findByACToken = function (token, cb) {
+  let user = this;
+  const TOKEN_EXPIRED = -3;
+  try {
+    const data = jwt.verify(token.accToken, process.env.ACCESS_TOKEN);
+    const user1 = user.findOne({ id: data.id, token: data.access_token });
+  } catch (err) {
+    if (err.message === 'jwt expired') {
+      console.log('acctoken expired');
+      try {
+        console.log('reftoken check');
+        console.log(token);
+        const data = jwt.verify(token.refToken, process.env.REFRESH_TOKEN);
+        console.log(data);
+        const user2 = user.findOne({ id: data.id, token: data.refresh_token });
+        console.log('makenewtoken');
+        let token = jwt.sign(
+          {
+            id: user2.id,
+            name: user2.name,
+            email: user2.email,
+          },
+          process.env.ACCESS_TOKEN,
+          {
+            expiresIn: '3m',
+            issuer: 'About Tech',
+          }
+        );
+        console.log('makenewtoken');
+        user.access_token = token;
+        user.save((err, user) => {
+          if (err) return err;
+          cb(null, user);
+        });
+      } catch (err) {
+        console.log(err.message, '123213');
+        if (err.message === 'jwt expired') {
+          console.log('reftoken expired');
+          return TOKEN_EXPIRED;
+        }
+      }
+    }
+  }
 };
 
 const User = mongoose.model('User', userSchema);

@@ -7,13 +7,15 @@ import axios from 'axios';
 const LandingPage = () => {
   return (
     <>
-      <header>
+      <header style={{ height: '8vh' }}>
         <Navbar></Navbar>
       </header>
+      <div className='mainbox'>
+        <aside>qaaa</aside>
+        <main style={{ height: '80vh' }}>ass</main>
+      </div>
 
-      <main>main</main>
-
-      <footer>
+      <footer style={{ height: '20px' }}>
         <Footer></Footer>
       </footer>
     </>

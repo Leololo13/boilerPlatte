@@ -21,14 +21,14 @@ mongoose
 
 ///첫화면 만들기=================================================
 app.get('/', (req, res) => {
-  res.sendfile(__dirname + '/signup.html');
+  res.send('hello world');
 });
 
 ///register function 만들기=====================================
 app.post('/api/user/register', (req, res) => {
   let user = new User(req.body);
   user.save((err, data) => {
-    if (err) return res.json({ success: false, err });
+    if (err) return res.json({ success: false, message: err });
     return res.status(200).json({ success: true });
   });
 });
@@ -39,23 +39,29 @@ app.post('/api/user/login', (req, res) => {
     if (!userInfo) {
       return res.json({ LoginSuccess: false, message: 'Email not Found' });
     }
-
     /////////email or ID가 있다면? 비밀번호가 맞는지 확인하기//methods로 만들어서 함수끌어와서 user.js에서 마무리해버리기
     userInfo.comparePassword(req.body.password, (err, isMatch) => {
       if (!isMatch)
         return res.json({ LoginSuccess: false, message: 'password is wrong' });
-
-      //////jwt이용해서 토큰을 이용하기======================================
-      ///gentoken에서 마지막user.save(user에서 나온게 여기 user로 나옴)
-      userInfo.genToken((err, user) => {
-        if (err) return res.status(400).send(err);
-        //////token을 저장을해줘야함. 어디에? 쿠키든 세션이든 자기맘임
-        res
-          .cookie('x_auth', user.token)
-          .status(200)
-          .json({ LoginSuccess: true, userID: user._id });
-      });
+      else {
+        userInfo.genToken((err, user) => {
+          if (err) return res.status(400).json(err);
+          //////token을 저장을해줘야함. 어디에? 쿠키든 세션이든 자기맘임
+          res.cookie('accessToken', user.access_token, {
+            secure: false,
+            httpOnly: true,
+          });
+          res.cookie('refreshToken', user.refresh_token, {
+            secure: false,
+            httpOnly: true,
+          });
+          res.json({ LoginSuccess: true, message: 'login Success' });
+        });
+      }
     });
+
+    //////jwt이용해서 토큰을 이용하기======================================
+    ///gentoken에서 마지막user.save(user에서 나온게 여기 user로 나옴)
   });
 });
 
@@ -63,6 +69,11 @@ app.post('/api/user/login', (req, res) => {
 //
 app.get('/api/user/auth', auth, (req, res) => {
   //token을 이미 비교해서 맞다라는 결과가 나온상태임 그리고
+  res.cookie('accessToken', req.token, {
+    secure: false,
+    httpOnly: true,
+  });
+
   res.status(200).json({
     _id: req.user._id,
     isAdmin: req.user.role === 0 ? true : false,
@@ -90,4 +101,8 @@ app.get('/api/user/logout', auth, (req, res) => {
 ////서버생성. 몽고디비랑 서버를 연결
 app.listen(process.env.PORT, () => {
   console.log(`listening on port ${process.env.PORT}!!`);
+});
+
+app.get('*', function (req, res) {
+  res.status(404).json('Page not Found');
 });
