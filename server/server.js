@@ -1,93 +1,104 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const { User } = require('./model/User');
 const bodyParser = require('body-parser');
+const { urlencoded } = require('express');
 require('dotenv').config();
+let { User } = require('./model/User');
 const cookieParser = require('cookie-parser');
 const { auth } = require('./middleware/auth');
+const { List } = require('./model/List');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-//몽구스 접속.  mongoose.connect(url).then().catch(err)
-mongoose
-  .connect(process.env.DB_URL)
-  .then(() => {
-    console.log('mongodb connected');
-  })
-  .catch((err) => console.log(err));
-
-///첫화면 만들기=================================================
+///첫페이지
 app.get('/', (req, res) => {
-  res.sendfile(__dirname + '/signup.html');
+  res.sendFile(__dirname + '/write.html');
 });
 
-///register function 만들기=====================================
+///mongoose connect
+mongoose
+  .connect(process.env.DB_URL)
+  .then(() => console.log('mongodb connected'))
+  .catch((err) => console.log(err));
+
+///////register
+
 app.post('/api/user/register', (req, res) => {
-  let user = new User(req.body);
+  const user = new User(req.body);
   user.save((err, data) => {
     if (err) return res.json({ success: false, err });
     return res.status(200).json({ success: true });
   });
 });
 
+////login=====================
 app.post('/api/user/login', (req, res) => {
-  //email 혹은 id를 비교해서 찾는다==============================
-  User.findOne({ email: req.body.email }, (err, userInfo) => {
-    if (!userInfo) {
-      return res.json({ LoginSuccess: false, message: 'Email not Found' });
-    }
-
-    /////////email or ID가 있다면? 비밀번호가 맞는지 확인하기//methods로 만들어서 함수끌어와서 user.js에서 마무리해버리기
-    userInfo.comparePassword(req.body.password, (err, isMatch) => {
+  console.log('logiin try');
+  User.findOne({ email: req.body.email }, (err, userData) => {
+    /////db에 이메일이 있는지?
+    if (!userData)
+      return res.json({ loginSuccess: false, message: 'no email' });
+    ///db에 이메일이 있으면 비번비교해서 통과시키키
+    userData.comparePassword(req.body.password, (err, isMatch) => {
       if (!isMatch)
-        return res.json({ LoginSuccess: false, message: 'password is wrong' });
-
-      //////jwt이용해서 토큰을 이용하기======================================
-      ///gentoken에서 마지막user.save(user에서 나온게 여기 user로 나옴)
-      userInfo.genToken((err, user) => {
+        return res.json({ loginSuccess: false, message: 'password is wrong' });
+      userData.genToken((err, userData) => {
         if (err) return res.status(400).send(err);
-        //////token을 저장을해줘야함. 어디에? 쿠키든 세션이든 자기맘임
         res
-          .cookie('x_auth', user.token)
+          .cookie('accessToken', userData.access_token)
+          .cookie('refreshToken', userData.access_token)
           .status(200)
-          .json({ LoginSuccess: true, userID: user._id });
+          .json({ loginSuccess: true, userID: userData.id });
       });
     });
+    ///그리고 token만들어서 주기
   });
 });
-
-///auth만들기
-//
+///인증하기
 app.get('/api/user/auth', auth, (req, res) => {
-  //token을 이미 비교해서 맞다라는 결과가 나온상태임 그리고
   res.status(200).json({
-    _id: req.user._id,
-    isAdmin: req.user.role === 0 ? true : false,
+    id: req.user.id,
+    isAdmin: req.user.role == 0 ? false : true,
     isAuth: true,
     email: req.user.email,
     name: req.user.name,
     lastname: req.user.lastname,
     role: req.user.role,
     image: req.user.image,
-    id: req.user.id,
   });
-  ///auth에서 req.user랑 req.token을 받았음
 });
 
-/////로그아웃하기
+///로그아웃하기
 app.get('/api/user/logout', auth, (req, res) => {
-  User.findOneAndUpdate({ _id: req.user._id }, { token: '' }, (err, user) => {
-    if (err) return res.json({ success: false, err });
-    return res.status(200).send({
-      success: true,
-    });
+  User.findOneAndUpdate(
+    { id: req.user.id },
+    { access_token: '' },
+    (err, user) => {
+      if (err) return res.json({ success: false, err });
+      return res.status(200).send({ success: true });
+    }
+  );
+});
+///////////////////////write==============================
+
+app.post('/api/list/write', auth, (req, res) => {
+  const list = new List(req.body);
+  list.save((err, data) => {
+    if (err) return res.json({ Writesuccess: false, err });
+    return res.status(200).json({ Writesuccess: true });
+  });
+});
+app.get('/api/list', (req, res) => {
+  List.find((err, data) => {
+    if (err) return res.json(err);
+    return res.json({ data });
   });
 });
 
-////서버생성. 몽고디비랑 서버를 연결
+//db서버 접속
 app.listen(process.env.PORT, () => {
-  console.log(`listening on port ${process.env.PORT}!!`);
+  console.log(`connected to port ${process.env.PORT}`);
 });

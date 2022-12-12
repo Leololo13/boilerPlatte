@@ -1,0 +1,46 @@
+.boardlist {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  max-height: fit-content;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: bisque;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+.boardlist-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 10px;
+}
+.boardlist-header-section {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.boardlist-main {
+  flex: 15;
+  background-color: aqua;
+}
+.boardlist-footer {
+  flex: 1;
+}
+.boardlist-box {
+  background-color: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.list {
+  height: 2rem;
+  padding: 1px 10px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+  border-bottom: 1px solid lightgray;
+}

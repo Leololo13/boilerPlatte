@@ -1,0 +1,13 @@
+.writebox {
+  height: 100%;
+  width: 100%;
+  background-color: burlywood;
+}
+.writebox-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 10px;
+}

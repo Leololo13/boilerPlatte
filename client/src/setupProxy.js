@@ -5,12 +5,7 @@ module.exports = function (app) {
     '/api',
     createProxyMiddleware({
       target: 'http://localhost:8080',
-
       changeOrigin: true,
     })
   );
 };
-
-// pathRewrite: {
-//     '^/api': '',
-//   },    api를 기본으로 입력하게해줌. /api/login 말고 /login처럼
