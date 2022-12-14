@@ -1,0 +1,22 @@
+.register-form {
+  gap: 0.5rem;
+  color: burlywood;
+}
+
+input {
+  border: none;
+  border-bottom: 1px solid burlywood;
+  color: darkgrey;
+  padding: 0 0.5rem;
+  height: 1.5rem;
+  background-color: rgb(244, 244, 244);
+}
+button {
+  border: none;
+  background-color: bisque;
+  color: darkgrey;
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}

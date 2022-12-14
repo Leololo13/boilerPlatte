@@ -1,0 +1,33 @@
+.login-form {
+  gap: 0.5rem;
+  color: burlywood;
+  border-radius: 5px;
+}
+.register-config {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: darkgrey;
+  font-size: 1rem;
+}
+input {
+  border: none;
+  border-bottom: 1px solid burlywood;
+  color: darkgrey;
+  padding: 0 0.5rem;
+  height: 1.5rem;
+  background-color: rgb(244, 244, 244);
+}
+button {
+  border: none;
+  background-color: bisque;
+  color: rgb(207, 157, 93);
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 5px;
+}

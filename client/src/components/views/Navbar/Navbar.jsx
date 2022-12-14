@@ -1,40 +1,40 @@
 import React from 'react';
 import './Navbar.css';
-import { Link } from 'react-router-dom';
-import { DownOutlined } from '@ant-design/icons';
+import { Link, useLocation } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
 
-const items = [
-  {
-    key: '1',
-    label: (
-      <Link to={'/user/login'}>
-        {' '}
-        <p rel='noopener noreferrer'>SIGN IN</p>
-      </Link>
-    ),
-  },
-  {
-    key: '2',
-    label: (
-      <Link to={'/user/register'}>
-        {' '}
-        <p rel='noopener noreferrer'>SIGN UP</p>
-      </Link>
-    ),
-  },
-  {
-    key: '3',
-    label: (
-      <Link to={'/user/mypage'}>
-        {' '}
-        <p rel='noopener noreferrer'>MY Page</p>
-      </Link>
-    ),
-  },
-];
-
 function Navbar() {
+  const location = useLocation();
+  const items = [
+    {
+      key: '1',
+      label: (
+        <Link to={'/user/login'} state={{ background: location }}>
+          {' '}
+          <p rel='noopener noreferrer'>SIGN IN</p>
+        </Link>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <Link to={'/user/register'} state={{ background: location }}>
+          {' '}
+          <p rel='noopener noreferrer'>SIGN UP</p>
+        </Link>
+      ),
+    },
+    {
+      key: '3',
+      label: (
+        <Link to={'/user/mypage'} state={{ background: location }}>
+          {' '}
+          <p rel='noopener noreferrer'>MY Page</p>
+        </Link>
+      ),
+    },
+  ];
+
   return (
     <div className='navbar-box'>
       <div className='leftbox'>

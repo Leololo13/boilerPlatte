@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
+import './Register.css';
 
 function Register() {
   const navigate = useNavigate();
@@ -45,38 +46,40 @@ function Register() {
         alignContent: 'center',
         width: '240px',
       }}
+      className='registerbox'
     >
       <form
         action=''
         style={{ display: 'flex', flexDirection: 'column' }}
         onSubmit={onSubmitHandler}
+        className='register-form'
       >
         <label htmlFor=''>E-mail</label>
         <input
           type='email'
           name='email'
           onChange={datahandler}
-          placeholder='abc123@leo.com'
+          placeholder='ex : abc123@leo.com'
         />
         <label htmlFor=''>ID</label>
         <input
           type='text'
           name='id'
           onChange={datahandler}
-          placeholder='leo12345'
+          placeholder='ex : leo12345'
         />
         <label htmlFor=''>Password</label>
         <input
           type='password'
           name='password'
-          placeholder='abc!23'
+          placeholder='ex : abc!23'
           onChange={datahandler}
         />
         <label htmlFor=''>confirm Password</label>
         <input
           type='password'
           name='confirmpw'
-          placeholder='abc!23'
+          placeholder='ex : abc!23'
           onChange={confirmpwHandler}
         />
         <label htmlFor=''>name</label>
@@ -84,7 +87,7 @@ function Register() {
           type='text'
           name='name'
           onChange={datahandler}
-          placeholder='leo'
+          placeholder='ex : GilDong'
         />{' '}
         <label htmlFor=''>lastname</label>
         <input
@@ -92,17 +95,17 @@ function Register() {
           name='lastname'
           value={userdata.lastname}
           onChange={datahandler}
-          placeholder='Cap'
+          placeholder='ex : Go'
         />{' '}
         <label htmlFor=''>nickname</label>
         <input
           type='text'
           name='nickname'
           onChange={datahandler}
-          placeholder='leo154441'
+          placeholder='ex : leo154441'
         />{' '}
         <br />
-        <button>Login</button>
+        <button>Register</button>
       </form>
     </div>
   );
