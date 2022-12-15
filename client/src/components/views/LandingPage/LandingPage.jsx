@@ -14,7 +14,6 @@ function LandingPage() {
         alignItems: 'center',
         width: '100%',
         height: '100vh',
-        overflowY: 'scroll',
       }}
     >
       <header

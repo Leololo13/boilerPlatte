@@ -35,6 +35,7 @@
   flex-direction: column;
 }
 .list {
+  font-size: 0.8rem;
   height: 2rem;
   padding: 1px 10px;
   display: flex;

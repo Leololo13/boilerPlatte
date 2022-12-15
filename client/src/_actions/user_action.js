@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { LOGIN_USER, REGISTER_USER, WRITE_USER } from '../_reducers/type';

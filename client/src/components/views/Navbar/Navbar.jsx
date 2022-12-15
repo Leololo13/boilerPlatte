@@ -1,59 +1,74 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Navbar.css';
-import { Link } from 'react-router-dom';
-import { DownOutlined } from '@ant-design/icons';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
-
-const items = [
-  {
-    key: '1',
-    label: (
-      <Link to={'/user/login'}>
-        {' '}
-        <p rel='noopener noreferrer'>SIGN IN</p>
-      </Link>
-    ),
-  },
-  {
-    key: '2',
-    label: (
-      <Link to={'/user/register'}>
-        {' '}
-        <p rel='noopener noreferrer'>SIGN UP</p>
-      </Link>
-    ),
-  },
-  {
-    key: '3',
-    label: (
-      <Link to={'/user/mypage'}>
-        {' '}
-        <p rel='noopener noreferrer'>MY Page</p>
-      </Link>
-    ),
-  },
-];
+import Modal from 'react-modal';
 
 function Navbar() {
+  const location = useLocation();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const items = [
+    {
+      key: '1',
+      label: (
+        <Link
+          to={'/user/login'}
+          className='link'
+          state={{ background: location }}
+        >
+          {' '}
+          <p>SIGN IN</p>
+        </Link>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <Link to={'/user/register'} state={{ background: location }}>
+          {' '}
+          <p rel='noopener noreferrer'>SIGN UP</p>
+        </Link>
+      ),
+    },
+    {
+      key: '3',
+      label: (
+        <Link to={'/user/mypage'} state={{ background: location }}>
+          {' '}
+          <p rel='noopener noreferrer'>MY Page</p>
+        </Link>
+      ),
+    },
+  ];
   return (
     <div className='navbar-box'>
       <div className='leftbox'>
         left{' '}
-        <div className='logo'>
-          {' '}
-          <Link to={'/'} className='link'>
+        <Link to={'/'} className='link'>
+          <div className='logo'>
             LEO.COM <img src='' alt='' />{' '}
-          </Link>
-        </div>
+          </div>
+        </Link>
       </div>
       <div className='rightbox'>
         <div className='iconbox'>
-          <Link to={'/list/write'} className='link'>
+          <Link
+            to={'/list/write'}
+            className='link'
+            state={{ background: location }}
+          >
             {' '}
             <p className='right-icon'>Write</p>
           </Link>
-
-          <Link to={'/list'} className='link'>
+          <Link
+            to={'/list/post'}
+            className='link'
+            state={{ background: location }}
+          >
+            {' '}
+            <p className='right-icon'>post</p>
+          </Link>
+          <Link to={'/list'} className='link' state={{ background: location }}>
             {' '}
             <p className='right-icon'>List</p>
           </Link>
