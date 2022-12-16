@@ -1,7 +1,7 @@
 .boardlist {
   width: 100%;
-  height: 100%;
   display: flex;
+  height: auto;
   max-height: fit-content;
   flex-direction: column;
   justify-content: space-between;
@@ -23,14 +23,14 @@
 }
 .boardlist-main {
   flex: 15;
-  background-color: aqua;
+  background-color: white;
 }
 .boardlist-footer {
   flex: 1;
 }
 .boardlist-box {
   background-color: white;
-  height: 100%;
+  height: auto;
   display: flex;
   flex-direction: column;
 }

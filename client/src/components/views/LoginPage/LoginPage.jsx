@@ -22,9 +22,9 @@ function LoginPage() {
     let body = { email: email, password: pw };
 
     dispatch(loginUser(body)).then((response) => {
-      if (response.payload.loginSuccess === true) {
+      if (response.payload.LoginSuccess === true) {
         alert('Login Sucess');
-        navigate('/');
+        navigate(-1);
       } else {
         alert('Error');
       }
@@ -41,6 +41,7 @@ function LoginPage() {
         width: '240px',
         gap: '10px',
       }}
+      className='loginpage'
     >
       <form
         action=''

@@ -5,6 +5,7 @@ import { loginUser, registerUser } from '../_actions/user_action';
 
 const initialState = {
   LoginSuccess: {},
+  RegisterSuccess: {},
 };
 const userSlice = createSlice({
   name: 'user',
@@ -17,7 +18,7 @@ const userSlice = createSlice({
     });
     builder.addCase(registerUser.fulfilled, (state, { payload }) => {
       console.log(state);
-      state.LoginSuccess = payload;
+      state.RegisterSuccess = payload;
     });
   },
 });

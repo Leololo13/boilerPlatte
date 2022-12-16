@@ -12,7 +12,7 @@
   color: darkgrey;
   font-size: 1rem;
 }
-input {
+.login-form input {
   border: none;
   border-bottom: 1px solid burlywood;
   color: darkgrey;
@@ -20,7 +20,7 @@ input {
   height: 1.5rem;
   background-color: rgb(244, 244, 244);
 }
-button {
+.loginpage button {
   border: none;
   background-color: bisque;
   color: rgb(207, 157, 93);

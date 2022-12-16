@@ -2,9 +2,17 @@ import React from 'react';
 import './Navbar.css';
 import { Link, useLocation } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
+import axios from 'axios';
 
 function Navbar() {
   const location = useLocation();
+  const tryAuth = async () => {
+    try {
+      await axios.get(`/api/user/auth`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const items = [
     {
       key: '1',
@@ -31,6 +39,19 @@ function Navbar() {
           {' '}
           <p rel='noopener noreferrer'>MY Page</p>
         </Link>
+      ),
+    },
+    {
+      key: '4',
+      label: (
+        <button
+          onClick={() => {
+            tryAuth();
+          }}
+        >
+          {' '}
+          <p rel='noopener noreferrer'>Auth test</p>
+        </button>
       ),
     },
   ];

@@ -6,19 +6,19 @@ import { useNavigate } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 
 function Write() {
-  let list = useSelector((state) => {
-    return state.rootReducer.list;
+  let user = useSelector((state) => {
+    return state.rootReducer.user;
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [writtenData, setWrittenData] = useState({
     title: '',
     content: '',
-    id: '',
-    postnum: '',
+    id: user.LoginSuccess.userID,
+    postnum: 0,
     like: 0,
     hate: 0,
-    email: '',
+    email: user.LoginSuccess.email,
     image: null,
   });
 
@@ -30,6 +30,7 @@ function Write() {
     e.preventDefault();
     let body = writtenData;
     dispatch(Writer(body)).then((response) => {
+      console.log(response);
       if (!response.payload) {
         alert('Login이 필요한 기능입니다');
         navigate('/user/login');
@@ -61,11 +62,10 @@ function Write() {
         <div>img첨부</div>
         <div>댓글첨부등 radiobutton</div>
         <div className='writebox-btn'>
-          <button>Go PrevPage</button>
-
           <button>write</button>
         </div>
       </form>
+      <button>Go PrevPage</button>
     </div>
   );
 }

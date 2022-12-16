@@ -1,5 +1,5 @@
 import Modal from 'react-modal';
-import { Outlet, useLocation, useNavigate, useOutlet } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 

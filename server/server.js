@@ -29,8 +29,8 @@ mongoose
 app.post('/api/user/register', (req, res) => {
   const user = new User(req.body);
   user.save((err, data) => {
-    if (err) return res.json({ success: false, err });
-    return res.status(200).json({ success: true });
+    if (err) return res.json({ RegisterSuccess: false, err });
+    return res.status(200).json({ RegisterSuccess: true });
   });
 });
 
@@ -40,18 +40,22 @@ app.post('/api/user/login', (req, res) => {
   User.findOne({ email: req.body.email }, (err, userData) => {
     /////db에 이메일이 있는지?
     if (!userData)
-      return res.json({ loginSuccess: false, message: 'no email' });
+      return res.json({ LoginSuccess: false, message: 'no email' });
     ///db에 이메일이 있으면 비번비교해서 통과시키키
     userData.comparePassword(req.body.password, (err, isMatch) => {
       if (!isMatch)
-        return res.json({ loginSuccess: false, message: 'password is wrong' });
+        return res.json({ LoginSuccess: false, message: 'password is wrong' });
       userData.genToken((err, userData) => {
         if (err) return res.status(400).send(err);
         res
           .cookie('accessToken', userData.access_token)
           .cookie('refreshToken', userData.access_token)
           .status(200)
-          .json({ loginSuccess: true, userID: userData.id });
+          .json({
+            LoginSuccess: true,
+            userID: userData.id,
+            email: userData.email,
+          });
       });
     });
     ///그리고 token만들어서 주기
@@ -59,6 +63,7 @@ app.post('/api/user/login', (req, res) => {
 });
 ///인증하기
 app.get('/api/user/auth', auth, (req, res) => {
+  console.log(req.user, 'hello');
   res.status(200).json({
     id: req.user.id,
     isAdmin: req.user.role == 0 ? false : true,
@@ -91,8 +96,19 @@ app.post('/api/list/write', auth, (req, res) => {
     return res.status(200).json({ Writesuccess: true });
   });
 });
+///////list 가져오기
 app.get('/api/list', (req, res) => {
   List.find((err, data) => {
+    if (err) return res.json(err);
+    return res.json({ data });
+  });
+});
+
+///////////list 개별항목 불러오기
+
+app.get('/api/list/post/:id', (req, res) => {
+  let id = req.params.id;
+  List.findById(id, (err, data) => {
     if (err) return res.json(err);
     return res.json({ data });
   });

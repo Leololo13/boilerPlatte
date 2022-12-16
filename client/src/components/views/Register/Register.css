@@ -3,7 +3,7 @@
   color: burlywood;
 }
 
-input {
+.register-form input {
   border: none;
   border-bottom: 1px solid burlywood;
   color: darkgrey;
@@ -11,7 +11,7 @@ input {
   height: 1.5rem;
   background-color: rgb(244, 244, 244);
 }
-button {
+.register-form button {
   border: none;
   background-color: bisque;
   color: darkgrey;

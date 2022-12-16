@@ -43,6 +43,13 @@ const listSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  repl: {
+    type: Number,
+  },
+  views: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const List = mongoose.model('List', listSchema);

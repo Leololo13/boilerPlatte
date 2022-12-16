@@ -1,0 +1,80 @@
+.post {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  gap: 15px;
+  border-bottom: 1px solid burlywood;
+}
+.postHead {
+  display: flex;
+  flex-direction: column;
+}
+.post-title {
+  margin: 0;
+  padding: 10px;
+  border-bottom: 1px solid burlywood;
+}
+.postInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 0.5rem;
+  background-color: bisque;
+  padding-bottom: 0.5rem;
+}
+.postInfo-info {
+  display: flex;
+  height: 2rem;
+  gap: 15px;
+  align-items: center;
+}
+.postlink {
+  display: flex;
+  gap: 10px;
+}
+.postlink a {
+  font-size: 1rem;
+  text-decoration: dotted;
+  color: darkgrey;
+  margin: 0;
+  width: fit-content;
+}
+.postlink a:hover {
+  text-decoration: underline;
+}
+.postContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 10px;
+  height: 100%;
+  min-height: 240px;
+  border-bottom: 1px solid burlywood;
+}
+.postContent-main {
+  padding: 10px;
+  padding-bottom: 3rem;
+}
+.postContent-footer {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  padding-bottom: 20px;
+}
+.postContent-footer button {
+  border: none;
+  background-color: burlywood;
+  padding: 10px;
+  border-radius: 15px;
+  text-align: center;
+  color: black;
+}
+.postFooter {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 15px;
+}

@@ -3,6 +3,7 @@ import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { autoBatchEnhancer } from '@reduxjs/toolkit';
 
 function LandingPage() {
   return (
@@ -10,11 +11,11 @@ function LandingPage() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        height: '100vh',
-        overflowY: 'scroll',
+        height: '100%',
+        minHeight: '100vh',
       }}
     >
       <header
@@ -41,36 +42,36 @@ function LandingPage() {
           flexDirection: 'row',
           justifyContent: 'center',
           width: '100%',
+          height: 'auto',
         }}
       >
         <div
           style={{
             display: 'flex',
             width: '100vw',
-            height: '100%',
+            height: 'auto',
           }}
         >
           <aside style={{ flex: 1 }}>
             <div>aside</div>
           </aside>
-          <div
+          <article
             className='main-contents'
             style={{
-              flex: 8,
+              flex: 10,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: 'aqua',
             }}
           >
             main <Outlet></Outlet>
-          </div>
+          </article>
           <aside style={{ flex: 1 }}>
             <div>aside</div>
           </aside>
         </div>
       </main>
-      <footer style={{ flex: 1 }}>
+      <footer style={{ display: 'flex', padding: '15px' }}>
         <Footer />
       </footer>
     </div>

@@ -1,5 +1,5 @@
 .writebox {
-  height: 100%;
+  height: auto;
   width: 100%;
   background-color: burlywood;
 }
