@@ -49,11 +49,13 @@ function BoardList() {
                 gap: '5px',
               }}
             >
-              <td style={{ flex: 2, textAlign: 'center' }}>👍/🤢</td>
-              <td style={{ flex: 16, textAlign: 'center' }}> title</td>
-              <td style={{ flex: 2 }}>writer</td>
-              <td style={{ flex: 1 }}>date</td>
-            </thead>{' '}
+              <tr>
+                <td style={{ flex: 2, textAlign: 'center' }}>👍/🤢</td>
+                <td style={{ flex: 16, textAlign: 'center' }}> title</td>
+                <td style={{ flex: 2 }}>writer</td>
+                <td style={{ flex: 1 }}>date</td>
+              </tr>
+            </thead>
             <tbody>
               {lists
                 .slice(offset, offset + limit)
@@ -69,8 +71,15 @@ function BoardList() {
                       }}
                     >
                       {list.like}/{list.hate}
-                    </td>{' '}
-                    <td>{list.title}</td> <td>{list.date}</td>{' '}
+                    </td>
+
+                    <td>
+                      <Link to={`/list/post/${list._id}`} className='link'>
+                        {list.title}
+                      </Link>
+                    </td>
+
+                    <td>{list.date}</td>
                   </tr>
                 ))}
             </tbody>

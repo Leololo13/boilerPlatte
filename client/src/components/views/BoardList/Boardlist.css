@@ -23,7 +23,7 @@
 }
 .boardlist-main {
   flex: 15;
-  background-color: aqua;
+  background-color: white;
 }
 .boardlist-footer {
   flex: 1;

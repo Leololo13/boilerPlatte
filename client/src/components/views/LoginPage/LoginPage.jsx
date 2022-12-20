@@ -19,7 +19,6 @@ function LoginPage() {
   const onSubmitHandler = function (e) {
     e.preventDefault();
     let body = { email: email, password: pw };
-
     dispatch(loginUser(body)).then((response) => {
       if (response.payload.loginSuccess === true) {
         alert('Login Sucess');

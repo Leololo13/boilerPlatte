@@ -6,8 +6,7 @@ import Register from './components/views/Register/Register';
 import BoardList from './components/views/BoardList/BoardList';
 import Write from './components/views/Write/Write';
 import Modalpopup from './components/views/Modal/Modalpopup';
-import { useState } from 'react';
-import Modal from 'react-modal';
+import { Editor } from './components/Editor/Editor';
 import PostContent from './components/views/PostContent/PostContent';
 
 function App() {
@@ -28,7 +27,8 @@ function App() {
             <Route path='/' element={<LandingPage />}>
               <Route path='list' element={<BoardList />}>
                 <Route path='write' element={<Write />} />
-                <Route path='post' element={<PostContent />} />
+                <Route path='editor' element={<Editor />} />
+                <Route path='post/:id' element={<PostContent />} />
               </Route>
 
               <Route

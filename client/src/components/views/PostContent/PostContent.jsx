@@ -5,22 +5,24 @@ import { useParams } from 'react-router-dom';
 function PostContent() {
   const [posts, setPosts] = useState([]);
   const postnum = useParams();
-
-  //   useEffect(() => {
-  //     const fetchPost = async () => {
-  //       try {
-  //         const res = await axios.get(`/api/list/${postnum}`);
-  //         setPosts(res.data);
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     };
-  //     fetchPost();
-  //   }, []);
-
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await axios.get(`/api/list/post/${postnum.id}`);
+        setPosts(res.data);
+        console.log(res.data, 'posttdata');
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchPost();
+  }, []);
+  console.log(posts);
   return (
     <div>
-      <h1>하이하이하이재댜ㅓㄹ대쟈ㅓㄹ</h1>
+      <h1>{postnum.id}</h1>
+      <div>{posts.content}</div>
+      <div>{posts.writer.id}</div>
     </div>
   );
 }

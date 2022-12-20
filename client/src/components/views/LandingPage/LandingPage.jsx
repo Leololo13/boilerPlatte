@@ -59,7 +59,6 @@ function LandingPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: 'aqua',
             }}
           >
             main <Outlet></Outlet>

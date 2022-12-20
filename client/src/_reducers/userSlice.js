@@ -1,10 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-
+import { createSlice } from '@reduxjs/toolkit';
 import { loginUser, registerUser } from '../_actions/user_action';
 
 const initialState = {
-  LoginSuccess: {},
+  hi: 'no',
 };
 const userSlice = createSlice({
   name: 'user',
@@ -12,14 +10,13 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(loginUser.fulfilled, (state, { payload }) => {
-      console.log(state);
-      state.LoginSuccess = payload;
+      return { ...state, loginSuccess: payload, hi: 'hello' };
     });
     builder.addCase(registerUser.fulfilled, (state, { payload }) => {
-      console.log(state);
-      state.LoginSuccess = payload;
+      return { ...state, RegisterSuccess: payload };
     });
   },
 });
 
+console.log(userSlice.reducer, 'user ');
 export default userSlice;

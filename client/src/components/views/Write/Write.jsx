@@ -9,17 +9,22 @@ function Write() {
   let list = useSelector((state) => {
     return state.rootReducer.list;
   });
+  let user = useSelector((state) => {
+    return state.rootReducer.user.loginSuccess;
+  });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [writtenData, setWrittenData] = useState({
     title: '',
     content: '',
     id: '',
-    postnum: '',
+    postnum: 0,
     like: 0,
     hate: 0,
     email: '',
     image: null,
+    writer: user?._id,
   });
 
   function writtenDataHandler(e) {

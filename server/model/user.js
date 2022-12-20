@@ -51,6 +51,10 @@ const userSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  posts: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'List',
+  },
 });
 
 userSchema.pre('save', function (next) {

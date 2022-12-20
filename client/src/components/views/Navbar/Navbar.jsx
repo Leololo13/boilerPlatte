@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import './Navbar.css';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
-import Modal from 'react-modal';
+import { useDispatch, useSelector } from 'react-redux';
+
+/////HOC로 Auth를 만듬. 그리고 그걸 userstate에 저장해서
+////auth=true면 보이고 안보이게 하기
 
 function Navbar() {
+  const loginsuccess = useSelector((state) => {
+    return state.rootReducer.user.loginSuccess;
+  });
+
   const location = useLocation();
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
   const items = [
     {
       key: '1',
@@ -71,6 +79,14 @@ function Navbar() {
           <Link to={'/list'} className='link' state={{ background: location }}>
             {' '}
             <p className='right-icon'>List</p>
+          </Link>
+          <Link
+            to={'/list/editor'}
+            className='link'
+            state={{ background: location }}
+          >
+            {' '}
+            <p className='right-icon'>editor</p>
           </Link>
         </div>
         <div className='userprofile-box'>

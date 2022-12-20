@@ -43,6 +43,10 @@ const listSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  writer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });
 
 const List = mongoose.model('List', listSchema);
