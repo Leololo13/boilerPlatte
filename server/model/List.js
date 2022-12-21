@@ -50,6 +50,10 @@ const listSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  writer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });
 
 const List = mongoose.model('List', listSchema);

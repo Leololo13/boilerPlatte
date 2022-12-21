@@ -7,19 +7,19 @@ import { Writer } from '../../../_actions/user_action';
 
 function Write() {
   let user = useSelector((state) => {
-    return state.rootReducer.user;
+    return state.rootReducer.user.userData;
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [writtenData, setWrittenData] = useState({
     title: '',
     content: '',
-    id: user.LoginSuccess.userID,
+    id: user.id,
     postnum: 0,
     like: 0,
     hate: 0,
-    email: user.LoginSuccess.email,
     image: null,
+    writer: user._id,
   });
 
   function writtenDataHandler(e) {
@@ -65,7 +65,13 @@ function Write() {
           <button>write</button>
         </div>
       </form>
-      <button>Go PrevPage</button>
+      <button
+        onClick={() => {
+          navigate(-1);
+        }}
+      >
+        Go PrevPage
+      </button>
     </div>
   );
 }

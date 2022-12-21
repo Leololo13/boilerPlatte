@@ -17,6 +17,7 @@ function LoginPage() {
   const onPwHandler = (e) => {
     setPW(e.currentTarget.value);
   };
+
   const onSubmitHandler = function (e) {
     e.preventDefault();
     let body = { email: email, password: pw };
@@ -24,7 +25,8 @@ function LoginPage() {
     dispatch(loginUser(body)).then((response) => {
       if (response.payload.LoginSuccess === true) {
         alert('Login Sucess');
-        navigate(-1);
+        navigate(location.state?.background);
+        window.location.reload();
       } else {
         alert('Error');
       }

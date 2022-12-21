@@ -51,6 +51,10 @@ const userSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  posts: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'List',
+  },
 });
 
 userSchema.pre('save', function (next) {
@@ -112,12 +116,60 @@ userSchema.methods.genToken = function (cb) {
 userSchema.statics.findByToken = function (token, cb) {
   let user = this;
   //token decode==token에 어떤것을 넣었는지에 따라 decoded에서 뽑아내야함
-  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
-    console.log(decoded);
-    user.findOne({ id: decoded.id, token: token }, (err, user) => {
-      if (err) return cb(err);
-      cb(null, user);
-    });
+
+  ////일단 acc_token으로 확인해봄
+  jwt.verify(token.acc_token, process.env.ACCESS_TOKEN, (err, data) => {
+    if (data) {
+      user.findOne(
+        { id: data.id, access_token: token.acc_token },
+        (error, user) => {
+          if (err) {
+            return cb(err);
+          }
+          return cb(null, user);
+        }
+      );
+    } else {
+      if (err.message === 'jwt expired') {
+        console.log('jwt expireddddddddd');
+        jwt.verify(token.ref_token, process.env.REFRESH_TOKEN, (err, data) => {
+          if (data) {
+            user.findOne(
+              { id: data.id, refresh_token: token.ref_token },
+              (error, user) => {
+                if (err) {
+                  return cb(err);
+                } else {
+                  user.access_token = jwt.sign(
+                    {
+                      id: user.id,
+                      username: user.name,
+                      email: user.email,
+                    },
+                    process.env.ACCESS_TOKEN,
+                    {
+                      expiresIn: '10m',
+                      issuer: 'About Tech',
+                    }
+                  );
+                  console.log('jwt expired and renew acctoken');
+                  user.save((err, user) => {
+                    if (err) return cb(err);
+                    cb(null, user);
+                  });
+                }
+              }
+            );
+          } else {
+            console.log('refresh토큰 expired or 삭제, 재로그인 필요');
+            return cb(err);
+          }
+        });
+      } else {
+        console.log('중복');
+        return cb(err);
+      }
+    }
   });
 };
 

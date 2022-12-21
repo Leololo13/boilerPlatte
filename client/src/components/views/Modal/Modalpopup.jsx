@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 
 function Modalpopup(props) {
+  let title = '';
   const location = useLocation();
   const navigate = useNavigate();
   const [modalOpen, setModalopen] = useState(true);
@@ -63,7 +64,9 @@ function Modalpopup(props) {
             marginBottom: '10px',
           }}
         >
-          {location.pathname === '/user/register' ? 'SIGN UP' : 'SIGN IN'}
+          {location.pathname === '/user/register'
+            ? (title = 'SIGN UP')
+            : (title = 'SIGN IN')}
         </h3>
         <Outlet></Outlet>
       </Modal>

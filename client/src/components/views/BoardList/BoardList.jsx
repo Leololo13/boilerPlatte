@@ -8,13 +8,11 @@ import { Outlet, useOutlet, Link } from 'react-router-dom';
 
 function BoardList() {
   const [lists, setLists] = useState([]);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(1);
   const offset = (page - 1) * limit;
-  const onShowSizeChange = (page, pageSize) => {
-    setLimit(pageSize);
-    setPage(page);
-  };
+  const startPage = lists.length - offset - limit;
+
   ////시간 함수 ~~전으로 표현하기
   function elapsedTime(date) {
     const start = new Date(date);
@@ -41,7 +39,7 @@ function BoardList() {
   }
 
   ///outlet 에 값이 있으면 true 가 나오는듯
-  const outlet = useOutlet();
+
   /////////////////////////////
   useEffect(() => {
     const fetchAllLists = async () => {
@@ -53,7 +51,8 @@ function BoardList() {
       }
     };
     fetchAllLists();
-  }, [lists]);
+  }, []);
+
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
@@ -85,36 +84,46 @@ function BoardList() {
                 fontWeight: 'bold',
               }}
             >
-              <td style={{ flex: 1, textAlign: 'center' }}>👍/🤢</td>
-              <td style={{ flex: 16, textAlign: 'center' }}> 제목</td>
+              <td style={{ flex: 2, textAlign: 'center' }}>👍/🤢</td>
+              <td style={{ flex: 16, textAlign: 'center' }}>제목</td>
               <td style={{ flex: 2 }}>글쓴이</td>
-              <td style={{ flex: 1 }}>날짜</td>
+              <td style={{ flex: 2 }}>날짜</td>
             </tr>
           </thead>
           <tbody>
             {lists
-              .slice(offset, offset + limit)
+              .slice(startPage < 0 ? 0 : startPage, lists.length - offset)
               .reverse()
               .map((list) => (
-                <tr className='list' key={list._id}>
+                <tr className='boardlist-table' key={list._id}>
                   <td
                     className='likehate'
                     style={{
+                      paddingLeft: '0',
+                      marginLeft: '0',
                       display: 'flex',
                       gap: '2px',
                       alignContent: 'center',
+                      flex: 2,
                     }}
                   >
                     {list.like}/{list.hate}
                   </td>
-                  <td>
-                    <Link className='link' to={`/list/post/${list._id}`}>
-                      {list.title}
-                      {list.repl}
-                    </Link>
+                  <td style={{ flex: 16 }}>
+                    <div className='boardlist-table-title'>
+                      {' '}
+                      <Link className='link' to={`/list/post/${list._id}`}>
+                        {list.title}{' '}
+                      </Link>
+                    </div>
+                    <div className='boardlist-table-repl'>{list.repl}</div>
                   </td>
-                  <td>{list.id}</td>
-                  <td>{elapsedTime(list.date)}</td>
+                  <td style={{ flex: 2, textAlign: 'center' }}>{list.id}</td>
+                  <td
+                    style={{ flex: 2, fontSize: '0.8rem', textAlign: 'center' }}
+                  >
+                    {elapsedTime(list.date)}
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -122,8 +131,10 @@ function BoardList() {
       </main>
       <footer className='boardlist-footer'>
         <Pagination
-          showSizeChanger
-          onShowSizeChange={onShowSizeChange}
+          showQuickJumper
+          showTotal={(total) => `Total ${total} Lists`}
+          defaultPageSize={limit}
+          size={'small'}
           defaultCurrent={1}
           total={lists.length}
           current={page}
