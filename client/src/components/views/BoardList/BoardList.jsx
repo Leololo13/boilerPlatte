@@ -46,6 +46,7 @@ function BoardList() {
       try {
         const res = await axios.get('/api/list');
         setLists(res.data.data);
+        console.log(res.data.data);
       } catch (err) {
         console.log(err);
       }

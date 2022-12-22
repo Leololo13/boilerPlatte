@@ -42,6 +42,7 @@ function Write() {
       }
     });
   };
+  console.log(writtenData.title);
   return (
     <div className='writebox'>
       <form action='' className='writebox-form' onSubmit={onSubmitHandler}>

@@ -58,6 +58,8 @@
 .postContent-main {
   padding: 10px;
   padding-bottom: 3rem;
+  max-width: 240px;
+  object-fit: cover;
 }
 .postContent-footer {
   display: flex;

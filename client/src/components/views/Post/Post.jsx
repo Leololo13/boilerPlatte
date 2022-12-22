@@ -43,7 +43,7 @@ function Post() {
     };
     fetchPost();
   }, [id]);
-
+  let content = post.content;
   return (
     <div className='post'>
       <header className='postHead'>
@@ -67,7 +67,10 @@ function Post() {
         </div>
       </header>
       <main className='postContent'>
-        <article className='postContent-main'>{post.content}</article>
+        <div
+          className='postContent-main'
+          dangerouslySetInnerHTML={{ __html: content }}
+        ></div>
         <footer className='postContent-footer'>
           <button className='like'>좋아요 👍 {post.like}</button>
           <button className='hate'>싫어요 🤢 {post.hate}</button>

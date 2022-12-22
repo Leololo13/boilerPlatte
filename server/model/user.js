@@ -166,7 +166,7 @@ userSchema.statics.findByToken = function (token, cb) {
           }
         });
       } else {
-        console.log('중복');
+        console.log('not expired==notlogin maybe');
         return cb(err);
       }
     }

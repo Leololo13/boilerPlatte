@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 //////스새틱페이지 사용ㅇ해서 multer저장하기 그냥 연습용
-app.use(express.static(path.join(__dirname + './public')));
+app.use(express.static(path.join(__dirname + '/public')));
 
 ///첫페이지
 app.get('/', (req, res) => {
@@ -149,6 +149,17 @@ const upload = multer({
       // 파일명이 절대 겹치지 않도록 해줘야한다.
       // 파일이름 + 현재시간밀리초 + 파일확장자명
       cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+    },
+    filefilter(req, file, cb) {
+      let ext = path.extname(file.originalname);
+      if (
+        (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg',
+        ext !== '.mp4',
+        ext !== '.gif')
+      ) {
+        return callback(new Error('정해진 형식만 업로드 하세요.'));
+      }
+      cb(null, true);
     },
   }),
   // limits: { fileSize: 5 * 1024 * 1024 } // 파일 크기 제한
