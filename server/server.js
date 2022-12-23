@@ -4,12 +4,13 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { urlencoded } = require('express');
 require('dotenv').config();
-let { User } = require('./model/User');
+const { User } = require('./model/User');
 const cookieParser = require('cookie-parser');
 const { auth } = require('./middleware/auth');
 const { List } = require('./model/List');
 const multer = require('multer');
 const path = require('path');
+const { Postnum } = require('./model/Postnum');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -43,7 +44,6 @@ app.post('/api/user/login', (req, res) => {
   User.findOne({ email: req.body.email }, (err, userData) => {
     /////db에 이메일이 있는지?
     let { password, ...others } = userData;
-    console.log(others, 'logintry and password hide');
     if (!userData)
       return res.json({ LoginSuccess: false, message: 'no email' });
     ///db에 이메일이 있으면 비번비교해서 통과시키키
@@ -99,10 +99,16 @@ app.get('/api/user/logout', auth, (req, res) => {
 ///////////////////////write==============================
 
 app.post('/api/list/write', auth, (req, res) => {
-  const list = new List(req.body);
-  list.save((err, data) => {
-    if (err) return res.json({ Writesuccess: false, err });
-    return res.status(200).json({ Writesuccess: true });
+  Postnum.findOneAndUpdate(
+    { name: 'totalpost' },
+    { $inc: { totalpost: 1 } }
+  ).then((data) => {
+    req.body.postnum = data.totalpost + 1;
+    const list = new List(req.body);
+    list.save((err, data) => {
+      if (err) return res.json({ Writesuccess: false, err });
+      return res.status(200).json({ Writesuccess: true });
+    });
   });
 });
 ///////list 가져오기
@@ -117,7 +123,7 @@ app.get('/api/list', (req, res) => {
 
 app.get('/api/list/post/:id', (req, res) => {
   let id = req.params.id;
-  List.findById(id)
+  List.findOne({ postnum: id })
     .populate('writer', { nickname: 1, _id: 2 })
     .then((err, data) => {
       if (err) return res.json(err);

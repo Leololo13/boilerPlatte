@@ -37,12 +37,13 @@ function LandingPage() {
 
       <main
         style={{
-          flex: 20,
+          flex: 10,
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
           width: '100%',
           height: 'auto',
+          maxWidth: '60vw',
         }}
       >
         <div
@@ -52,7 +53,7 @@ function LandingPage() {
             height: 'auto',
           }}
         >
-          <aside style={{ flex: 1 }}>
+          <aside style={{ flex: 3 }}>
             <div>aside</div>
           </aside>
           <article
@@ -62,11 +63,12 @@ function LandingPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              width: '1040px',
             }}
           >
             main <Outlet></Outlet>
           </article>
-          <aside style={{ flex: 1 }}>
+          <aside style={{ flex: 3 }}>
             <div>aside</div>
           </aside>
         </div>

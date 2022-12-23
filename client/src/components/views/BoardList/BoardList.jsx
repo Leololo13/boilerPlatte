@@ -46,7 +46,6 @@ function BoardList() {
       try {
         const res = await axios.get('/api/list');
         setLists(res.data.data);
-        console.log(res.data.data);
       } catch (err) {
         console.log(err);
       }
@@ -113,7 +112,7 @@ function BoardList() {
                   <td style={{ flex: 16 }}>
                     <div className='boardlist-table-title'>
                       {' '}
-                      <Link className='link' to={`/list/post/${list._id}`}>
+                      <Link className='link' to={`/list/post/${list.postnum}`}>
                         {list.title}{' '}
                       </Link>
                     </div>

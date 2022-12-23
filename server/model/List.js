@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-const CountSchema = mongoose.Schema({
-  count: Number,
-});
-
 const listSchema = mongoose.Schema({
   id: {
     type: String,
@@ -24,11 +20,9 @@ const listSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  postnum: {
+  role: {
     type: Number,
-  },
-  email: {
-    type: String,
+    default: 1,
   },
   like: {
     type: Number,
@@ -36,26 +30,26 @@ const listSchema = mongoose.Schema({
   hate: {
     type: Number,
   },
-  role: {
-    type: Number,
-    default: 1,
-  },
+
   image: {
     type: String,
-  },
-  repl: {
-    type: Number,
   },
   views: {
     type: Number,
     default: 0,
   },
+  postnum: {
+    type: Number,
+  },
   writer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  comment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
+  },
 });
 
 const List = mongoose.model('List', listSchema);
-const Count = mongoose.model('Counter', CountSchema);
-module.exports = { List, Count };
+module.exports = { List };

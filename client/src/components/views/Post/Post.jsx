@@ -36,7 +36,6 @@ function Post() {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
         setPost(res.data);
-        console.log('h', res.data);
       } catch (err) {
         console.log(err);
       }

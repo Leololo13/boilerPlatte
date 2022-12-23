@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
+import './Editor.css';
 
 const Editor = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Editor = () => {
 
     let body = writtenData;
     body.content = value;
-    console.log(body);
+
     dispatch(Writer(body)).then((response) => {
       console.log(response);
       if (!response.payload) {
@@ -112,26 +113,25 @@ const Editor = () => {
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
-        <button onClick={onClickcontents}>확인하기기</button>
-        <label htmlFor=''>제목</label>
+        {/* <button onClick={onClickcontents}>확인하기기</button> */}
+
         <input
           type='text'
           name='title'
-          placeholder='title'
           onChange={dataHandler}
+          placeholder='Title'
         />
         <ReactQuill
           style={{ width: '100%', height: '480px', paddingBottom: '40px' }}
           ref={quillRef}
           theme='snow'
-          placeholder='Write Here'
+          placeholder='Content Here'
           value={value}
           onChange={setValue}
           modules={modules}
           formats={formats}
         />
         <footer>
-          hello
           <button> 제출해버리기</button>
         </footer>
       </form>

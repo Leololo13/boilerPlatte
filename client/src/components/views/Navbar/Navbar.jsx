@@ -108,7 +108,7 @@ function Navbar() {
       <div className='rightbox'>
         <div className='iconbox'>
           {data.id ? (
-            <Link to={'/list/write'} className='link'>
+            <Link to={'/list/editor'} className='link'>
               <p className='right-icon'>Write</p>
             </Link>
           ) : null}
@@ -116,10 +116,6 @@ function Navbar() {
           <Link to={'/list'} className='link'>
             {' '}
             <p className='right-icon'>List</p>
-          </Link>
-          <Link to={'/list/editor'} className='link'>
-            {' '}
-            <p className='right-icon'>Editor</p>
           </Link>
         </div>
         <div className='userprofile-box'>
