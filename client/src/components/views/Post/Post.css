@@ -79,5 +79,119 @@
 .postFooter {
   display: flex;
   gap: 10px;
-  padding-bottom: 15px;
+  flex-direction: column;
+  height: 100%;
+}
+.share-edit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  padding-bottom: 30px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid burlywood;
+}
+.footer-editbox {
+  display: flex;
+  gap: 10px;
+}
+.footer-editbox button {
+  border: none;
+  background-color: burlywood;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.footer-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.comment-title {
+  font-weight: bold;
+  padding-left: 10px;
+  border-bottom: 1px solid burlywood;
+}
+.comment-title p {
+  width: fit-content;
+  background-color: white;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.comment-main {
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+  border-bottom: 1px solid burlywood;
+}
+.post-comment {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.comment-writer-img {
+  width: 64px;
+  height: 64px;
+  background-color: red;
+}
+.comment-info {
+  display: flex;
+  padding: 0 10px;
+  justify-content: space-between;
+  background-color: aqua;
+  gap: 10px;
+}
+.comment-writer {
+  display: flex;
+  gap: 1rem;
+}
+.comment-action {
+  display: flex;
+  gap: 10px;
+}
+
+.comment-main-main {
+  width: 100%;
+}
+.comment-write {
+  height: auto;
+  padding: 0 10px;
+  padding-bottom: 20px;
+}
+.comment-write-img {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  margin: 0;
+
+  background-color: red;
+}
+.comment-write-main {
+  height: 120px;
+  gap: 10px;
+
+  display: flex;
+  height: auto;
+}
+.comment-write-main form {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+}
+.comment-write-main form button {
+  border: none;
+  text-align: center;
+  width: 88px;
+  border-radius: 5px;
+  color: black;
+  background-color: burlywood;
+}
+.comment-write-main input {
+  min-height: 64px;
+  width: 100%;
+  font-size: 1rem;
 }

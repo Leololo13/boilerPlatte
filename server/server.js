@@ -11,6 +11,7 @@ const { List } = require('./model/List');
 const multer = require('multer');
 const path = require('path');
 const { Postnum } = require('./model/Postnum');
+const { Comment } = require('./model/Comment');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -111,6 +112,21 @@ app.post('/api/list/write', auth, (req, res) => {
     });
   });
 });
+////delete=============
+app.post('/api/post/delete/:id', auth, (req, res) => {
+  let id = req.params.id;
+  console.log('딜리트욧청들어옴');
+  List.findOneAndDelete({ postnum: id }, (err, docs) => {
+    if (err) return res.json(err);
+    return res.json({ DeleteSuccess: true });
+  });
+});
+////comment달기
+// post('/api/post/comment/:id', auth, (req, res) => {
+//   let id = req.params.id;
+
+// });
+
 ///////list 가져오기
 app.get('/api/list', (req, res) => {
   List.find((err, data) => {
@@ -140,6 +156,7 @@ app.get('/api/user/mypage', auth, (req, res) => {
       return res.json({ data });
     });
 });
+
 /// =-===========reactquill 사용을 위한 multer설정 및 img 업로드
 ///multer설정하기
 const upload = multer({

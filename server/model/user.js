@@ -55,6 +55,15 @@ const userSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'List',
   },
+
+  comments: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 userSchema.pre('save', function (next) {

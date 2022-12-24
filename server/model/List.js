@@ -41,11 +41,15 @@ const listSchema = mongoose.Schema({
   postnum: {
     type: Number,
   },
+  category: {
+    type: String,
+    trim: 1,
+  },
   writer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  comment: {
+  comments: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment',
   },
