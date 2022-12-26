@@ -10,7 +10,7 @@ const { auth } = require('./middleware/auth');
 const { List } = require('./model/List');
 const multer = require('multer');
 const path = require('path');
-const { Postnum } = require('./model/Postnum');
+const { Postnum, Commentnum } = require('./model/Postnum');
 const { Comment } = require('./model/Comment');
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -122,11 +122,28 @@ app.post('/api/post/delete/:id', auth, (req, res) => {
   });
 });
 ////comment달기
-// post('/api/post/comment/:id', auth, (req, res) => {
-//   let id = req.params.id;
-
-// });
-
+app.post('/api/post/comment', auth, (req, res) => {
+  Commentnum.findOneAndUpdate(
+    { name: 'totalpost' },
+    { $inc: { totalpost: 1 } }
+  ).then((data) => {
+    req.body.commentnum = data.totalpost + 1;
+    const comment = new Comment(req.body);
+    comment.save((err, data) => {
+      if (err) return res.json({ CommentSuccess: false, err });
+      return res.status(200).json({ CommentSuccess: true, data });
+    });
+  });
+});
+///comment가져오기 postnum으로 가져옴 모든 comment
+app.get('/api/post/:id/comment', (req, res) => {
+  let id = req.params.id;
+  console.log(id);
+  Comment.find({ postnum: id }, (err, data) => {
+    if (err) return res.json(err);
+    return res.json({ data });
+  });
+});
 ///////list 가져오기
 app.get('/api/list', (req, res) => {
   List.find((err, data) => {

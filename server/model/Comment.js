@@ -5,6 +5,9 @@ const commentSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  commentnum: {
+    type: Number,
+  },
   postnum: {
     type: Number,
   },
@@ -13,18 +16,30 @@ const commentSchema = mongoose.Schema({
     maxlength: 300,
   },
   like: {
-    type: Number,
-    default: 0,
+    type: Array,
+    default: [],
   },
   hate: {
-    type: Number,
-    default: 0,
+    type: Array,
+    default: [],
   },
+  recomment: [
+    new mongoose.Schema({
+      content: String,
+      writer: String,
+      id: mongoose.Schema.Types.ObjectId,
+    }),
+  ],
   date: {
     type: Date,
     default: Date.now,
   },
 });
+
+commentSchema.methods.addRecomment = function (data) {
+  this.recomment.push({ content: data.content, writer: data.writer });
+  return this.save;
+};
 
 const Comment = mongoose.model('Comment', commentSchema);
 module.exports = { Comment };

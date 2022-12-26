@@ -25,10 +25,12 @@ const listSchema = mongoose.Schema({
     default: 1,
   },
   like: {
-    type: Number,
+    type: Array,
+    default: [],
   },
   hate: {
-    type: Number,
+    type: Array,
+    default: [],
   },
 
   image: {

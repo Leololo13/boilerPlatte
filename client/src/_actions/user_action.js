@@ -5,7 +5,6 @@ import {
   REGISTER_USER,
   WRITE_USER,
   AUTH_USER,
-  COMMENT_USER,
 } from '../_reducers/type';
 
 export const loginUser = createAsyncThunk(LOGIN_USER, async (data) => {
@@ -26,10 +25,4 @@ export const auth = createAsyncThunk(AUTH_USER, async () => {
   return axios.get('/api/user/auth').then((response) => {
     return response.data;
   });
-});
-
-export const CommentWrite = createAsyncThunk(COMMENT_USER, async (data) => {
-  return axios
-    .post('/api/post/comment/:id', data)
-    .then((response) => response.data);
 });

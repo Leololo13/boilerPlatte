@@ -185,6 +185,7 @@
 .comment-write-main form button {
   border: none;
   text-align: center;
+  cursor: pointer;
   width: 88px;
   border-radius: 5px;
   color: black;

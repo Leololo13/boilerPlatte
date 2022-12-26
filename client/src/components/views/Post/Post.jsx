@@ -1,43 +1,19 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
-import { CommentWrite } from '../../../_actions/user_action';
 import './Post.css';
+import Comment from './Comment';
 
 function Post() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const location = useLocation();
+
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
   const { id } = useParams();
-  const [commentOpen, setCommentOpen] = useState(true);
-
   const [post, setPost] = useState([]);
-  const commentModalHandler = (e) => {
-    e.preventDefault();
-    setCommentOpen(!commentOpen);
-  };
-
-  const [comment, setComment] = useState({
-    writer: user?._id,
-    content: '',
-    postnum: id,
-    like: 0,
-    hate: 0,
-  });
-  function dataHandler(e) {
-    e.preventDefault();
-    setComment((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    console.log(comment);
-  }
-  const commentSubmitHandler = async (e) => {
-    e.preventDefault();
-    let body = comment;
-    dispatch(CommentWrite(body)).then((response) => response.data);
-  };
 
   const postDeletehandler = async () => {
     try {
@@ -71,6 +47,7 @@ function Post() {
     return '방금 전';
   }
 
+  //////포스트 받아오기
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -82,7 +59,9 @@ function Post() {
     };
     fetchPost();
   }, [id]);
+
   let content = post.content;
+
   return (
     <div className='post'>
       <header className='postHead'>
@@ -133,47 +112,7 @@ function Post() {
             </div>
           ) : null}
         </div>
-
-        <div className='footer-comment'>
-          <div className='comment-title'>
-            <p className='comment-modal' onClick={commentModalHandler}>
-              댓글
-            </p>
-          </div>
-          {commentOpen ? (
-            <div className='comment-main'>
-              <div className='post-comment'>
-                <div className='comment-writer-img'>잘생긴사진</div>
-                <div className='comment-main-main'>
-                  <div className='comment-info'>
-                    <div className='comment-writer'>
-                      leo123123 <div className='comment-time'>10분전</div>
-                    </div>
-
-                    <div className='comment-action'>
-                      <div className='comment-likehate'> 0/0</div>
-                      <div className='comment-commentwrite'>답댓글달기</div>
-                      <div className='comment-edit'>수정하기 </div>
-                      <div className='comment-edit'> 지우기</div>
-                    </div>
-                  </div>
-
-                  <div className='comment-content'>안녕하세요 댓글이에오</div>
-                </div>
-              </div>
-            </div>
-          ) : null}
-          <div className='comment-write'>
-            <p>댓글쓰기</p>
-            <div className='comment-write-main'>
-              <div className='comment-write-img'>사진</div>
-              <form action='' onSubmit={commentSubmitHandler}>
-                <input onChange={dataHandler} name='content' type='text' />
-                <button> 댓글달기</button>
-              </form>
-            </div>
-          </div>
-        </div>
+        <Comment />
       </footer>
     </div>
   );
