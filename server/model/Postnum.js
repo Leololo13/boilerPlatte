@@ -10,11 +10,6 @@ const PostnumSchema = mongoose.Schema({
     default: 'totalpost',
   },
 });
-
-const Postnum = mongoose.model('Postnum', PostnumSchema);
-
-module.exports = { Postnum };
-
 const CommentnumSchema = mongoose.Schema({
   totalcomment: {
     type: Number,
@@ -27,5 +22,6 @@ const CommentnumSchema = mongoose.Schema({
 });
 
 const Commentnum = mongoose.model('Commentnum', CommentnumSchema);
+const Postnum = mongoose.model('Postnum', PostnumSchema);
 
-module.exports = { Commentnum };
+module.exports = { Postnum, Commentnum };

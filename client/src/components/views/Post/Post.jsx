@@ -85,10 +85,23 @@ function Post() {
         </div>
       </header>
       <main className='postContent'>
-        <div
+        {/* Dompurify 라이브러리 사용해서 설정해줘야함 */}
+        {/* {typeof window !== "undefined" && <div
+            dangerouslySetInnerHTML={{
+              __html: Dompurify.sanitize(data?.fetchBoard.contents),
+            }}></div>}
+    */}
+        <p
           className='postContent-main'
           dangerouslySetInnerHTML={{ __html: content }}
-        ></div>
+        ></p>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Recusandaeqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq qui
+          nihil sit, illo quo corporis deserunt, minima ad illum reprehenderit
+          fugiat voluptates deleniti aliquid reiciendis, vero sint nemo quaerat
+          repellendus!
+        </p>
         <footer className='postContent-footer'>
           <button className='like'>좋아요 👍 {post.like}</button>
           <button className='hate'>싫어요 🤢 {post.hate}</button>

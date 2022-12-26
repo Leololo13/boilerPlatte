@@ -10,7 +10,7 @@ const { auth } = require('./middleware/auth');
 const { List } = require('./model/List');
 const multer = require('multer');
 const path = require('path');
-const { Postnum, Commentnum } = require('./model/Postnum');
+const { Commentnum, Postnum } = require('./model/Postnum');
 const { Comment } = require('./model/Comment');
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -100,6 +100,7 @@ app.get('/api/user/logout', auth, (req, res) => {
 ///////////////////////write==============================
 
 app.post('/api/list/write', auth, (req, res) => {
+  console.log(req.body);
   Postnum.findOneAndUpdate(
     { name: 'totalpost' },
     { $inc: { totalpost: 1 } }

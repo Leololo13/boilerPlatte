@@ -11,6 +11,29 @@ function Comment() {
     return state.rootReducer.user.userData;
   });
   const { id } = useParams();
+  function elapsedTime(date) {
+    const start = new Date(date);
+    const end = new Date();
+
+    const diff = (end - start) / 1000;
+
+    const times = [
+      { name: '년', milliSeconds: 60 * 60 * 24 * 365 },
+      { name: '개월', milliSeconds: 60 * 60 * 24 * 30 },
+      { name: '일', milliSeconds: 60 * 60 * 24 },
+      { name: '시간', milliSeconds: 60 * 60 },
+      { name: '분', milliSeconds: 60 },
+    ];
+
+    for (const value of times) {
+      const betweenTime = Math.floor(diff / value.milliSeconds);
+
+      if (betweenTime > 0) {
+        return `${betweenTime}${value.name} 전`;
+      }
+    }
+    return '방금 전';
+  }
   /////
   const [comments, setComments] = useState([]);
   const [commentOpen, setCommentOpen] = useState(true);
@@ -81,7 +104,9 @@ function Comment() {
                       <div className='comment-info'>
                         <div className='comment-writer'>
                           {comment.id}
-                          <div className='comment-time'>{comment.date}</div>
+                          <div className='comment-time'>
+                            {elapsedTime(comment.date)}
+                          </div>
                         </div>
 
                         <div className='comment-action'>

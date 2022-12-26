@@ -56,12 +56,16 @@
   border-bottom: 1px solid burlywood;
 }
 .postContent-main {
+  display: flex;
   padding: 10px;
   padding-bottom: 3rem;
   min-width: 120px;
-  max-width: 100%;
+  max-width: 680px;
   object-fit: cover;
+
+  word-break: break-all;
 }
+
 .postContent-footer {
   display: flex;
   justify-content: center;
@@ -146,7 +150,7 @@
   display: flex;
   padding: 0 10px;
   justify-content: space-between;
-  background-color: aqua;
+
   gap: 10px;
 }
 .comment-writer {
