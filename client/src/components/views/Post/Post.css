@@ -136,7 +136,11 @@
 .comment-writer-img {
   width: 64px;
   height: 64px;
-  background-color: red;
+  text-align: center;
+  font-size: 3rem;
+  color: darkgrey;
+  background-color: lightgrey;
+  border: darkgray;
 }
 .comment-info {
   display: flex;
@@ -168,7 +172,7 @@
   padding: 0;
   margin: 0;
 
-  background-color: red;
+  background-color: lightgrey;
 }
 .comment-write-main {
   height: 120px;

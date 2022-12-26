@@ -4,9 +4,16 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useState } from 'react';
 import { Pagination } from 'antd';
-import { Outlet, useOutlet, Link } from 'react-router-dom';
+import {
+  Outlet,
+  useOutlet,
+  Link,
+  Navigate,
+  useNavigate,
+} from 'react-router-dom';
 
 function BoardList() {
+  const navigate = useNavigate();
   const [lists, setLists] = useState([]);
   const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(1);

@@ -26,7 +26,6 @@ function Comment() {
   //////
   function recommentModalHandler(id) {
     setModalVisibleId(id);
-    console.log(modalVisibleId, '클릭개체가 가진 _id');
   }
   const commentModalHandler = (e) => {
     e.preventDefault();
@@ -60,6 +59,7 @@ function Comment() {
     };
     fetchComment();
   }, [comments.length]);
+
   return (
     <div>
       {' '}
@@ -76,11 +76,11 @@ function Comment() {
               return (
                 <div className='comment-main' key={comment._id}>
                   <div className='post-comment'>
-                    <div className='comment-writer-img'>잘생긴사진</div>
+                    <div className='comment-writer-img'>?</div>
                     <div className='comment-main-main'>
                       <div className='comment-info'>
                         <div className='comment-writer'>
-                          {comment.id}{' '}
+                          {comment.id}
                           <div className='comment-time'>{comment.date}</div>
                         </div>
 
@@ -123,7 +123,7 @@ function Comment() {
         <div className='comment-write'>
           <p>댓글쓰기</p>
           <div className='comment-write-main'>
-            <div className='comment-write-img'>사진</div>
+            <div className='comment-write-img'>?</div>
             <form action='' onSubmit={commentSubmitHandler}>
               <input onChange={dataHandler} name='content' type='text' />
               <button> 댓글달기</button>

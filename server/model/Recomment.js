@@ -5,6 +5,9 @@ const recommentSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment',
   },
+  commentnum: {
+    type: Number,
+  },
   postnum: {
     type: Number,
   },
@@ -23,6 +26,10 @@ const recommentSchema = mongoose.Schema({
   date: {
     type: Date,
     default: Date.now,
+  },
+  writer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
 });
 

@@ -124,10 +124,11 @@ app.post('/api/post/delete/:id', auth, (req, res) => {
 ////comment달기
 app.post('/api/post/comment', auth, (req, res) => {
   Commentnum.findOneAndUpdate(
-    { name: 'totalpost' },
-    { $inc: { totalpost: 1 } }
+    { name: 'totalcomment' },
+    { $inc: { totalcomment: 1 } }
   ).then((data) => {
-    req.body.commentnum = data.totalpost + 1;
+    console.log(data);
+    req.body.commentnum = data.totalcomment + 1;
     const comment = new Comment(req.body);
     comment.save((err, data) => {
       if (err) return res.json({ CommentSuccess: false, err });
@@ -138,11 +139,14 @@ app.post('/api/post/comment', auth, (req, res) => {
 ///comment가져오기 postnum으로 가져옴 모든 comment
 app.get('/api/post/:id/comment', (req, res) => {
   let id = req.params.id;
-  console.log(id);
-  Comment.find({ postnum: id }, (err, data) => {
-    if (err) return res.json(err);
-    return res.json({ data });
-  });
+  Comment.find(
+    { postnum: id },
+
+    (err, data) => {
+      if (err) return res.json(err);
+      return res.json({ data });
+    }
+  );
 });
 ///////list 가져오기
 app.get('/api/list', (req, res) => {

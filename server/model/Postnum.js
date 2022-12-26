@@ -16,16 +16,16 @@ const Postnum = mongoose.model('Postnum', PostnumSchema);
 module.exports = { Postnum };
 
 const CommentnumSchema = mongoose.Schema({
-  totalpost: {
+  totalcomment: {
     type: Number,
     default: 0,
   },
   name: {
     type: String,
-    default: 'totalpost',
+    default: 'totalcomment',
   },
 });
 
-const Commentnum = mongoose.model('Costnum', CommentnumSchema);
+const Commentnum = mongoose.model('Commentnum', CommentnumSchema);
 
 module.exports = { Commentnum };

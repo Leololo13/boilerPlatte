@@ -7,6 +7,7 @@ const commentSchema = mongoose.Schema({
   },
   commentnum: {
     type: Number,
+    default: 0,
   },
   postnum: {
     type: Number,
