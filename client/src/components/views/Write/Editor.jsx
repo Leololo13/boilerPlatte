@@ -22,8 +22,6 @@ const Editor = () => {
     writer: user._id,
     id: user.id,
     postnum: 0,
-    like: 0,
-    hate: 0,
   });
   function dataHandler(e) {
     e.preventDefault();

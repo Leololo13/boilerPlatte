@@ -56,7 +56,6 @@
   border-bottom: 1px solid burlywood;
 }
 .postContent-main {
-  display: flex;
   padding: 10px;
   padding-bottom: 3rem;
   min-width: 120px;
@@ -78,6 +77,7 @@
   padding: 10px;
   border-radius: 15px;
   text-align: center;
+  cursor: pointer;
   color: black;
 }
 .postFooter {
@@ -131,11 +131,12 @@
   justify-content: center;
   gap: 15px;
   border-bottom: 1px solid burlywood;
+  font-size: 0.8rem;
 }
 .post-comment {
   display: flex;
   gap: 10px;
-  align-items: center;
+  justify-content: center;
 }
 .comment-writer-img {
   width: 64px;
@@ -203,4 +204,9 @@
   min-height: 64px;
   width: 100%;
   font-size: 1rem;
+}
+.comment-content {
+  padding: 10px;
+  width: 100%;
+  height: auto;
 }

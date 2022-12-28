@@ -4,20 +4,43 @@ import { useSelector } from 'react-redux';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import './Post.css';
 import Comment from './Comment';
+import { useRef } from 'react';
 
 function Post() {
   const navigate = useNavigate();
   const location = useLocation();
+  const likeRef = useRef();
 
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
   const { id } = useParams();
-  const [post, setPost] = useState([]);
+  const [post, setPost] = useState({});
 
   const postDeletehandler = async () => {
     try {
       await axios.post(`/api/post/delete/${id}`).then(navigate('/list'));
+    } catch (error) {
+      alert(error);
+    }
+  };
+  const likeHandler = async (e) => {
+    let modal = e.target.name;
+    console.log(modal);
+
+    if (!user) {
+      alert('로그인이 필요한 기능입니다');
+    }
+    try {
+      await axios
+        .post(`/api/post/${modal}/${id}`, {
+          user: user,
+          like: post.like,
+          hate: post.hate,
+        })
+        .then((res) => {
+          window.location.reload();
+        });
     } catch (error) {
       alert(error);
     }
@@ -58,10 +81,9 @@ function Post() {
       }
     };
     fetchPost();
-  }, [id]);
-
-  let content = post.content;
-
+  }, []);
+  console.log('render');
+  let content = post?.content;
   return (
     <div className='post'>
       <header className='postHead'>
@@ -91,20 +113,18 @@ function Post() {
               __html: Dompurify.sanitize(data?.fetchBoard.contents),
             }}></div>}
     */}
-        <p
+        <div
           className='postContent-main'
           dangerouslySetInnerHTML={{ __html: content }}
-        ></p>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Recusandaeqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq qui
-          nihil sit, illo quo corporis deserunt, minima ad illum reprehenderit
-          fugiat voluptates deleniti aliquid reiciendis, vero sint nemo quaerat
-          repellendus!
-        </p>
+        ></div>
+
         <footer className='postContent-footer'>
-          <button className='like'>좋아요 👍 {post.like}</button>
-          <button className='hate'>싫어요 🤢 {post.hate}</button>
+          <button className='like' name='like' onClick={likeHandler}>
+            좋아요 👍 {post.like?.length}
+          </button>
+          <button className='hate' name='hate' onClick={likeHandler}>
+            싫어요 🤢 {post.hate?.length}
+          </button>
         </footer>
       </main>
       <footer className='postFooter'>

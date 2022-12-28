@@ -4,17 +4,11 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useState } from 'react';
 import { Pagination } from 'antd';
-import {
-  Outlet,
-  useOutlet,
-  Link,
-  Navigate,
-  useNavigate,
-} from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 
 function BoardList() {
-  const navigate = useNavigate();
   const [lists, setLists] = useState([]);
+  const [comments, setComments] = useState([]);
   const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(1);
   const offset = (page - 1) * limit;
@@ -52,9 +46,11 @@ function BoardList() {
     const fetchAllLists = async () => {
       try {
         const res = await axios.get('/api/list');
+        const res2 = await axios.get('/api/comment');
+        setComments(res2.data.data);
         setLists(res.data.data);
       } catch (err) {
-        console.log(err);
+        alert(err);
       }
     };
     fetchAllLists();
@@ -114,13 +110,20 @@ function BoardList() {
                       flex: 2,
                     }}
                   >
-                    {list.like}/{list.hate}
+                    {list.like.length}/{list.hate.length}
                   </td>
                   <td style={{ flex: 16 }}>
                     <div className='boardlist-table-title'>
                       {' '}
                       <Link className='link' to={`/list/post/${list.postnum}`}>
                         {list.title}{' '}
+                        <span style={{ color: 'burlywood', fontSize: '1rem' }}>
+                          {
+                            comments.filter(
+                              (comment) => comment.postnum === list.postnum
+                            ).length
+                          }
+                        </span>
                       </Link>
                     </div>
                     <div className='boardlist-table-repl'>{list.repl}</div>

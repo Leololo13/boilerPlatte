@@ -43,13 +43,31 @@ function Comment() {
     content: '',
     postnum: id,
     commentnum: 0,
+    nickname: user?.id,
     like: [],
     hate: [],
   });
   //////
+  console.log(comments);
   function recommentModalHandler(id) {
-    setModalVisibleId(id);
+    if (!user._id) {
+      alert('로그인이필요한기능입니다');
+    } else {
+      setModalVisibleId(id);
+    }
   }
+  const deleteHandler = async (e) => {
+    e.preventDefault();
+    let commentnum = e.target.dataset;
+
+    try {
+      axios.post('/api/comment/delete', commentnum).then((res) => {
+        console.log(res.data);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const commentModalHandler = (e) => {
     e.preventDefault();
     setCommentOpen(!commentOpen);
@@ -60,9 +78,8 @@ function Comment() {
   }
   const commentSubmitHandler = async (e) => {
     e.preventDefault();
-    console.log('pushed submit button');
-    let body = writtenComment;
 
+    let body = writtenComment;
     try {
       await axios
         .post(`/api/post/comment`, body)
@@ -81,7 +98,7 @@ function Comment() {
       }
     };
     fetchComment();
-  }, [comments.length]);
+  }, []);
 
   return (
     <div>
@@ -95,53 +112,121 @@ function Comment() {
 
         {commentOpen ? (
           <>
-            {comments.map((comment) => {
-              return (
-                <div className='comment-main' key={comment._id}>
-                  <div className='post-comment'>
-                    <div className='comment-writer-img'>?</div>
-                    <div className='comment-main-main'>
-                      <div className='comment-info'>
-                        <div className='comment-writer'>
-                          {comment.id}
-                          <div className='comment-time'>
-                            {elapsedTime(comment.date)}
+            {comments
+              .filter((comment) => comment.parentcommentnum === 0)
+              .map((comment) => {
+                return (
+                  <div className='comment-main' key={comment._id}>
+                    <div className='post-comment'>
+                      <div className='comment-writer-img'>?</div>
+                      <div className='comment-main-main'>
+                        <div className='comment-info'>
+                          <div className='comment-writer'>
+                            {comment.nickname}
+                            <div className='comment-time'>
+                              {elapsedTime(comment.date)}
+                            </div>
+                          </div>
+
+                          <div className='comment-action'>
+                            <div className='comment-likehate'>
+                              {' '}
+                              {comment.like.length}/ {comment.hate.length}
+                            </div>
+                            <div
+                              onClick={() => {
+                                recommentModalHandler(comment._id);
+                              }}
+                              style={{ cursor: 'pointer' }}
+                              className='comment-recomment'
+                              data-id={comment._id}
+                            >
+                              답댓글달기
+                            </div>
+                            <div className='comment-edit'>
+                              수정하기{comment.commentnum}{' '}
+                            </div>
+                            <div
+                              data-id={comment.commentnum}
+                              className='comment-delete'
+                              onClick={deleteHandler}
+                            >
+                              {' '}
+                              지우기
+                            </div>
                           </div>
                         </div>
 
-                        <div className='comment-action'>
-                          <div className='comment-likehate'>
-                            {' '}
-                            {comment.like.length}/ {comment.hate.length}
-                          </div>
-                          <div
-                            onClick={() => {
-                              recommentModalHandler(comment._id);
-                              console.log(modalVisibleId);
-                            }}
-                            style={{ cursor: 'pointer' }}
-                            className='comment-recomment'
-                            data-id={comment._id}
-                          >
-                            답댓글달기
-                          </div>
-                          <div className='comment-edit'>수정하기 </div>
-                          <div className='comment-edit'> 지우기</div>
-                        </div>
+                        <div className='comment-content'>{comment.content}</div>
                       </div>
-
-                      <div className='comment-content'>{comment.content}</div>
                     </div>
-                  </div>{' '}
-                  <Recomment
-                    id={comment._id}
-                    modalVisibleId={modalVisibleId}
-                    setModalVisibleId={setModalVisibleId}
-                    commentnum={comment.commentnum}
-                  />
-                </div>
-              );
-            })}
+                    {/* recommenttttttttttttttttttttttttttttttt */}
+                    {comments
+                      .filter(
+                        (cmt) => cmt.parentcommentnum === comment.commentnum
+                      )
+                      .map((recomment) => {
+                        return (
+                          <div
+                            className='post-comment'
+                            style={{
+                              marginLeft: '20px',
+                              padding: '10px',
+                              paddingBottom: '0px',
+                              borderTop: '1px solid burlywood',
+                            }}
+                            key={recomment._id}
+                          >
+                            <div className='comment-writer-img'>?</div>
+                            <div className='comment-main-main'>
+                              <div className='comment-info'>
+                                <div className='comment-writer'>
+                                  {recomment.id}
+                                  <div className='comment-time'>
+                                    {elapsedTime(recomment.date)}
+                                  </div>
+                                </div>
+
+                                <div className='comment-action'>
+                                  <div className='comment-likehate'>
+                                    {' '}
+                                    {recomment.like.length}/{' '}
+                                    {recomment.hate.length}
+                                  </div>
+                                  <div
+                                    onClick={() => {
+                                      recommentModalHandler(comment._id);
+                                    }}
+                                    style={{ cursor: 'pointer' }}
+                                    className='comment-recomment'
+                                    data-id={comment._id}
+                                  >
+                                    답댓글달기
+                                  </div>
+                                  <div className='comment-edit'>
+                                    수정하기{recomment.commentnum}{' '}
+                                  </div>
+                                  <div className='comment-edit'> 지우기</div>
+                                </div>
+                              </div>
+
+                              <div className='comment-content'>
+                                {recomment.content}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    <Recomment
+                      id={comment._id}
+                      modalVisibleId={modalVisibleId}
+                      setModalVisibleId={setModalVisibleId}
+                      commentnum={comment.commentnum}
+                      postnum={comment.postnum}
+                    />
+                  </div>
+                );
+              })}
           </>
         ) : null}
 

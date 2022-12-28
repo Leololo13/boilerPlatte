@@ -140,14 +140,10 @@ app.post('/api/post/comment', auth, (req, res) => {
 ///comment가져오기 postnum으로 가져옴 모든 comment
 app.get('/api/post/:id/comment', (req, res) => {
   let id = req.params.id;
-  Comment.find(
-    { postnum: id },
-
-    (err, data) => {
-      if (err) return res.json(err);
-      return res.json({ data });
-    }
-  );
+  Comment.find({ postnum: id }, (err, data) => {
+    if (err) return res.json(err);
+    return res.json({ data });
+  });
 });
 ///////list 가져오기
 app.get('/api/list', (req, res) => {
@@ -156,7 +152,102 @@ app.get('/api/list', (req, res) => {
     return res.json({ data });
   });
 });
+/////comment삭제하기
+app.post('/api/comment/delete', (req, res) => {
+  let id = req.body.id;
 
+  ////////////////////// Role를 0으로 주고 관리자만 바꿀수있게하자
+  Comment.findOneAndUpdate(
+    { commentnum: id },
+    { $set: { content: '삭제된댓글입니다', role: 0 } },
+    (err, data) => {
+      if (err) return res.json(err);
+      return res.json(data);
+    }
+  );
+});
+
+////comment전부가져오기.. 댓글수를 달아야하니까
+app.get('/api/comment', (req, res) => {
+  Comment.find((err, data) => {
+    if (err) return res.json(err);
+    return res.json({ data });
+  });
+});
+
+////post에 like하기 hate하기 가자아아아아
+app.post('/api/post/like/:id', (req, res) => {
+  let id = req.params.id;
+  console.log(req.body, 'req.body');
+  let userID = req.body.user?.id;
+  let likeList = req.body.like;
+
+  if (!req.body.user) {
+    console.log('유저로그인안함');
+    return res.json({
+      likeSuccess: false,
+      message: '로그인이 필요한 기능입니다',
+    });
+  }
+
+  if (likeList.includes(userID)) {
+    console.log('들어있따');
+    List.findOneAndUpdate(
+      { postnum: id },
+      { $pull: { like: userID } },
+      (err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data: data.like });
+      }
+    );
+  } else {
+    console.log('안들어있다');
+    List.findOneAndUpdate(
+      { postnum: id },
+      { $addToSet: { like: req.body.user.id } },
+      (err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data: data.like });
+      }
+    );
+  }
+});
+/////hate하기
+app.post('/api/post/hate/:id', (req, res) => {
+  let id = req.params.id;
+  let userID = req.body.user?.id;
+  let likeList = req.body.hate;
+
+  if (!req.body.user) {
+    console.log('유저로그인안함');
+    return res.json({
+      hateSuccess: false,
+      message: '로그인이 필요한 기능입니다',
+    });
+  }
+
+  if (likeList.includes(userID)) {
+    console.log('들어있따');
+    List.findOneAndUpdate(
+      { postnum: id },
+      { $pull: { hate: userID } },
+      (err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data: data.hate });
+      }
+    );
+  } else {
+    console.log('안들어있다');
+    List.findOneAndUpdate(
+      { postnum: id },
+      { $addToSet: { hate: req.body.user.id } },
+      (err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data: data.hate });
+      }
+    );
+  }
+});
 ///////////list 개별항목 불러오기
 
 app.get('/api/list/post/:id', (req, res) => {

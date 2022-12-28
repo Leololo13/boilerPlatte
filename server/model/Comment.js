@@ -5,6 +5,9 @@ const commentSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  nickname: {
+    type: String,
+  },
   commentnum: {
     type: Number,
     default: 0,
@@ -16,6 +19,10 @@ const commentSchema = mongoose.Schema({
     type: String,
     maxlength: 300,
   },
+  parentcommentnum: {
+    type: Number,
+    default: 0,
+  },
   like: {
     type: Array,
     default: [],
@@ -24,16 +31,14 @@ const commentSchema = mongoose.Schema({
     type: Array,
     default: [],
   },
-  recomment: [
-    new mongoose.Schema({
-      content: String,
-      writer: String,
-      id: mongoose.Schema.Types.ObjectId,
-    }),
-  ],
+
   date: {
     type: Date,
     default: Date.now,
+  },
+  role: {
+    type: Number,
+    default: 1,
   },
 });
 
