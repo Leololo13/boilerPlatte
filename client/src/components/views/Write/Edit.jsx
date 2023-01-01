@@ -1,64 +1,44 @@
 import axios from 'axios';
+import { useEffect } from 'react';
 import { React, useState, useRef, useMemo } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
-import { Select } from 'antd';
 
-const Editor = () => {
+const Edit = () => {
+  const { id } = useParams();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
-    setWrittenData((prev) => ({
-      ...prev,
-      category: value,
-    }));
-  };
   const quillRef = useRef(); //
 
   const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
-  const [writtenData, setWrittenData] = useState({
-    title: '',
-    content: '',
-    writer: user._id,
-    id: user.id,
-    postnum: 0,
-    category: 'humor',
-  });
+  const [writtenData, setWrittenData] = useState({});
+
   function dataHandler(e) {
     e.preventDefault();
-    setWrittenData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setWrittenData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function onSubmitHandler(e) {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
-
     let body = writtenData;
     body.content = value;
-    body.category = dispatch(Writer(body)).then((response) => {
-      console.log(response);
-      if (!response.payload) {
-        alert('Login이 필요한 기능입니다');
-        navigate('/user/login');
-      }
-      if (response.payload.Writesuccess === true) {
-        navigate('/list');
-      } else {
-        alert(response.payload.err.message);
-      }
-    });
-  }
+
+    try {
+      await axios
+        .post(`/api/post/${id}/edit`, body)
+        .then(console.log('잘된것같다'));
+    } catch (error) {
+      alert(error);
+    }
+  };
   const imageHandler = () => {
     //이미지를 누르면 그림이 클릭되도록해서 시작하겠습니다.
     //이미지를 저장할 input = file dom 을 만들어준다
@@ -116,35 +96,29 @@ const Editor = () => {
     'blockquote',
     'image',
   ];
-  console.log(writtenData);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await axios.get(`/api/list/post/${id}`);
+        setValue(res.data.content);
+        setWrittenData(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchPost();
+  }, []);
+
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
         {/* <button onClick={onClickcontents}>확인하기기</button> */}
-        <Select
-          defaultValue='humor'
-          style={{
-            width: 120,
-          }}
-          onChange={handleChange}
-          options={[
-            {
-              value: 'humor',
-              label: 'Humor',
-            },
-            {
-              value: 'politic',
-              label: 'Politic',
-            },
-            {
-              value: '18+',
-              label: '18+',
-            },
-          ]}
-        />
+
         <input
           type='text'
           name='title'
+          value={writtenData.title}
           onChange={dataHandler}
           placeholder='Title'
         />
@@ -166,4 +140,4 @@ const Editor = () => {
   );
 };
 
-export default Editor;
+export default Edit;

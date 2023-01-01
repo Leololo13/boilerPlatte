@@ -4,16 +4,17 @@ import { useSelector } from 'react-redux';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import './Post.css';
 import Comment from './Comment';
-import { useRef } from 'react';
+
+import Dompurify from 'dompurify';
 
 function Post() {
   const navigate = useNavigate();
   const location = useLocation();
-  const likeRef = useRef();
 
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
+
   const { id } = useParams();
   const [post, setPost] = useState({});
 
@@ -26,7 +27,6 @@ function Post() {
   };
   const likeHandler = async (e) => {
     let modal = e.target.name;
-    console.log(modal);
 
     if (!user) {
       alert('로그인이 필요한 기능입니다');
@@ -108,15 +108,12 @@ function Post() {
       </header>
       <main className='postContent'>
         {/* Dompurify 라이브러리 사용해서 설정해줘야함 */}
-        {/* {typeof window !== "undefined" && <div
-            dangerouslySetInnerHTML={{
-              __html: Dompurify.sanitize(data?.fetchBoard.contents),
-            }}></div>}
-    */}
-        <div
-          className='postContent-main'
-          dangerouslySetInnerHTML={{ __html: content }}
-        ></div>
+        {typeof window !== 'undefined' && (
+          <div
+            className='postContent-main'
+            dangerouslySetInnerHTML={{ __html: Dompurify.sanitize(content) }}
+          ></div>
+        )}
 
         <footer className='postContent-footer'>
           <button className='like' name='like' onClick={likeHandler}>
@@ -133,7 +130,7 @@ function Post() {
           {user?.id === post.id ? (
             <div className='footer-editbox'>
               {' '}
-              <Link to={`/api/post/edit/${id}`}>
+              <Link to={`/list/post/${id}/edit`}>
                 <button className='footer-editbox-edit'>edit</button>{' '}
               </Link>
               <button

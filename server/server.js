@@ -82,6 +82,7 @@ app.get('/api/user/auth', auth, (req, res) => {
       role: req.user.role,
       image: req.user.image,
       _id: req.user._id,
+      nickname: req.user.nickname,
     });
 });
 
@@ -100,7 +101,6 @@ app.get('/api/user/logout', auth, (req, res) => {
 ///////////////////////write==============================
 
 app.post('/api/list/write', auth, (req, res) => {
-  console.log(req.body);
   Postnum.findOneAndUpdate(
     { name: 'totalpost' },
     { $inc: { totalpost: 1 } }
@@ -122,8 +122,24 @@ app.post('/api/post/delete/:id', auth, (req, res) => {
     return res.json({ DeleteSuccess: true });
   });
 });
+///수정하기 edit
+app.post('/api/post/:id/edit', auth, (req, res) => {
+  let id = req.params.id;
+  let data = req.body;
+  console.log('edit하기');
+  List.findOneAndUpdate(
+    { postnum: id },
+    { title: data.title, content: data.content },
+    (err, data) => {
+      if (err) return res.json(err);
+      return res.json({ EditSuccess: true });
+    }
+  );
+});
+
 ////comment달기
 app.post('/api/post/comment', auth, (req, res) => {
+  console.log(req.body);
   Commentnum.findOneAndUpdate(
     { name: 'totalcomment' },
     { $inc: { totalcomment: 1 } }
@@ -252,6 +268,7 @@ app.post('/api/post/hate/:id', (req, res) => {
 
 app.get('/api/list/post/:id', (req, res) => {
   let id = req.params.id;
+  console.log(typeof id);
   List.findOne({ postnum: id })
     .populate('writer', { nickname: 1, _id: 2 })
     .then((err, data) => {

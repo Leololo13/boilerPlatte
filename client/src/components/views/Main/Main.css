@@ -1,0 +1,22 @@
+.mainCategory {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+}
+.mainCategory-cat {
+  font-size: 1.5rem;
+  color: burlywood;
+  margin: 10px;
+  padding: 5px 5px;
+  width: 80%;
+  border-bottom: 1px solid darkgray;
+}
+.mainCategory-post {
+  margin: 5px;
+  padding: 5px;
+  width: 80%;
+  font-size: 0.8rem;
+  border-bottom: 0.5px solid lightgrey;
+}

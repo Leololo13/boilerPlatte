@@ -1,11 +1,12 @@
 import React from 'react';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
-import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { autoBatchEnhancer } from '@reduxjs/toolkit';
+import { Outlet, useOutlet } from 'react-router-dom';
+import Main from '../Main/Main';
 
 function LandingPage() {
+  const outlet = useOutlet();
+  console.log(outlet, 'oqwek');
   return (
     <div
       style={{
@@ -37,7 +38,7 @@ function LandingPage() {
 
       <main
         style={{
-          flex: 10,
+          flex: 20,
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
@@ -66,7 +67,7 @@ function LandingPage() {
               width: '1040px',
             }}
           >
-            main <Outlet></Outlet>
+            {outlet ? <Outlet /> : <Main />}
           </article>
           <aside style={{ flex: 3 }}>
             <div>aside</div>

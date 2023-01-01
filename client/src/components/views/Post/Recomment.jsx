@@ -16,6 +16,7 @@ function Recomment(props) {
   const [recomment, setRecomment] = useState({
     content: '',
     writer: user?._id,
+    nickname: user?.nickname,
     postnum: props.postnum,
     commentnum: 0,
     parentcommentnum: props.commentnum,

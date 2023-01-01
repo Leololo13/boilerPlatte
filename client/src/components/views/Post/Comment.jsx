@@ -3,14 +3,30 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Recomment from './Recomment';
 
 function Comment() {
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
+
   const { id } = useParams();
+  let initialState = {
+    writer: '',
+    content: '',
+    postnum: id,
+    commentnum: 0,
+    nickname: '',
+    like: [],
+    hate: [],
+  };
+
+  const [comments, setComments] = useState([]);
+  const [commentOpen, setCommentOpen] = useState(true);
+  const [modalVisibleId, setModalVisibleId] = useState('');
+  const [writtenComment, setWrittenComment] = useState(initialState);
+
   function elapsedTime(date) {
     const start = new Date(date);
     const end = new Date();
@@ -35,20 +51,19 @@ function Comment() {
     return '방금 전';
   }
   /////
-  const [comments, setComments] = useState([]);
-  const [commentOpen, setCommentOpen] = useState(true);
-  const [modalVisibleId, setModalVisibleId] = useState('');
-  const [writtenComment, setWrittenComment] = useState({
-    writer: user?._id,
-    content: '',
-    postnum: id,
-    commentnum: 0,
-    nickname: user?.id,
-    like: [],
-    hate: [],
-  });
+
   //////
-  console.log(comments);
+
+  function dataHandler(e) {
+    e.preventDefault();
+    setWrittenComment((prev) => ({
+      ...prev,
+      content: e.target.value,
+      writer: user._id,
+      nickname: user.nickname,
+    }));
+  }
+
   function recommentModalHandler(id) {
     if (!user._id) {
       alert('로그인이필요한기능입니다');
@@ -60,26 +75,32 @@ function Comment() {
     e.preventDefault();
     let commentnum = e.target.dataset;
 
-    try {
-      axios.post('/api/comment/delete', commentnum).then((res) => {
-        console.log(res.data);
-      });
-    } catch (error) {
-      console.log(error);
+    if (!user._id) {
+      alert('로그인이 필요한 기능입니다');
+    } else {
+      try {
+        axios.post('/api/comment/delete', commentnum).then((res) => {
+          let cmt = comments.filter(
+            (comment) => comment.postnum === parseInt(id)
+          );
+
+          setComments(cmt);
+          // console.log(deletedCMT);
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
   const commentModalHandler = (e) => {
     e.preventDefault();
     setCommentOpen(!commentOpen);
   };
-  function dataHandler(e) {
-    e.preventDefault();
-    setWrittenComment((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
+
   const commentSubmitHandler = async (e) => {
     e.preventDefault();
-
     let body = writtenComment;
+
     try {
       await axios
         .post(`/api/post/comment`, body)
@@ -88,6 +109,7 @@ function Comment() {
       alert(error);
     }
   };
+
   useEffect(() => {
     const fetchComment = async () => {
       try {
@@ -123,6 +145,7 @@ function Comment() {
                         <div className='comment-info'>
                           <div className='comment-writer'>
                             {comment.nickname}
+
                             <div className='comment-time'>
                               {elapsedTime(comment.date)}
                             </div>
@@ -143,17 +166,23 @@ function Comment() {
                             >
                               답댓글달기
                             </div>
-                            <div className='comment-edit'>
-                              수정하기{comment.commentnum}{' '}
-                            </div>
-                            <div
-                              data-id={comment.commentnum}
-                              className='comment-delete'
-                              onClick={deleteHandler}
-                            >
-                              {' '}
-                              지우기
-                            </div>
+                            {comment.writer === user?._id ? (
+                              <>
+                                {' '}
+                                <div className='comment-edit'>
+                                  <Link to={`/api/comment/${id}/edit`}>
+                                    수정하기
+                                  </Link>
+                                </div>
+                                <div
+                                  data-id={comment.commentnum}
+                                  className='comment-delete'
+                                  onClick={deleteHandler}
+                                >
+                                  지우기
+                                </div>
+                              </>
+                            ) : null}
                           </div>
                         </div>
 
@@ -181,7 +210,7 @@ function Comment() {
                             <div className='comment-main-main'>
                               <div className='comment-info'>
                                 <div className='comment-writer'>
-                                  {recomment.id}
+                                  {recomment.nickname}
                                   <div className='comment-time'>
                                     {elapsedTime(recomment.date)}
                                   </div>
@@ -223,6 +252,7 @@ function Comment() {
                       setModalVisibleId={setModalVisibleId}
                       commentnum={comment.commentnum}
                       postnum={comment.postnum}
+                      parentNick={comment.nickname}
                     />
                   </div>
                 );

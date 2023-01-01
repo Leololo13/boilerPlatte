@@ -12,6 +12,7 @@ const userSlice = createSlice({
       console.log(state, payload);
       return { ...state, LoginSuccess: payload };
     });
+
     builder.addCase(registerUser.fulfilled, (state, { payload }) => {
       return { ...state, RegisterSuccess: payload };
     });
