@@ -19,6 +19,7 @@ export const registerUser = createAsyncThunk(REGISTER_USER, async (data) => {
 });
 
 export const Writer = createAsyncThunk(WRITE_USER, async (data) => {
+  console.log(data);
   return axios.post('/api/list/write', data).then((response) => response.data);
 });
 

@@ -3,30 +3,14 @@ import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import { Outlet, useOutlet } from 'react-router-dom';
 import Main from '../Main/Main';
+import './Landingpage.css';
 
 function LandingPage() {
   const outlet = useOutlet();
-  console.log(outlet, 'oqwek');
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        height: '100%',
-        minHeight: '100vh',
-      }}
-    >
-      <header
-        style={{
-          flex: 1,
-          display: 'flex',
-          textAlign: 'center',
-          width: '100%',
-        }}
-      >
+    <div className='landingpage'>
+      <header className='landingpage-header'>
         {/* <Switch
           checked={theme === 'dark'}
           onChange={changeTheme}
@@ -36,45 +20,27 @@ function LandingPage() {
         <Navbar />
       </header>
 
-      <main
-        style={{
-          flex: 20,
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          width: '100%',
-          height: 'auto',
-          maxWidth: '60vw',
-        }}
-      >
+      <main className='landingpage-main'>
         <div
-          style={{
-            display: 'flex',
-            width: '100vw',
-            height: 'auto',
-          }}
+          className='landingpage-main-main'
+          // style={{
+          //   display: 'flex',
+          //   width: '100vw',
+          //   height: 'auto',
+          // }}
         >
-          <aside style={{ flex: 3 }}>
+          <aside>
             <div>aside</div>
           </aside>
-          <article
-            className='main-contents'
-            style={{
-              flex: 10,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              width: '1040px',
-            }}
-          >
+          <article className='landingpage-main-content'>
             {outlet ? <Outlet /> : <Main />}
           </article>
-          <aside style={{ flex: 3 }}>
+          <aside>
             <div>aside</div>
           </aside>
         </div>
       </main>
-      <footer style={{ display: 'flex', padding: '15px' }}>
+      <footer className='landingpage-footer'>
         <Footer />
       </footer>
     </div>

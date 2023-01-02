@@ -4,9 +4,10 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useState } from 'react';
 import { Pagination } from 'antd';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useParams } from 'react-router-dom';
 
 function BoardList() {
+  const { category } = useParams();
   const [lists, setLists] = useState([]);
   const [comments, setComments] = useState([]);
   const [limit, setLimit] = useState(20);
@@ -45,7 +46,7 @@ function BoardList() {
   useEffect(() => {
     const fetchAllLists = async () => {
       try {
-        const res = await axios.get('/api/list');
+        const res = await axios.get('/api/list', category);
         const res2 = await axios.get('/api/comment');
         setComments(res2.data.data);
         setLists(res.data.data);
@@ -59,7 +60,7 @@ function BoardList() {
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
-        <h3>게시판이름</h3>
+        <h3>{category}</h3>
         <section className='boardlist-header-section'>
           {' '}
           section list <div> option</div>
@@ -70,7 +71,6 @@ function BoardList() {
         <Outlet></Outlet>
 
         <table className='boardlist-box'>
-          {}
           <thead
             style={{
               display: 'flex',
@@ -84,19 +84,37 @@ function BoardList() {
                 display: 'flex',
                 width: '100%',
                 padding: '5px',
+                fontSize: '0.8rem',
                 fontWeight: 'bold',
               }}
             >
-              <td style={{ flex: 2, textAlign: 'center' }}>👍/🤢</td>
-              <td style={{ flex: 16, textAlign: 'center' }}>제목</td>
-              <td style={{ flex: 2 }}>글쓴이</td>
-              <td style={{ flex: 2 }}>날짜</td>
+              <td
+                className='boardlist-box-head like'
+                style={{ flex: 2, textAlign: 'center' }}
+              >
+                👍/🤢
+              </td>
+              <td
+                className='boardlist-box-head title'
+                style={{ flex: 16, textAlign: 'center' }}
+              >
+                제목
+              </td>
+              <td className='boardlist-box-head writer' style={{ flex: 2 }}>
+                글쓴이
+              </td>
+              <td className='boardlist-box-head date' style={{ flex: 2 }}>
+                날짜
+              </td>
             </tr>
           </thead>
           <tbody>
             {lists
               .slice(startPage < 0 ? 0 : startPage, lists.length - offset)
               .reverse()
+              .filter((list) =>
+                category === 'all' ? list : list.category === category
+              )
               .map((list) => (
                 <tr className='boardlist-table' key={list._id}>
                   <td
@@ -114,9 +132,12 @@ function BoardList() {
                   </td>
                   <td style={{ flex: 16 }}>
                     <div className='boardlist-table-title'>
-                      {' '}
-                      <Link className='link' to={`/list/post/${list.postnum}`}>
-                        {list.title}{' '}
+                      <Link
+                        className='link'
+                        to={`/list/${category}/post/${list.postnum}`}
+                      >
+                        {list.title}
+                        {'  '}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
                           {
                             comments.filter(

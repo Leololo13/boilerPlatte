@@ -4,7 +4,6 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background-color: bisque;
   padding: 0;
 }
 .link {
@@ -67,4 +66,14 @@
 }
 .right-icon {
   cursor: pointer;
+}
+@media screen and (max-width: 380px) {
+  .navbar-box {
+    flex-direction: column;
+
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    margin: 0;
+  }
 }

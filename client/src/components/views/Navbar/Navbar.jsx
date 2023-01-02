@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Navbar.css';
-import { Link, redirect, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -8,6 +8,8 @@ import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 
 function Navbar() {
+  const { category } = useParams();
+  console.log(category);
   const [cookies, setCookie, removeCookies] = useCookies([]);
   const [data, setData] = useState({});
   const location = useLocation();
@@ -108,12 +110,12 @@ function Navbar() {
       <div className='rightbox'>
         <div className='iconbox'>
           {data.id ? (
-            <Link to={'/list/editor'} className='link'>
+            <Link to={`/list/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>
             </Link>
           ) : null}
 
-          <Link to={'/list'} className='link'>
+          <Link to={'/list/all'} className='link'>
             {' '}
             <p className='right-icon'>List</p>
           </Link>

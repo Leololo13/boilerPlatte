@@ -46,7 +46,7 @@ const Editor = () => {
 
     let body = writtenData;
     body.content = value;
-    body.category = dispatch(Writer(body)).then((response) => {
+    dispatch(Writer(body)).then((response) => {
       console.log(response);
       if (!response.payload) {
         alert('Login이 필요한 기능입니다');

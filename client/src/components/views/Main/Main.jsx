@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Main.css';
 function Main() {
-  const category = ['humor', 'politic', '18+'];
+  const category = ['humor', 'politic', 'healing'];
   const [lists, setLists] = useState([]);
   useEffect(() => {
     const fetchAllLists = async () => {
@@ -22,7 +22,7 @@ function Main() {
         return (
           <div key={idx} className='mainCategory'>
             <h3 className='mainCategory-cat'>
-              <Link state={cat} className='link'>
+              <Link state={cat} className='link' to={`/list/${cat}`}>
                 {cat}
               </Link>
             </h3>
