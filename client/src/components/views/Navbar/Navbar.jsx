@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 
 function Navbar() {
   const { category } = useParams();
-  console.log(category);
   const [cookies, setCookie, removeCookies] = useCookies([]);
   const [data, setData] = useState({});
   const location = useLocation();

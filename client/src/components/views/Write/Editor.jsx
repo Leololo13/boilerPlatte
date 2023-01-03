@@ -13,7 +13,9 @@ const Editor = () => {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => {
-    return state.rootReducer.user.userData;
+    if (state.rootReducer.user.userData.isAuth) {
+      return state.rootReducer.user.userData;
+    }
   });
   const handleChange = (value) => {
     console.log(`selected ${value}`);

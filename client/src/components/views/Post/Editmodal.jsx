@@ -1,9 +1,11 @@
 import axios from 'axios';
+
 import React from 'react';
+
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
-function Recomment(props) {
+function Editmodal(props) {
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
@@ -43,26 +45,21 @@ function Recomment(props) {
   return (
     <div>
       {props.modalVisibleId === props.id ? (
-        <div className='recomment-main-edit'>
+        <>
           <div className='comment-write'>
             <div className='comment-write-main'>
               <div className='comment-write-img'>사진</div>
               <form action='' onSubmit={submitHandler}>
-                <input
-                  value={props.value}
-                  name='content'
-                  type='text'
-                  onChange={inputHandler}
-                />
+                <input name='content' type='text' onChange={inputHandler} />
                 <button> 댓글달기</button>
               </form>
             </div>
           </div>
           <button onClick={onCloseHandler}>닫아버리기</button>
-        </div>
+        </>
       ) : null}
     </div>
   );
 }
 
-export default Recomment;
+export default Editmodal;

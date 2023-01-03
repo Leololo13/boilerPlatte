@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import Recomment from './Recomment';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 function Comment() {
   const user = useSelector((state) => {
@@ -168,18 +169,26 @@ function Comment() {
                             </div>
                             {comment.writer === user?._id ? (
                               <>
-                                {' '}
-                                <div className='comment-edit'>
-                                  <Link to={`/api/comment/${id}/edit`}>
-                                    수정하기
-                                  </Link>
+                                <div
+                                  className='comment-edit'
+                                  onClick={() => {
+                                    recommentModalHandler(comment._id);
+                                  }}
+                                  style={{ cursor: 'pointer' }}
+                                  data-id={comment.content}
+                                >
+                                  <EditOutlined
+                                    style={{ fontSize: '1.2rem' }}
+                                  />
                                 </div>
                                 <div
                                   data-id={comment.commentnum}
                                   className='comment-delete'
                                   onClick={deleteHandler}
                                 >
-                                  지우기
+                                  <DeleteOutlined
+                                    style={{ fontSize: '1.2rem' }}
+                                  />
                                 </div>
                               </>
                             ) : null}
@@ -189,63 +198,6 @@ function Comment() {
                         <div className='comment-content'>{comment.content}</div>
                       </div>
                     </div>
-                    {/* recommenttttttttttttttttttttttttttttttt */}
-                    {comments
-                      .filter(
-                        (cmt) => cmt.parentcommentnum === comment.commentnum
-                      )
-                      .map((recomment) => {
-                        return (
-                          <div
-                            className='post-comment'
-                            style={{
-                              marginLeft: '20px',
-                              padding: '10px',
-                              paddingBottom: '0px',
-                              borderTop: '1px solid burlywood',
-                            }}
-                            key={recomment._id}
-                          >
-                            <div className='comment-writer-img'>?</div>
-                            <div className='comment-main-main'>
-                              <div className='comment-info'>
-                                <div className='comment-writer'>
-                                  {recomment.nickname}
-                                  <div className='comment-time'>
-                                    {elapsedTime(recomment.date)}
-                                  </div>
-                                </div>
-
-                                <div className='comment-action'>
-                                  <div className='comment-likehate'>
-                                    {' '}
-                                    {recomment.like.length}/{' '}
-                                    {recomment.hate.length}
-                                  </div>
-                                  <div
-                                    onClick={() => {
-                                      recommentModalHandler(comment._id);
-                                    }}
-                                    style={{ cursor: 'pointer' }}
-                                    className='comment-recomment'
-                                    data-id={comment._id}
-                                  >
-                                    답댓글달기
-                                  </div>
-                                  <div className='comment-edit'>
-                                    수정하기{recomment.commentnum}{' '}
-                                  </div>
-                                  <div className='comment-edit'> 지우기</div>
-                                </div>
-                              </div>
-
-                              <div className='comment-content'>
-                                {recomment.content}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
                     <Recomment
                       id={comment._id}
                       modalVisibleId={modalVisibleId}
@@ -253,7 +205,89 @@ function Comment() {
                       commentnum={comment.commentnum}
                       postnum={comment.postnum}
                       parentNick={comment.nickname}
+                      value={comment.content}
                     />
+                    {/* recommenttttttttttttttttttttttttttttttt */}
+                    <>
+                      {' '}
+                      {comments
+                        .filter(
+                          (cmt) => cmt.parentcommentnum === comment.commentnum
+                        )
+                        .map((recomment) => {
+                          return (
+                            <div className='recomment-main' key={recomment._id}>
+                              <div
+                                className='post-comment'
+                                style={{
+                                  marginLeft: '20px',
+                                  padding: '10px',
+                                  paddingBottom: '0px',
+                                  borderTop: '1px solid burlywood',
+                                }}
+                              >
+                                <div className='comment-writer-img'>?</div>
+                                <div className='comment-main-main'>
+                                  <div className='comment-info'>
+                                    <div className='comment-writer'>
+                                      {recomment.nickname}
+                                      <div className='comment-time'>
+                                        {elapsedTime(recomment.date)}
+                                      </div>
+                                    </div>
+
+                                    <div className='comment-action'>
+                                      <div className='comment-likehate'>
+                                        {recomment.like.length}/{' '}
+                                        {recomment.hate.length}
+                                      </div>
+                                      <div
+                                        onClick={() => {
+                                          recommentModalHandler(recomment._id);
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                        className='comment-recomment'
+                                        data-id={recomment._id}
+                                      >
+                                        답댓글달기
+                                      </div>
+                                      <div
+                                        className='comment-edit'
+                                        onClick={() => {
+                                          recommentModalHandler(comment._id);
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                        data-id={comment._id}
+                                      >
+                                        <EditOutlined
+                                          style={{ fontSize: '1.2rem' }}
+                                        />
+                                      </div>
+                                      <div className='comment-delete'>
+                                        <DeleteOutlined
+                                          style={{ fontSize: '1.2rem' }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className='comment-content'>
+                                    {recomment.content}
+                                  </div>
+                                </div>
+                              </div>
+                              <Recomment
+                                id={recomment._id}
+                                modalVisibleId={modalVisibleId}
+                                setModalVisibleId={setModalVisibleId}
+                                commentnum={recomment.commentnum}
+                                postnum={recomment.postnum}
+                                parentNick={recomment.nickname}
+                              />
+                            </div>
+                          );
+                        })}
+                    </>
                   </div>
                 );
               })}

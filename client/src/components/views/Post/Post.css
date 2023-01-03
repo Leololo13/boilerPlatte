@@ -129,15 +129,25 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 15px;
   border-bottom: 1px solid burlywood;
   font-size: 0.8rem;
+}
+.recomment-main {
+  padding: 10px 0px;
+  gap: 5px;
+}
+.recomment-main-edit {
+  padding-top: 10px;
+  border-top: 1px solid burlywood;
+
+  margin-top: 10px;
 }
 .post-comment {
   display: flex;
   gap: 10px;
   justify-content: center;
 }
+
 .comment-writer-img {
   width: 64px;
   height: 64px;
@@ -209,4 +219,7 @@
   padding: 10px;
   width: 100%;
   height: auto;
+}
+.comment-delete {
+  cursor: pointer;
 }

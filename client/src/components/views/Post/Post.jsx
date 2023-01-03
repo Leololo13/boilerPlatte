@@ -15,9 +15,8 @@ function Post() {
     return state.rootReducer.user.userData;
   });
 
-  const { id } = useParams();
+  const { id, category } = useParams();
   const [post, setPost] = useState({});
-
   const postDeletehandler = async () => {
     try {
       await axios.post(`/api/post/delete/${id}`).then(navigate('/list'));
@@ -130,7 +129,7 @@ function Post() {
           {user?.id === post.id ? (
             <div className='footer-editbox'>
               {' '}
-              <Link to={`/list/post/${id}/edit`}>
+              <Link to={`/list/${category}/post/${id}/edit`}>
                 <button className='footer-editbox-edit'>edit</button>{' '}
               </Link>
               <button
