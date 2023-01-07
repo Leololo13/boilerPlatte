@@ -10,6 +10,7 @@ const { auth } = require('./middleware/auth');
 const { List } = require('./model/List');
 const multer = require('multer');
 const path = require('path');
+const { OAuth2Client } = require('google-auth-library');
 const { Commentnum, Postnum } = require('./model/Postnum');
 const { Comment } = require('./model/Comment');
 
@@ -66,6 +67,22 @@ app.post('/api/user/login', (req, res) => {
     });
     ///그리고 token만들어서 주기
   });
+});
+////구글 로그인하기
+
+const oAuth2Client = new OAuth2Client(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  'postmessage'
+);
+
+console.log();
+app.post('/api/user/googlelogin', async (req, res) => {
+  console.log(req.body, 'qwokqwoekqwoekoqwek');
+  const { tokens } = await oAuth2Client.getToken(req.body.code); // exchange code for tokens
+  console.log(tokens);
+
+  res.json(tokens);
 });
 ///인증하기
 app.get('/api/user/auth', auth, (req, res) => {

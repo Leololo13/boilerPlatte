@@ -137,7 +137,6 @@ function BoardList() {
                         to={`/list/${category}/post/${list.postnum}`}
                       >
                         {list.title}
-                        {'  '}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
                           {
                             comments.filter(
@@ -167,7 +166,11 @@ function BoardList() {
           defaultPageSize={limit}
           size={'small'}
           defaultCurrent={1}
-          total={lists.length}
+          total={
+            lists.filter((list) =>
+              category === 'all' ? list : list.category === category
+            ).length
+          }
           current={page}
           onChange={(page) => {
             setPage(page);

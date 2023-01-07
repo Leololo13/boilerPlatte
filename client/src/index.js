@@ -7,16 +7,19 @@ import { BrowserRouter } from 'react-router-dom';
 import { store } from './_reducers/store.js';
 import { Provider } from 'react-redux';
 import { CookiesProvider } from 'react-cookie';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <CookiesProvider>
-    <Provider store={store}>
-      <BrowserRouter>
-        {' '}
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
+      <Provider store={store}>
+        <BrowserRouter>
+          {' '}
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </GoogleOAuthProvider>
   </CookiesProvider>
 );
 

@@ -34,7 +34,10 @@ function Main() {
               .map((list) => {
                 return (
                   <div key={list._id} className='mainCategory-post'>
-                    <Link to={`/list/post/${list.postnum}`} className='link'>
+                    <Link
+                      to={`/list/${cat}/post/${list.postnum}`}
+                      className='link'
+                    >
                       {' '}
                       {list.title}
                     </Link>

@@ -27,6 +27,7 @@
 }
 .boardlist-footer {
   flex: 1;
+  padding: 10px;
 }
 .boardlist-box {
   background-color: white;
