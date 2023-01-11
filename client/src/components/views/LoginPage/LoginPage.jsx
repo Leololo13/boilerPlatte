@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { loginUser } from '../../../_actions/user_action';
 import './Login.css';
+import GoogleLogins from './GoogleLogin';
 
 function LoginPage() {
   const location = useLocation();
@@ -69,12 +70,14 @@ function LoginPage() {
         <button>Login</button>
       </form>
       <div className='register-config'>
-        아직 회원이 아니신가요?{' '}
+        아직 회원이 아니신가요?
         <button>
           <Link to='/user/register' className='link'>
-            Register{' '}
+            Register
           </Link>
         </button>
+        or
+        <GoogleLogins />
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import {
   REGISTER_USER,
   WRITE_USER,
   AUTH_USER,
-  COMMENT_LENGTH,
+  GOOGLE_USER,
 } from '../_reducers/type';
 
 export const loginUser = createAsyncThunk(LOGIN_USER, async (data) => {
@@ -28,8 +28,8 @@ export const auth = createAsyncThunk(AUTH_USER, async () => {
     return response.data;
   });
 });
-export const commentLength = createAsyncThunk(COMMENT_LENGTH, async () => {
-  return axios.get('/api/list/comment').then((response) => {
+export const gooleLoginUser = createAsyncThunk(GOOGLE_USER, async () => {
+  return axios.get('/api/user/googlelogin').then((response) => {
     return response.data;
   });
 });

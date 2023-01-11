@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { loginUser, registerUser, auth } from '../_actions/user_action';
+import {
+  loginUser,
+  registerUser,
+  auth,
+  gooleLoginUser,
+} from '../_actions/user_action';
 
 const initialState = {};
 const userSlice = createSlice({
@@ -17,6 +22,9 @@ const userSlice = createSlice({
       return { ...state, RegisterSuccess: payload };
     });
     builder.addCase(auth.fulfilled, (state, { payload }) => {
+      return { ...state, userData: payload };
+    });
+    builder.addCase(gooleLoginUser.fulfilled, (state, { payload }) => {
       return { ...state, userData: payload };
     });
   },

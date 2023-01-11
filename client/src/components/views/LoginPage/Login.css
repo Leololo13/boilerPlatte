@@ -31,3 +31,14 @@
   width: 100%;
   border-radius: 5px;
 }
+.googleLogin button {
+  border: none;
+  background-color: black;
+  color: rgb(207, 157, 93);
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 5px;
+}

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
+import GoogleRegister from '../LoginPage/GoogleRegister';
 
 function Register() {
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ function Register() {
         <br />
         <button>Register</button>
       </form>
+      <GoogleRegister className='googleRegister' />
     </div>
   );
 }

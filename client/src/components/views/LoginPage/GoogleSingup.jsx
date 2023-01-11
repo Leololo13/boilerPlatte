@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 const GoogleSingup = () => {
   const [profile, setProfile] = useState([]);
-  const { handleGoogle, loading, error } = useFetch('/api/user/register');
+  const { handleGoogle, loading, error } = useFetch('/api/user/googleregister');
   const ClientId = process.env.REACT_APP_CLIENT_ID;
 
   useEffect(() => {
@@ -15,6 +15,7 @@ const GoogleSingup = () => {
         client_id: ClientId,
         callback: handleGoogle,
       });
+
       window.google.accounts.id.renderButton(
         document.getElementById('signUpDiv'),
         {
@@ -25,6 +26,7 @@ const GoogleSingup = () => {
           shape: 'pill',
         }
       );
+      window.google.accounts.id.prompt();
     }
   }, [handleGoogle]);
   return (
@@ -47,7 +49,7 @@ const GoogleSingup = () => {
         {loading ? (
           <div>Loading....</div>
         ) : (
-          <div id='signUpDiv' data-text='signup_with'></div>
+          <div id='signUpDiv' data-text='구글로 가입하기'></div>
         )}
       </main>
       <footer></footer>

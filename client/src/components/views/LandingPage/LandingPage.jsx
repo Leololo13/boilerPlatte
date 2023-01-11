@@ -5,7 +5,7 @@ import { Outlet, useOutlet } from 'react-router-dom';
 import Main from '../Main/Main';
 import './Landingpage.css';
 import GoogleLogins from '../LoginPage/GoogleLogin';
-import GoogleSingup from '../LoginPage/GoogleSingup';
+import GoogleRegister from '../LoginPage/GoogleRegister';
 function LandingPage() {
   const outlet = useOutlet();
 
@@ -31,11 +31,7 @@ function LandingPage() {
           // }}
         >
           <aside>
-            <div>
-              aside
-              <GoogleLogins />
-              {/* <GoogleSingup /> */}
-            </div>
+            <div>aside</div>
           </aside>
           <article className='landingpage-main-content'>
             {outlet ? <Outlet /> : <Main />}

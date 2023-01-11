@@ -2,6 +2,11 @@
   gap: 0.5rem;
   color: burlywood;
 }
+.registerbox {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
 
 .register-form input {
   border: none;
@@ -19,4 +24,14 @@
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
+}
+.googleRegister {
+  border: none;
+  background-color: bisque;
+  color: darkgrey;
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
 }

@@ -35,9 +35,18 @@ mongoose
 
 app.post('/api/user/register', (req, res) => {
   const user = new User(req.body);
-  user.save((err, data) => {
-    if (err) return res.json({ RegisterSuccess: false, err });
-    return res.status(200).json({ RegisterSuccess: true });
+  User.findOne({ email: req.body.email }, (err, userData) => {
+    if (!userData) {
+      user.save((err, data) => {
+        if (err) return res.json({ RegisterSuccess: false, err });
+        return res.status(200).json({ RegisterSuccess: true });
+      });
+    } else {
+      return res.json({
+        RegisterSuccess: false,
+        message: '이미 가입하신 이메일이 있습니다.',
+      });
+    }
   });
 });
 
@@ -68,22 +77,49 @@ app.post('/api/user/login', (req, res) => {
     ///그리고 token만들어서 주기
   });
 });
-////구글 로그인하기
+////구글 로그인하기====================================googlegleglegleglgllgglgleeeeeee
 
 const oAuth2Client = new OAuth2Client(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
   'postmessage'
 );
-
-console.log();
+///사실 구글로그인은 auth랑 같다
 app.post('/api/user/googlelogin', async (req, res) => {
+  ///토큰을 받아서 acc,refresh저장해
   console.log(req.body, 'qwokqwoekqwoekoqwek');
   const { tokens } = await oAuth2Client.getToken(req.body.code); // exchange code for tokens
+
+  //userinfo받아서 넣어줘 끝!
+
   console.log(tokens);
 
-  res.json(tokens);
+  res.cookie('accessToken', tokens.access_token).json({ tokens });
 });
+
+///구글 등록=====================================googlegleglegleglgllgglgleeeeeee
+app.post('/api/user/googleregister', async (req, res) => {
+  console.log(req.body);
+  const user = new User(req.body);
+  User.findOne({ email: req.body.email }, (err, userData) => {
+    if (!userData) {
+      user.save((err, data) => {
+        if (err) return res.json({ RegisterSuccess: false, err });
+        return res.status(200).json({ RegisterSuccess: true, data });
+      });
+    } else {
+      return res.json({
+        RegisterSuccess: false,
+        message: '이미 가입하신 이메일이 있습니다.',
+      });
+    }
+  });
+  ///유져인포를 받음.
+  //유저가 이미 가입했는지 확인
+  // 유저 인포 저장.
+  //그리고 로그인페이지로 보내주기.
+});
+
 ///인증하기
 app.get('/api/user/auth', auth, (req, res) => {
   res
@@ -285,7 +321,7 @@ app.post('/api/post/hate/:id', (req, res) => {
 
 app.get('/api/list/post/:id', (req, res) => {
   let id = req.params.id;
-  console.log(typeof id);
+
   List.findOne({ postnum: id })
     .populate('writer', { nickname: 1, _id: 2 })
     .then((err, data) => {
