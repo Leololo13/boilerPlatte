@@ -4,20 +4,18 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useState } from 'react';
 import { Pagination } from 'antd';
-import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
+import { Outlet, Link, useParams } from 'react-router-dom';
 
-function BoardList() {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const cp = searchParams.get('page');
+function BoardLists() {
   const { category } = useParams();
   const [lists, setLists] = useState([]);
   const [comments, setComments] = useState([]);
   const [limit, setLimit] = useState(20);
-  const [page, setPage] = useState(cp ?? 1);
-  const [total, setTotal] = useState(20);
+  const [prevpage, setPrevpage] = useState(1);
+  const [page, setPage] = useState(prevpage);
 
   const offset = (page - 1) * limit;
+  const startPage = lists.length - offset - limit;
 
   ////시간 함수 ~~전으로 표현하기
   function elapsedTime(date) {
@@ -50,23 +48,18 @@ function BoardList() {
   useEffect(() => {
     const fetchAllLists = async () => {
       try {
-        const res = await axios.get(
-          `/api/list?page=${page}&category=${category}&limit=${limit}&offset=${offset}`,
-          category
-        );
+        const res = await axios.get('/api/list', category);
         const res2 = await axios.get('/api/comment');
-        console.log(res.data);
         setComments(res2.data.data);
         setLists(res.data.data);
-        setTotal(res.data.total);
       } catch (err) {
         alert(err);
       }
     };
     console.log('useeffect render');
     fetchAllLists();
-  }, [page]);
-  console.log(page, 'change?');
+  }, []);
+  console.log(page, prevpage, 'page');
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
@@ -120,6 +113,8 @@ function BoardList() {
           </thead>
           <tbody>
             {lists
+              .slice(startPage < 0 ? 0 : startPage, lists.length - offset)
+              .reverse()
               .filter((list) =>
                 category === 'all' ? list : list.category === category
               )
@@ -142,10 +137,9 @@ function BoardList() {
                     <div className='boardlist-table-title'>
                       <Link
                         className='link'
-                        to={`/list/${category}/post/${list.postnum}?page=${page}`}
+                        to={`/list/${category}/post/${list.postnum}`}
                       >
                         {list.title}
-                        {'   '}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
                           {
                             comments.filter(
@@ -175,7 +169,11 @@ function BoardList() {
           defaultPageSize={limit}
           size={'small'}
           defaultCurrent={1}
-          total={total}
+          total={
+            lists.filter((list) =>
+              category === 'all' ? list : list.category === category
+            ).length
+          }
           current={page}
           onChange={(page) => {
             setPage(page);
@@ -186,4 +184,4 @@ function BoardList() {
   );
 }
 
-export default BoardList;
+export default BoardLists;

@@ -13,6 +13,7 @@ const path = require('path');
 const { OAuth2Client } = require('google-auth-library');
 const { Commentnum, Postnum } = require('./model/Postnum');
 const { Comment } = require('./model/Comment');
+const { title } = require('process');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -216,10 +217,69 @@ app.get('/api/post/:id/comment', (req, res) => {
 });
 ///////list 가져오기
 app.get('/api/list', (req, res) => {
-  List.find((err, data) => {
-    if (err) return res.json(err);
-    return res.json({ data });
-  });
+  console.log(req.query);
+  const { page, limit, offset, category } = req.query;
+  const Page = Number(page);
+  const Limit = Number(limit);
+  const Offset = Number(offset);
+  if (!category) {
+    List.find((err, data) => {
+      if (err) return res.json(err);
+      let humor = data
+        .filter((cat) => cat.category === 'humor')
+        .slice(-15)
+        .map((data) => {
+          return {
+            title: data.title,
+            postnum: data.postnum,
+            category: data.category,
+          };
+        });
+      let politic = data
+        .filter((cat) => cat.category === 'politic')
+        .slice(-15)
+        .map((data) => {
+          return {
+            title: data.title,
+            postnum: data.postnum,
+            category: data.category,
+          };
+        });
+      let healing = data
+        .filter((cat) => cat.category === 'healing')
+        .slice(-15)
+        .map((data) => {
+          return {
+            title: data.title,
+            postnum: data.postnum,
+            category: data.category,
+          };
+        });
+
+      return res.json([humor, politic, healing]);
+    });
+  } else if (category === 'all') {
+    List.find((err, data) => {
+      if (err) return res.json(err);
+
+      let lists = data
+        .reverse()
+        .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
+        .map((data) => data);
+
+      return res.json({ data: lists, total: data.length });
+    });
+  } else {
+    List.find({ category: category }, (err, data) => {
+      if (err) return res.json(err);
+      let lists = data
+        .reverse()
+        .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
+        .map((data) => data);
+
+      return res.json({ data: lists, total: data.length });
+    });
+  }
 });
 /////comment삭제하기
 app.post('/api/comment/delete', (req, res) => {

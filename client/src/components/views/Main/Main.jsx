@@ -5,17 +5,20 @@ import './Main.css';
 function Main() {
   const category = ['humor', 'politic', 'healing'];
   const [lists, setLists] = useState([]);
+
   useEffect(() => {
     const fetchAllLists = async () => {
       try {
         const res = await axios.get('/api/list');
-        setLists(res.data.data);
+        console.log(res.data);
+        setLists(res.data.map((dt) => dt));
       } catch (err) {
         alert(err);
       }
     };
     fetchAllLists();
   }, []);
+  console.log(lists.map((lst) => lst.map((list) => list.title)));
   return (
     <>
       {category.map((cat, idx) => {
@@ -26,10 +29,23 @@ function Main() {
                 {cat}
               </Link>
             </h3>
-
-            {lists
+            {lists.map((list) =>
+              list.map((lst) => {
+                return lst.category === cat ? (
+                  <div key={lst._id} className='mainCategory-post'>
+                    {' '}
+                    <Link
+                      to={`/list/${cat}/post/${lst.postnum}`}
+                      className='link'
+                    >
+                      {lst.title}
+                    </Link>
+                  </div>
+                ) : null;
+              })
+            )}
+            {/* {lists
               .filter((lst) => lst.category === cat)
-              .slice(-15)
               .reverse()
               .map((list) => {
                 return (
@@ -43,7 +59,7 @@ function Main() {
                     </Link>
                   </div>
                 );
-              })}
+              })} */}
           </div>
         );
       })}

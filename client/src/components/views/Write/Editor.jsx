@@ -55,7 +55,7 @@ const Editor = () => {
         navigate('/user/login');
       }
       if (response.payload.Writesuccess === true) {
-        navigate('/list');
+        navigate(-1);
       } else {
         alert(response.payload.err.message);
       }
@@ -118,7 +118,7 @@ const Editor = () => {
     'blockquote',
     'image',
   ];
-  console.log(writtenData);
+
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
@@ -142,6 +142,10 @@ const Editor = () => {
               value: '18+',
               label: '18+',
             },
+            {
+              value: 'healing',
+              label: 'healing',
+            },
           ]}
         />
         <input
@@ -161,7 +165,7 @@ const Editor = () => {
           formats={formats}
         />
         <footer>
-          <button> 제출해버리기</button>
+          <button> 글쓰기</button>
         </footer>
       </form>
     </div>

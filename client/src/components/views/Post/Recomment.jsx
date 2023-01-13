@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -24,6 +25,7 @@ function Recomment(props) {
 
   const inputHandler = (e) => {
     e.preventDefault();
+
     setRecomment((prev) => ({
       ...prev,
       content: e.target.value,
@@ -40,6 +42,8 @@ function Recomment(props) {
       console.log(error);
     }
   };
+
+  console.log(recomment.content);
   return (
     <div>
       {props.modalVisibleId === props.id ? (

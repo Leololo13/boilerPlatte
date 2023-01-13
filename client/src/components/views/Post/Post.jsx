@@ -86,7 +86,9 @@ function Post() {
   return (
     <div className='post'>
       <header className='postHead'>
-        <h3 className='post-title'>{post.title}</h3>
+        <h3 className='post-title'>
+          {post.title} {post.category}
+        </h3>
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}

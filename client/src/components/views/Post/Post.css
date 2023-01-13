@@ -59,10 +59,14 @@
   padding: 10px;
   padding-bottom: 3rem;
   min-width: 120px;
-  max-width: 680px;
+  max-width: 100%;
   object-fit: cover;
-
   word-break: break-all;
+}
+
+.postContent-main img {
+  max-width: 90%;
+  object-fit: cover;
 }
 
 .postContent-footer {
