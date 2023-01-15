@@ -1,27 +1,27 @@
 import axios from 'axios';
 import React from 'react';
-import { useEffect } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 function Recomment(props) {
-  const user = useSelector((state) => {
+  const initialState = {
+    content: '',
+    writer: '',
+    nickname: '',
+    postnum: props.postnum,
+    commentnum: 0,
+    parentcommentnum: props.commentnum,
+    like: [],
+    hate: [],
+  };
+  const user = useSelector(async (state) => {
     return state.rootReducer.user.userData;
   });
   const onCloseHandler = () => {
     props.setModalVisibleId('');
   };
 
-  const [recomment, setRecomment] = useState({
-    content: '',
-    writer: user?._id,
-    nickname: user?.nickname,
-    postnum: props.postnum,
-    commentnum: 0,
-    parentcommentnum: props.commentnum,
-    like: [],
-    hate: [],
-  });
+  const [recomment, setRecomment] = useState(initialState);
 
   const inputHandler = (e) => {
     e.preventDefault();
@@ -43,7 +43,6 @@ function Recomment(props) {
     }
   };
 
-  console.log(recomment.content);
   return (
     <div>
       {props.modalVisibleId === props.id ? (

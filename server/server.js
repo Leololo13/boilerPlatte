@@ -215,14 +215,32 @@ app.get('/api/post/:id/comment', (req, res) => {
     return res.json({ data });
   });
 });
+
 ///////list 가져오기
 app.get('/api/list', (req, res) => {
   console.log(req.query);
-  const { page, limit, offset, category } = req.query;
+  const { page, limit, category, search } = req.query;
   const Page = Number(page);
   const Limit = Number(limit);
-  const Offset = Number(offset);
-  if (!category) {
+  const Offset = (Page - 1) * Limit;
+  const Category = search ? 'search' : category === 'search' ? 'all' : category;
+
+  console.log(Category, 'cateeeeeeeeeeeeee');
+  const searchCondition = [
+    {
+      $search: {
+        index: 'titleSearch',
+        text: {
+          query: search,
+          path: {
+            wildcard: '*',
+          },
+        },
+      },
+    },
+  ];
+  if (!Category) {
+    //첫화면에서 랜딩할때 사용
     List.find((err, data) => {
       if (err) return res.json(err);
       let humor = data
@@ -233,6 +251,7 @@ app.get('/api/list', (req, res) => {
             title: data.title,
             postnum: data.postnum,
             category: data.category,
+            _id: data._id,
           };
         });
       let politic = data
@@ -243,6 +262,7 @@ app.get('/api/list', (req, res) => {
             title: data.title,
             postnum: data.postnum,
             category: data.category,
+            _id: data._id,
           };
         });
       let healing = data
@@ -253,12 +273,14 @@ app.get('/api/list', (req, res) => {
             title: data.title,
             postnum: data.postnum,
             category: data.category,
+            _id: data._id,
           };
         });
 
       return res.json([humor, politic, healing]);
     });
-  } else if (category === 'all') {
+  } else if (Category === 'all') {
+    //카테고리가 all일때
     List.find((err, data) => {
       if (err) return res.json(err);
 
@@ -269,7 +291,19 @@ app.get('/api/list', (req, res) => {
 
       return res.json({ data: lists, total: data.length });
     });
+  } ////search 할때 카테고리를 설정해서 뽑아주기
+  else if (Category === 'search') {
+    console.log('??');
+    List.aggregate(searchCondition, (err, data) => {
+      if (err) return res.json(err);
+      let lists = data
+        .reverse()
+        .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
+        .map((data) => data);
+      res.json({ data: lists, total: data.length });
+    });
   } else {
+    //각자의 카테고리로 갓을떄
     List.find({ category: category }, (err, data) => {
       if (err) return res.json(err);
       let lists = data

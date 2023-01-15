@@ -10,7 +10,6 @@ function Main() {
     const fetchAllLists = async () => {
       try {
         const res = await axios.get('/api/list');
-        console.log(res.data);
         setLists(res.data.map((dt) => dt));
       } catch (err) {
         alert(err);

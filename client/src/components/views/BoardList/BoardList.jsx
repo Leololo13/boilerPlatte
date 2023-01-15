@@ -3,22 +3,32 @@ import './Boardlist.css';
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useState } from 'react';
-import { Pagination } from 'antd';
+import { Pagination, Input } from 'antd';
 import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
 
 function BoardList() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const cp = searchParams.get('page');
+  const searchtarget = searchParams.get('search');
   const { category } = useParams();
   const [lists, setLists] = useState([]);
   const [comments, setComments] = useState([]);
   const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(cp ?? 1);
   const [total, setTotal] = useState(20);
+  const [search, setSearch] = useState(searchtarget ?? '');
+  const [searchOn, setSearchon] = useState(false);
 
+  const searchHandler = (e) => {
+    e.preventDefault();
+    setSearch(e.target.value);
+  };
+  const searchSubmit = async () => {
+    console.log(searchOn);
+    setSearchon(!searchOn);
+  };
   const offset = (page - 1) * limit;
-
   ////시간 함수 ~~전으로 표현하기
   function elapsedTime(date) {
     const start = new Date(date);
@@ -45,17 +55,18 @@ function BoardList() {
   }
 
   ///outlet 에 값이 있으면 true 가 나오는듯
-
   /////////////////////////////
   useEffect(() => {
     const fetchAllLists = async () => {
       try {
         const res = await axios.get(
-          `/api/list?page=${page}&category=${category}&limit=${limit}&offset=${offset}`,
+          `/api/list?page=${page}&category=${
+            search ? 'search' : category
+          }&limit=${limit}&search=${search}`,
           category
         );
         const res2 = await axios.get('/api/comment');
-        console.log(res.data);
+        console.log(res.data.data);
         setComments(res2.data.data);
         setLists(res.data.data);
         setTotal(res.data.total);
@@ -65,8 +76,7 @@ function BoardList() {
     };
     console.log('useeffect render');
     fetchAllLists();
-  }, [page]);
-  console.log(page, 'change?');
+  }, [page, searchOn]);
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
@@ -75,7 +85,20 @@ function BoardList() {
           {' '}
           section list <div> option</div>
         </section>
-        <div>search</div>
+        <div>
+          <Input.Search
+            allowClear
+            style={{
+              width: '120px',
+            }}
+            maxLength={20}
+            size='middle'
+            defaultValue=''
+            onChange={searchHandler}
+            onSearch={searchSubmit}
+            value={search}
+          />
+        </div>
       </header>
       <main className='boardlist-main'>
         <Outlet></Outlet>
@@ -121,7 +144,9 @@ function BoardList() {
           <tbody>
             {lists
               .filter((list) =>
-                category === 'all' ? list : list.category === category
+                category === 'all' || 'search'
+                  ? list
+                  : list.category === category
               )
               .map((list) => (
                 <tr className='boardlist-table' key={list._id}>
@@ -138,11 +163,13 @@ function BoardList() {
                   >
                     {list.like.length}/{list.hate.length}
                   </td>
-                  <td style={{ flex: 16 }}>
+                  <td style={{ flex: 16, width: '100%' }}>
                     <div className='boardlist-table-title'>
                       <Link
                         className='link'
-                        to={`/list/${category}/post/${list.postnum}?page=${page}`}
+                        to={`/list/${search ? 'search' : category}/post/${
+                          list.postnum
+                        }?page=${page}&search=${search ?? null}`}
                       >
                         {list.title}
                         {'   '}

@@ -72,6 +72,7 @@ function Comment() {
       setModalVisibleId(id);
     }
   }
+
   const deleteHandler = async (e) => {
     e.preventDefault();
     let commentnum = e.target.dataset;
@@ -178,6 +179,7 @@ function Comment() {
                                   data-id={comment.content}
                                 >
                                   <EditOutlined
+                                    data-id={'hello'}
                                     style={{ fontSize: '1.2rem' }}
                                   />
                                 </div>

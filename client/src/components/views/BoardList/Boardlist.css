@@ -50,10 +50,17 @@
   height: 1.5rem;
   max-width: 300px;
   font-size: 0.8rem;
+  width: 100%;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.boardlist-table:hover {
+  background-color: whitesmoke;
+}
+.boardlist-table-title .link:visited {
+  color: grey;
 }
 
 @media screen and (max-width: 768px) {
