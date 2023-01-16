@@ -34,10 +34,9 @@ function App() {
           <Routes location={matchUser ? background : location}>
             <Route path='/' element={Auth(LandingPage, null)}>
               <Route path='list/:category' element={Auth(BoardList, null)}>
-                <Route path='write' element={Auth(Write, true)} />
                 <Route path='post/:id' element={Auth(Post, null)} />
-                <Route path='editor' element={<Editor />} />
-                <Route path='post/:id/edit' element={<Edit />} />
+                <Route path='editor' element={Auth(Editor, true)} />
+                <Route path='post/:id/edit' element={Auth(Edit, true)} />
               </Route>
 
               <Route>

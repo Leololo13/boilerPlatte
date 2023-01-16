@@ -133,7 +133,6 @@ app.get('/api/user/auth', auth, (req, res) => {
       email: req.user.email,
       name: req.user.name,
       lastname: req.user.lastname,
-      role: req.user.role,
       image: req.user.image,
       _id: req.user._id,
       nickname: req.user.nickname,
@@ -469,10 +468,19 @@ const upload = multer({
 app.post('/api/list/write/upload_img', upload.single('img'), (req, res) => {
   console.log('전달받은파일', req.file);
   console.log('save filename', req.file.filename);
+  console.log('save filename', req.file.mimetype);
 
   const IMG_URL = `http://localhost:8080/uploads/${req.file.filename}`;
   console.log(IMG_URL);
-  res.json({ url: IMG_URL });
+  res.json({ url: IMG_URL, type: req.file.mimetype });
+});
+app.post('/api/list/write/upload_video', upload.single('video'), (req, res) => {
+  console.log('전달받은파일', req.file);
+  console.log('save filename', req.file.filename);
+
+  const VIDEO_URL = `http://localhost:8080/uploads/${req.file.filename}`;
+  console.log(VIDEO_URL);
+  res.json({ url: VIDEO_URL });
 });
 
 //db서버 접속

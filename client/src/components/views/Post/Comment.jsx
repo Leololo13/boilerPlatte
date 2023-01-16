@@ -162,7 +162,7 @@ function Comment() {
                               onClick={() => {
                                 recommentModalHandler(comment._id);
                               }}
-                              style={{ cursor: 'pointer' }}
+                              style={{ cursor: 'pointer', fontWeight: 'bold' }}
                               className='comment-recomment'
                               data-id={comment._id}
                             >

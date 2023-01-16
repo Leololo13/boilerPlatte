@@ -19,7 +19,7 @@ function Post() {
   const [post, setPost] = useState({});
   const postDeletehandler = async () => {
     try {
-      await axios.post(`/api/post/delete/${id}`).then(navigate('/list'));
+      await axios.post(`/api/post/delete/${id}`).then(navigate('/list/all'));
     } catch (error) {
       alert(error);
     }

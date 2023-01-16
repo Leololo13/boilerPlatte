@@ -29,7 +29,7 @@ function Main() {
               </Link>
             </h3>
             {lists.map((list) =>
-              list.map((lst) => {
+              list.reverse().map((lst) => {
                 return lst.category === cat ? (
                   <div key={lst._id} className='mainCategory-post'>
                     {' '}

@@ -98,11 +98,12 @@ function Navbar() {
   return (
     <div className='navbar-box'>
       <div className='leftbox'>
-        left{' '}
         <div className='logo'>
-          {' '}
           <Link to={'/'} className='link'>
-            LEO.COM <img src='' alt='' />{' '}
+            <img src='/logo/cow.png' className='leftbox-logimg' alt='' />{' '}
+          </Link>
+          <Link to={'/'} className='link'>
+            BMCow.Com
           </Link>
         </div>
       </div>

@@ -14,7 +14,6 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(loginUser.fulfilled, (state, { payload }) => {
-      console.log(state, payload);
       return { ...state, LoginSuccess: payload };
     });
 

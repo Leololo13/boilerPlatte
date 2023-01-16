@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { React, useState, useRef, useMemo } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -8,12 +8,39 @@ import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
 import { Select } from 'antd';
 
+const Video = Quill.import('formats/video');
+const Link = Quill.import('formats/link');
+
+class CoustomVideo extends Video {
+  static create(value) {
+    const node = super.create(value);
+
+    const video = document.createElement('video');
+    video.setAttribute('controls', true);
+    video.setAttribute('type', 'video/mp4');
+    // video.setAttribute('style', 'height: 200px; width: 100%');
+    video.setAttribute('src', this.sanitize(value));
+    node.appendChild(video);
+
+    return node;
+  }
+
+  static sanitize(url) {
+    return Link.sanitize(url);
+  }
+}
+CoustomVideo.blotName = 'video';
+CoustomVideo.className = 'ql-video';
+CoustomVideo.tagName = 'DIV';
+
+Quill.register('formats/video', CoustomVideo);
+
 const Editor = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => {
-    if (state.rootReducer.user.userData.isAuth) {
+    if (state.rootReducer.user.userData?.isAuth) {
       return state.rootReducer.user.userData;
     }
   });
@@ -24,14 +51,16 @@ const Editor = () => {
       category: value,
     }));
   };
+
+  console.log(user);
   const quillRef = useRef(); //
 
   const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
   const [writtenData, setWrittenData] = useState({
     title: '',
     content: '',
-    writer: user._id,
-    id: user.id,
+    writer: user?._id,
+    id: user?.id,
     postnum: 0,
     category: 'humor',
   });
@@ -61,6 +90,7 @@ const Editor = () => {
       }
     });
   }
+
   const imageHandler = () => {
     //이미지를 누르면 그림이 클릭되도록해서 시작하겠습니다.
     //이미지를 저장할 input = file dom 을 만들어준다
@@ -68,7 +98,8 @@ const Editor = () => {
 
     ///인풋 속성들 넣기. 타입은 파일이고 승인은 이미지 어쩌고
     input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
+    input.setAttribute('accept', 'image/*, video/*');
+
     input.click();
     ///input에 변화가생기면? 파일을 넣은다든지
     input.addEventListener('change', async () => {
@@ -76,17 +107,24 @@ const Editor = () => {
       const file = input.files[0];
       ///뮬터에 맞는 형식으로 만들어주기
       const formData = new FormData();
+
       formData.append('img', file);
       ///아마도 이 formdata가 뮬터로 가는듯
       try {
         const res = await axios.post('/api/list/write/upload_img', formData);
         console.log('성공시 백엔드가 데이터보내줌', res.data.url);
+        const FILE_TYPE = res.data.type;
         const IMG_URL = res.data.url;
         ///퀼의 가지고있는 에디터 가져오기!
         const editor = quillRef.current.getEditor();
         //현재 마우스위치 알려주기. 그래야 여기에 이미지를 넣음
         const range = editor.getSelection();
-        editor.insertEmbed(range, 'image', IMG_URL);
+
+        editor.insertEmbed(
+          range,
+          FILE_TYPE === 'video/mp4' ? 'video' : 'image',
+          IMG_URL
+        );
       } catch (error) {
         console.log(error);
       }
@@ -97,7 +135,7 @@ const Editor = () => {
     return {
       toolbar: {
         container: [
-          ['image'],
+          ['link', 'image', 'video'],
           [{ header: [1, 2, 3, false] }],
           ['bold', 'italic', 'underline', 'strike', 'blockquote'],
         ],
@@ -117,6 +155,8 @@ const Editor = () => {
     'strike',
     'blockquote',
     'image',
+    'video',
+    'link',
   ];
 
   return (
