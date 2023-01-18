@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Main.css';
 function Main() {
-  const category = ['humor', 'politic', 'healing'];
+  const category = ['humor', 'politic', 'healing', '18+'];
   const [lists, setLists] = useState([]);
 
   useEffect(() => {
     const fetchAllLists = async () => {
       try {
         const res = await axios.get('/api/list');
+        console.log(res);
         setLists(res.data.map((dt) => dt));
       } catch (err) {
         alert(err);

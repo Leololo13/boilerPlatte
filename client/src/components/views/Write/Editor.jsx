@@ -1,32 +1,89 @@
 import axios from 'axios';
-import { React, useState, useRef, useMemo } from 'react';
+import { React, useState, useRef, useMemo, useEffect } from 'react';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
 import { Select } from 'antd';
+import ReactDOM from 'react-dom';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
 
+function getVideoUrl(url) {
+  let match =
+    url.match(
+      /^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtube\.com\/watch.*v=([a-zA-Z0-9_-]+)/
+    ) ||
+    url.match(
+      /^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtu\.be\/([a-zA-Z0-9_-]+)/
+    ) ||
+    url.match(/^.*(youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/);
+  // console.log(match[2]);
+  if (match && match[2].length === 11) {
+    return (
+      'https' +
+      '://www.youtube.com/embed/' +
+      match[2] +
+      '?showinfo=0' +
+      '?autoplay=1'
+    );
+  }
+  if ((match = url.match(/^(?:(https?):\/\/)?(?:www\.)?vimeo\.com\/(\d+)/))) {
+    // eslint-disable-line no-cond-assign
+    return (
+      (match[1] || 'https') +
+      '://player.vimeo.com/video/' +
+      match[2] +
+      '/' +
+      '?autoplay=1'
+    );
+  }
+  return url;
+}
+
 class CoustomVideo extends Video {
+  static sanitize(url) {
+    const utubeUrl = getVideoUrl(url);
+    return Link.sanitize(utubeUrl);
+  }
+
   static create(value) {
     const node = super.create(value);
+    const utubeUrl = value.includes('youtube');
+    const videoUrl = value.includes('video');
+    console.log(utubeUrl ? 'iframe' : 'video');
+    // this.State({
+    //   iFrameHeight: '100px',
+    // });
 
-    const video = document.createElement('video');
-    video.setAttribute('controls', true);
+    const video = document.createElement(utubeUrl ? 'iframe' : 'video');
+    if (utubeUrl) {
+      console.log(utubeUrl);
+      video.setAttribute('controls', true);
+      video.setAttribute('allowfullscreen', true);
+      video.setAttribute(
+        'allow',
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+      );
+    } else if (videoUrl) {
+      console.log('video');
+      video.setAttribute('controls', true);
+    } else {
+      console.log('gif');
+      video.setAttribute('autoplay', true);
+      video.setAttribute('playsinline', true);
+      video.setAttribute('loop', true);
+      video.setAttribute('muted', true);
+    }
     video.setAttribute('type', 'video/mp4');
-    // video.setAttribute('style', 'height: 200px; width: 100%');
     video.setAttribute('src', this.sanitize(value));
+
     node.appendChild(video);
 
     return node;
-  }
-
-  static sanitize(url) {
-    return Link.sanitize(url);
   }
 }
 CoustomVideo.blotName = 'video';
@@ -35,7 +92,13 @@ CoustomVideo.tagName = 'DIV';
 
 Quill.register('formats/video', CoustomVideo);
 
-const Editor = () => {
+/////////////////////////////////////////////////////////////////////////////
+const Editor = (props) => {
+  const { id } = useParams();
+  const { category } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const editOn = searchParams.get('editOn');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -52,7 +115,6 @@ const Editor = () => {
     }));
   };
 
-  console.log(user);
   const quillRef = useRef(); //
 
   const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
@@ -62,7 +124,7 @@ const Editor = () => {
     writer: user?._id,
     id: user?.id,
     postnum: 0,
-    category: 'humor',
+    category: category,
   });
   function dataHandler(e) {
     e.preventDefault();
@@ -77,18 +139,25 @@ const Editor = () => {
 
     let body = writtenData;
     body.content = value;
-    dispatch(Writer(body)).then((response) => {
-      console.log(response);
-      if (!response.payload) {
-        alert('Login이 필요한 기능입니다');
-        navigate('/user/login');
-      }
-      if (response.payload.Writesuccess === true) {
-        navigate(-1);
-      } else {
-        alert(response.payload.err.message);
-      }
-    });
+    if (editOn) {
+      axios.post(`/api/post/${id}/edit`, body).then((res) => {
+        console.log(res.data);
+      });
+    } else {
+      dispatch(Writer(body)).then((response) => {
+        if (!response.payload) {
+          alert('Login이 필요한 기능입니다');
+          navigate('/user/login');
+        }
+        if (response.payload.Writesuccess === true) {
+          navigate(
+            `/list/${writtenData.category}/post/${response.payload.postnum}`
+          );
+        } else {
+          alert(response.payload.err.message);
+        }
+      });
+    }
   }
 
   const imageHandler = () => {
@@ -158,13 +227,29 @@ const Editor = () => {
     'video',
     'link',
   ];
-
+  useEffect(() => {
+    const FetchEdit = async () => {
+      if (editOn) {
+        try {
+          axios.get(`/api/list/post/${id}`).then((res) => {
+            setWrittenData(res.data);
+            setValue(res.data.content);
+            console.log(res.data);
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+    FetchEdit();
+  }, []);
+  console.log(writtenData.category);
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
         {/* <button onClick={onClickcontents}>확인하기기</button> */}
         <Select
-          defaultValue='humor'
+          defaultValue={editOn ? writtenData.category : 'humor'}
           style={{
             width: 120,
           }}
@@ -191,6 +276,7 @@ const Editor = () => {
         <input
           type='text'
           name='title'
+          value={writtenData.title}
           onChange={dataHandler}
           placeholder='Title'
         />
@@ -205,7 +291,7 @@ const Editor = () => {
           formats={formats}
         />
         <footer>
-          <button> 글쓰기</button>
+          <button> {editOn ? '수정하기' : '글쓰기'}</button>
         </footer>
       </form>
     </div>

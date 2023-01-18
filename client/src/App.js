@@ -36,7 +36,7 @@ function App() {
               <Route path='list/:category' element={Auth(BoardList, null)}>
                 <Route path='post/:id' element={Auth(Post, null)} />
                 <Route path='editor' element={Auth(Editor, true)} />
-                <Route path='post/:id/edit' element={Auth(Edit, true)} />
+                <Route path='post/:id/edit' element={Auth(Editor, true)} />
               </Route>
 
               <Route>

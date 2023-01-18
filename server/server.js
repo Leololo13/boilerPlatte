@@ -162,7 +162,9 @@ app.post('/api/list/write', auth, (req, res) => {
     const list = new List(req.body);
     list.save((err, data) => {
       if (err) return res.json({ Writesuccess: false, err });
-      return res.status(200).json({ Writesuccess: true });
+      return res
+        .status(200)
+        .json({ Writesuccess: true, postnum: req.body.postnum });
     });
   });
 });
@@ -179,15 +181,12 @@ app.post('/api/post/delete/:id', auth, (req, res) => {
 app.post('/api/post/:id/edit', auth, (req, res) => {
   let id = req.params.id;
   let data = req.body;
+  console.log(id, data);
   console.log('edit하기');
-  List.findOneAndUpdate(
-    { postnum: id },
-    { title: data.title, content: data.content },
-    (err, data) => {
-      if (err) return res.json(err);
-      return res.json({ EditSuccess: true });
-    }
-  );
+  List.findOneAndUpdate({ postnum: id }, data, (err, data) => {
+    if (err) return res.json(err);
+    return res.json({ EditSuccess: true });
+  });
 });
 
 ////comment달기
@@ -223,7 +222,7 @@ app.get('/api/list', (req, res) => {
   const Limit = Number(limit);
   const Offset = (Page - 1) * Limit;
   const Category = search ? 'search' : category === 'search' ? 'all' : category;
-
+  const cat = ['humor', 'politic', 'healing', '18+'];
   console.log(Category, 'cateeeeeeeeeeeeee');
   const searchCondition = [
     {
@@ -242,41 +241,55 @@ app.get('/api/list', (req, res) => {
     //첫화면에서 랜딩할때 사용
     List.find((err, data) => {
       if (err) return res.json(err);
-      let humor = data
-        .filter((cat) => cat.category === 'humor')
-        .slice(-15)
-        .map((data) => {
-          return {
-            title: data.title,
-            postnum: data.postnum,
-            category: data.category,
-            _id: data._id,
-          };
-        });
-      let politic = data
-        .filter((cat) => cat.category === 'politic')
-        .slice(-15)
-        .map((data) => {
-          return {
-            title: data.title,
-            postnum: data.postnum,
-            category: data.category,
-            _id: data._id,
-          };
-        });
-      let healing = data
-        .filter((cat) => cat.category === 'healing')
-        .slice(-15)
-        .map((data) => {
-          return {
-            title: data.title,
-            postnum: data.postnum,
-            category: data.category,
-            _id: data._id,
-          };
-        });
+      let lists = cat.map((cats) => {
+        return data
+          .filter((cat) => cat.category === cats)
+          .slice(-15)
+          .map((data) => {
+            return {
+              title: data.title,
+              postnum: data.postnum,
+              category: data.category,
+              _id: data._id,
+            };
+          });
+        // console.log(abb);
+      });
+      // let humor = data
+      //   .filter((cat) => cat.category === 'humor')
+      //   .slice(-15)
+      //   .map((data) => {
+      //     return {
+      //       title: data.title,
+      //       postnum: data.postnum,
+      //       category: data.category,
+      //       _id: data._id,
+      //     };
+      //   });
+      // let politic = data
+      //   .filter((cat) => cat.category === 'politic')
+      //   .slice(-15)
+      //   .map((data) => {
+      //     return {
+      //       title: data.title,
+      //       postnum: data.postnum,
+      //       category: data.category,
+      //       _id: data._id,
+      //     };
+      //   });
+      // let healing = data
+      //   .filter((cat) => cat.category === 'healing')
+      //   .slice(-15)
+      //   .map((data) => {
+      //     return {
+      //       title: data.title,
+      //       postnum: data.postnum,
+      //       category: data.category,
+      //       _id: data._id,
+      //     };
+      //   });
 
-      return res.json([humor, politic, healing]);
+      return res.json(lists);
     });
   } else if (Category === 'all') {
     //카테고리가 all일때
@@ -454,6 +467,7 @@ const upload = multer({
       if (
         (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg',
         ext !== '.mp4',
+        ext !== '.webp',
         ext !== '.gif')
       ) {
         return callback(new Error('정해진 형식만 업로드 하세요.'));

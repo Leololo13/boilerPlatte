@@ -31,7 +31,7 @@ function LandingPage() {
           // }}
         >
           <aside>
-            <div>aside</div>
+            <div>asaide "</div>
           </aside>
           <article className='landingpage-main-content'>
             {outlet ? <Outlet /> : <Main />}

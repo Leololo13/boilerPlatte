@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import './Post.css';
 import Comment from './Comment';
-
+import ReactDOM from 'react-dom';
 import Dompurify from 'dompurify';
 
 function Post() {
@@ -75,6 +75,7 @@ function Post() {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
         setPost(res.data);
+        console.log(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -82,13 +83,22 @@ function Post() {
     fetchPost();
   }, []);
   console.log('render');
+  function onLoad() {
+    console.log('온로드');
+  }
+  const [iHeight, setiHeight] = useState('200px');
+  let iframe = document.querySelector('iframe');
+  console.log(iframe);
+
+  // iframe.setAttribute('allow', 'loop');
+  // console.log(iframe?.style.height);
+  // console.log(iframe?.contentWindow.document.body.scrollHeight);
+
   let content = post?.content;
   return (
     <div className='post'>
       <header className='postHead'>
-        <h3 className='post-title'>
-          {post.title} {post.category}
-        </h3>
+        <h3 className='post-title'>{post.title}</h3>
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}
@@ -112,7 +122,17 @@ function Post() {
         {typeof window !== 'undefined' && (
           <div
             className='postContent-main'
-            dangerouslySetInnerHTML={{ __html: Dompurify.sanitize(content) }}
+            dangerouslySetInnerHTML={{
+              __html: Dompurify.sanitize(content, {
+                ADD_TAGS: ['iframe'],
+                ADD_ATTR: [
+                  'allow',
+                  'allowfullscreen',
+                  'frameborder',
+                  'scrolling',
+                ],
+              }),
+            }}
           ></div>
         )}
 
@@ -131,7 +151,7 @@ function Post() {
           {user?.id === post.id ? (
             <div className='footer-editbox'>
               {' '}
-              <Link to={`/list/${category}/post/${id}/edit`}>
+              <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
                 <button className='footer-editbox-edit'>edit</button>{' '}
               </Link>
               <button
