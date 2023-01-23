@@ -7,7 +7,6 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
 import { Select } from 'antd';
-import ReactDOM from 'react-dom';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
@@ -64,6 +63,7 @@ class CoustomVideo extends Video {
       console.log(utubeUrl);
       video.setAttribute('controls', true);
       video.setAttribute('allowfullscreen', true);
+      video.setAttribute('class', 'youtube-video');
       video.setAttribute(
         'allow',
         'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
@@ -141,6 +141,11 @@ const Editor = (props) => {
     body.content = value;
     if (editOn) {
       axios.post(`/api/post/${id}/edit`, body).then((res) => {
+        if (res.data.EditSuccess === true) {
+          navigate(`/list/${writtenData.category}/post/${id}`);
+        } else {
+          alert(res.data.err);
+        }
         console.log(res.data);
       });
     } else {
@@ -168,32 +173,41 @@ const Editor = (props) => {
     ///인풋 속성들 넣기. 타입은 파일이고 승인은 이미지 어쩌고
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*, video/*');
-
+    input.setAttribute('multiple', 'multiple');
     input.click();
     ///input에 변화가생기면? 파일을 넣은다든지
     input.addEventListener('change', async () => {
       console.log('온체인지');
-      const file = input.files[0];
+      const file = input.files;
+      console.log(file);
       ///뮬터에 맞는 형식으로 만들어주기
       const formData = new FormData();
+      for (let i = 0; i < file.length; i++) {
+        console.log(i, file[i]);
+        formData.append('img', file[i]);
+        console.log(formData);
+      }
 
-      formData.append('img', file);
       ///아마도 이 formdata가 뮬터로 가는듯
       try {
         const res = await axios.post('/api/list/write/upload_img', formData);
-        console.log('성공시 백엔드가 데이터보내줌', res.data.url);
-        const FILE_TYPE = res.data.type;
+
+        console.log('성공시 백엔드가 데이터보내줌', res.data);
+        const FILES = res.data.files;
         const IMG_URL = res.data.url;
+
         ///퀼의 가지고있는 에디터 가져오기!
         const editor = quillRef.current.getEditor();
         //현재 마우스위치 알려주기. 그래야 여기에 이미지를 넣음
         const range = editor.getSelection();
 
-        editor.insertEmbed(
-          range,
-          FILE_TYPE === 'video/mp4' ? 'video' : 'image',
-          IMG_URL
-        );
+        for (let i = 0; i < FILES.length; i++) {
+          editor.insertEmbed(
+            range,
+            FILES[i].mimetype === 'video/mp4' ? 'video' : 'image',
+            IMG_URL[i]
+          );
+        }
       } catch (error) {
         console.log(error);
       }

@@ -181,6 +181,9 @@ function Comment() {
                                   <EditOutlined
                                     data-id={'hello'}
                                     style={{ fontSize: '1.2rem' }}
+                                    onClick={() => {
+                                      console.log('edit클릭');
+                                    }}
                                   />
                                 </div>
                                 <div

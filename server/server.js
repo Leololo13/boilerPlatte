@@ -217,6 +217,7 @@ app.get('/api/post/:id/comment', (req, res) => {
 ///////list 가져오기
 app.get('/api/list', (req, res) => {
   console.log(req.query);
+  console.log(req.body);
   const { page, limit, category, search } = req.query;
   const Page = Number(page);
   const Limit = Number(limit);
@@ -479,15 +480,18 @@ const upload = multer({
 });
 
 ///img업로드 api만들기
-app.post('/api/list/write/upload_img', upload.single('img'), (req, res) => {
-  console.log('전달받은파일', req.file);
-  console.log('save filename', req.file.filename);
-  console.log('save filename', req.file.mimetype);
+app.post('/api/list/write/upload_img', upload.array('img', 10), (req, res) => {
+  console.log('전달받은파일', req.files);
+  // console.log('save filename', req.file.filename);
+  // console.log('save filename', req.file.mimetype);
 
-  const IMG_URL = `http://localhost:8080/uploads/${req.file.filename}`;
-  console.log(IMG_URL);
-  res.json({ url: IMG_URL, type: req.file.mimetype });
+  const IMG_URL_FOLDER = req.files.map((file) => {
+    let img_url = 'http://localhost:8080/uploads/' + file.filename;
+    return img_url;
+  });
+  res.json({ url: IMG_URL_FOLDER, files: req.files });
 });
+
 app.post('/api/list/write/upload_video', upload.single('video'), (req, res) => {
   console.log('전달받은파일', req.file);
   console.log('save filename', req.file.filename);

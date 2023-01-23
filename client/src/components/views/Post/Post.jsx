@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import './Post.css';
 import Comment from './Comment';
-import ReactDOM from 'react-dom';
 import Dompurify from 'dompurify';
 
 function Post() {
@@ -75,7 +74,6 @@ function Post() {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
         setPost(res.data);
-        console.log(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -83,13 +81,6 @@ function Post() {
     fetchPost();
   }, []);
   console.log('render');
-  function onLoad() {
-    console.log('온로드');
-  }
-  const [iHeight, setiHeight] = useState('200px');
-  let iframe = document.querySelector('iframe');
-  console.log(iframe);
-
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
@@ -98,7 +89,11 @@ function Post() {
   return (
     <div className='post'>
       <header className='postHead'>
-        <h3 className='post-title'>{post.title}</h3>
+        <h4 className='post-title'>
+          <Link className='link' to={location.pathname + location.search}>
+            {post.title}
+          </Link>
+        </h4>
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}

@@ -17,6 +17,9 @@
   padding: 10px;
   border-bottom: 1px solid burlywood;
 }
+.post-title:hover {
+  text-decoration: underline;
+}
 .postInfo {
   display: flex;
   flex-direction: column;
@@ -25,6 +28,7 @@
   background-color: bisque;
   padding-bottom: 0.5rem;
 }
+
 .postInfo-info {
   display: flex;
   height: 2rem;
@@ -65,26 +69,31 @@
   word-break: break-all;
 }
 /* 유튜브사이즈에 맞게가는지  */
-.postContent .ql-video {
+
+.ql-video {
+  width: 100%;
+  padding-bottom: 10px;
+  overflow: hidden;
+}
+/* 쉬바알.. 지난번에 반대로 이해해서 제대로 대가리깨지고 시이바아아아아해냇다아아 */
+.ql-video:has(> iframe) {
   position: relative;
   width: 100%;
-  object-fit: cover;
+  height: 0;
+  padding: 0px;
+  background-color: aliceblue;
   padding-bottom: 56.25%;
   overflow: hidden;
 }
-.postContent-main iframe {
+.ql-video iframe {
   position: absolute;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow: auto;
-  /* width: 100%; 부모에 맞게 꽉 채운다. */
-  /* min-height: 500px; */
 }
-.postContent-main video {
-  max-width: 100%;
 
-  object-fit: cover;
+.postContent-main video {
+  width: 100%;
+  height: auto;
 }
 
 .postContent-main img {

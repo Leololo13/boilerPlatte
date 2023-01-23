@@ -9,7 +9,7 @@ function Main() {
   useEffect(() => {
     const fetchAllLists = async () => {
       try {
-        const res = await axios.get('/api/list');
+        const res = await axios.get('/api/list', category);
         console.log(res);
         setLists(res.data.map((dt) => dt));
       } catch (err) {
