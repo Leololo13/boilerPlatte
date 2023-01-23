@@ -16,11 +16,11 @@ function Register() {
     name: '',
     lastname: '',
     nickname: '',
+    signupDate: new Date(),
   });
   const [confirmpw, setConfirmpw] = useState('');
   const datahandler = function (e) {
     e.preventDefault();
-    console.log(e.target.value, e.target.name);
     setUserdata((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
   const confirmpwHandler = function (e) {
@@ -29,12 +29,13 @@ function Register() {
   const onSubmitHandler = function (e) {
     e.preventDefault();
     let body = { email: userdata.email, password: userdata.password };
-
-    dispatch(registerUser(body)).then((response) => {
-      if (response.payload.loginSuccess === true) {
+    console.log(userdata);
+    dispatch(registerUser(userdata)).then((response) => {
+      if (response.payload.RegisterSuccess === true) {
         navigate('/');
       } else {
-        alert('Error');
+        console.log(response.payload);
+        alert(response.payload.message);
       }
     });
   };

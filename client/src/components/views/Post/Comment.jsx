@@ -203,6 +203,7 @@ function Comment() {
                         <div className='comment-content'>{comment.content}</div>
                       </div>
                     </div>
+                    {/* 리코멘트누를떄 modal비슷한걸 하나 만들어서 값을 보내서 이때만 value를 받게하면될듯함 */}
                     <Recomment
                       id={comment._id}
                       modalVisibleId={modalVisibleId}

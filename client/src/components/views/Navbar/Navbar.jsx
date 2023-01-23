@@ -31,6 +31,7 @@ function Navbar() {
     try {
       await axios.get(`/api/user/auth`).then((res) => {
         setData(res.data);
+        console.log(res.data);
       });
     } catch (err) {
       console.log(err, 'navbar autherr');
@@ -44,7 +45,7 @@ function Navbar() {
   }, []);
   ///////////////nav bar 아이콘 내 항목
   const items = [
-    data.id ?? {
+    data.email ?? {
       key: '1',
       label: (
         <Link to={'/user/login'} state={{ background: location }}>
@@ -53,7 +54,7 @@ function Navbar() {
         </Link>
       ),
     },
-    data.id ?? {
+    data.email ?? {
       key: '2',
       label: (
         <Link to={'/user/register'} state={{ background: location }}>
@@ -62,7 +63,7 @@ function Navbar() {
         </Link>
       ),
     },
-    data.id && {
+    data.email && {
       key: '3',
       label: (
         <Link to={`/user/mypage`} state={{ background: location }}>
@@ -71,7 +72,7 @@ function Navbar() {
         </Link>
       ),
     },
-    data.id && {
+    data.email && {
       key: '5',
       label: (
         <div rel='noopener noreferrer' onClick={logoutHandler}>
@@ -109,7 +110,7 @@ function Navbar() {
       </div>
       <div className='rightbox'>
         <div className='iconbox'>
-          {data.id ? (
+          {data.email ? (
             <Link to={`/list/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>
             </Link>

@@ -36,6 +36,7 @@ mongoose
 
 app.post('/api/user/register', (req, res) => {
   const user = new User(req.body);
+  console.log(user);
   User.findOne({ email: req.body.email }, (err, userData) => {
     if (!userData) {
       user.save((err, data) => {

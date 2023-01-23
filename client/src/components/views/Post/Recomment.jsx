@@ -14,9 +14,10 @@ function Recomment(props) {
     like: [],
     hate: [],
   };
-  const user = useSelector(async (state) => {
+  const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
+
   const onCloseHandler = () => {
     props.setModalVisibleId('');
   };
@@ -29,6 +30,8 @@ function Recomment(props) {
     setRecomment((prev) => ({
       ...prev,
       content: e.target.value,
+      writer: user?._id,
+      nickname: user?.nickname,
     }));
   };
   const submitHandler = async (e) => {
@@ -52,7 +55,7 @@ function Recomment(props) {
               <div className='comment-write-img'>사진</div>
               <form action='' onSubmit={submitHandler}>
                 <input
-                  value={props.value}
+                  value={recomment.content}
                   name='content'
                   type='text'
                   onChange={inputHandler}
