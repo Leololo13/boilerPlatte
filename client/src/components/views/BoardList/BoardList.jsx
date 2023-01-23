@@ -19,6 +19,7 @@ function BoardList() {
   const [total, setTotal] = useState(20);
   const [search, setSearch] = useState(searchtarget ?? '');
   const [searchOn, setSearchon] = useState(false);
+  const [searchModal, setSearchModal] = useState(true);
 
   const searchHandler = (e) => {
     e.preventDefault();
@@ -27,6 +28,7 @@ function BoardList() {
   const searchSubmit = async () => {
     console.log(searchOn);
     setSearchon(!searchOn);
+    setSearchModal(false);
   };
   const offset = (page - 1) * limit;
   ////시간 함수 ~~전으로 표현하기
@@ -101,7 +103,7 @@ function BoardList() {
         </div>
       </header>
       <main className='boardlist-main'>
-        <Outlet></Outlet>
+        {searchModal ? <Outlet></Outlet> : null}
 
         <table className='boardlist-box'>
           <thead
