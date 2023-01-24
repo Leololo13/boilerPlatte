@@ -197,7 +197,6 @@ app.post('/api/post/comment', auth, (req, res) => {
     { name: 'totalcomment' },
     { $inc: { totalcomment: 1 } }
   ).then((data) => {
-    console.log(data);
     req.body.commentnum = data.totalcomment + 1;
     const comment = new Comment(req.body);
     comment.save((err, data) => {
@@ -207,7 +206,19 @@ app.post('/api/post/comment', auth, (req, res) => {
   });
 });
 //comment수정하기
-app.get('/api/post/comment/edit');
+app.post('/api/post/comment/:id/edit', auth, (req, res) => {
+  let id = req.params.id;
+  let data = req.body.content;
+  console.log(data, 'reqbodddddddddddddddd');
+  Comment.findOneAndUpdate(
+    { commentnum: parseInt(id) },
+    { content: data },
+    (err, data) => {
+      if (err) res.json({ commentEditSuccess: false, err });
+      res.json({ commentEditSuccess: true, data: data });
+    }
+  );
+});
 ///comment가져오기 postnum으로 가져옴 모든 comment
 app.get('/api/post/:id/comment', (req, res) => {
   let id = req.params.id;

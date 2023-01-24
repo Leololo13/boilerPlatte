@@ -35,16 +35,30 @@ function Recomment(props) {
       nickname: user?.nickname,
     }));
   };
+
   const submitHandler = async (e) => {
     e.preventDefault();
+
     let body = recomment;
+
     if (props.editon) {
       try {
         await axios
-          .post(`/api/post/comment/${recomment.commentnum}/edit`, body)
-          .then(window.location.reload());
+          .post(`/api/post/comment/${props.commentnum}/edit`, body)
+          .then((res) => {
+            if (res.data.commentEditSuccess) {
+              setRecomment(res.data);
+              window.location.reload();
+            } else {
+              alert(res.data.err.message);
+            }
+            console.log(res.data, 'ressssssssssssssssssssssssssssss');
+          });
+        console.log('누름');
+        // .then(window.location.reload());
       } catch (error) {
-        console.log(error);
+        alert(error.message);
+        console.log(error.message);
       }
     } else {
       try {
@@ -61,7 +75,7 @@ function Recomment(props) {
     if (props.editon) {
       setRecomment((prev) => ({
         ...prev,
-        content: [props.value],
+        content: [props.value + props.commentnum],
       }));
     } else {
       setRecomment(initialState);
@@ -83,9 +97,9 @@ function Recomment(props) {
                   name='content'
                   type='text'
                   onChange={inputHandler}
-                  placeholder={'@' + recomment.target + props.value}
+                  placeholder={'@' + recomment.target}
                 />
-                <button> 댓글달기</button>
+                <button> {props.editon ? '댓글 수정' : '댓글 쓰기'}</button>
               </form>
             </div>
           </div>

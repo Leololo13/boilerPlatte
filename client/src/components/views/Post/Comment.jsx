@@ -161,6 +161,7 @@ function Comment() {
                             </div>
                             <div
                               onClick={() => {
+                                setEditOn(false);
                                 recommentModalHandler(comment._id);
                               }}
                               style={{ cursor: 'pointer', fontWeight: 'bold' }}
@@ -253,6 +254,7 @@ function Comment() {
                                       </div>
                                       <div
                                         onClick={() => {
+                                          setEditOn(false);
                                           recommentModalHandler(recomment._id);
                                         }}
                                         style={{
