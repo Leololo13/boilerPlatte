@@ -75,7 +75,7 @@ function Recomment(props) {
     if (props.editon) {
       setRecomment((prev) => ({
         ...prev,
-        content: [props.value + props.commentnum],
+        content: [props.value],
       }));
     } else {
       setRecomment(initialState);

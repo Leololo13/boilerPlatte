@@ -73,20 +73,19 @@ function Comment() {
     }
   }
 
-  const deleteHandler = async (e) => {
-    e.preventDefault();
-    let commentnum = e.target.dataset;
-
+  const deleteHandler = async (commentnum) => {
+    console.log(commentnum);
     if (!user._id) {
       alert('로그인이 필요한 기능입니다');
     } else {
       try {
-        axios.post('/api/comment/delete', commentnum).then((res) => {
-          let cmt = comments.filter(
-            (comment) => comment.postnum === parseInt(id)
-          );
+        axios.post('/api/comment/delete', { commentnum }).then((res) => {
+          console.log(res.data);
+          // let cmt = comments.filter(
+          //   (comment) => comment.postnum === parseInt(id)
+          // );
 
-          setComments(cmt);
+          // setComments(cmt);
           // console.log(deletedCMT);
         });
       } catch (error) {
@@ -170,7 +169,9 @@ function Comment() {
                             >
                               답댓글달기
                             </div>
-                            {comment.writer === user?._id ? (
+
+                            {comment.writer === user?._id &&
+                            comment.role === 1 ? (
                               <>
                                 <div
                                   className='comment-edit'
@@ -181,7 +182,6 @@ function Comment() {
                                   data-id={comment.content}
                                 >
                                   <EditOutlined
-                                    data-id={'hello'}
                                     style={{ fontSize: '1.2rem' }}
                                     onClick={() => {
                                       setEditOn(!editOn);
@@ -190,9 +190,10 @@ function Comment() {
                                   />
                                 </div>
                                 <div
-                                  data-id={comment.commentnum}
                                   className='comment-delete'
-                                  onClick={deleteHandler}
+                                  onClick={() => {
+                                    deleteHandler(comment.commentnum);
+                                  }}
                                 >
                                   <DeleteOutlined
                                     style={{ fontSize: '1.2rem' }}
@@ -291,7 +292,15 @@ function Comment() {
                                               }}
                                             />
                                           </div>
-                                          <div className='comment-delete'>
+                                          <div
+                                            data-id={recomment.commentnum}
+                                            className='comment-delete'
+                                            onClick={() => {
+                                              deleteHandler(
+                                                recomment.commentnum
+                                              );
+                                            }}
+                                          >
                                             <DeleteOutlined
                                               style={{ fontSize: '1.2rem' }}
                                             />

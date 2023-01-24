@@ -26,14 +26,15 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/write.html');
 });
 
-///mongoose connect
+///mongoose connect=================================mongooooooooo============
 mongoose
   .connect(process.env.DB_URL)
   .then(() => console.log('mongodb connected'))
   .catch((err) => console.log(err));
 
+///user-action============user-action==============================
+///user-action============user-action==============================
 ///////register
-
 app.post('/api/user/register', (req, res) => {
   const user = new User(req.body);
   console.log(user);
@@ -129,7 +130,7 @@ app.get('/api/user/auth', auth, (req, res) => {
     .cookie('accessToken', req.user.access_token)
     .json({
       id: req.user.id,
-      isAdmin: req.user.role == 0 ? false : true,
+      isAdmin: req.user.role == 0 ? true : false,
       isAuth: true,
       email: req.user.email,
       name: req.user.name,
@@ -152,6 +153,8 @@ app.get('/api/user/logout', auth, (req, res) => {
     }
   );
 });
+
+///////////////////////write,edit,delete==============================
 ///////////////////////write==============================
 
 app.post('/api/list/write', auth, (req, res) => {
@@ -190,7 +193,8 @@ app.post('/api/post/:id/edit', auth, (req, res) => {
   });
 });
 
-////comment달기
+////comment달기======================comment===============================
+////comment달기======================comment===============================
 app.post('/api/post/comment', auth, (req, res) => {
   console.log(req.body);
   Commentnum.findOneAndUpdate(
@@ -227,8 +231,37 @@ app.get('/api/post/:id/comment', (req, res) => {
     return res.json({ data });
   });
 });
+/////comment삭제하기
+app.post('/api/comment/delete', auth, (req, res) => {
+  let id = req.body.commentnum;
+  console.log(req.body);
+  console.log(id);
+  Comment.find({ parentcommentnum: id }, (err, data) => {
+    if (err) res.json(err);
+    if (data.length === 0) {
+      console.log('대댓글이 없으니 삭제하기');
+      Comment.findOneAndDelete({ commentnum: id }, (err, docs) => {
+        if (err) return res.json({ CommentdeleteSuccess: false, err });
+        return res.json({ CommentdeleteSuccess: true });
+      });
+    } else {
+      console.log('대댓글이 있으니 내용만');
+      Comment.findOneAndUpdate(
+        { commentnum: id },
+        { $set: { content: '삭제된댓글입니다', role: 0 } },
+        (err, data) => {
+          if (err) return res.json({ CommentdeleteSuccess: false, err });
+          return res.json({ CommentdeleteSuccess: true, data });
+        }
+      );
+    }
+  });
 
-///////list 가져오기
+  ////////////////////// Role를 0으로 주고 관리자만 바꿀수있게하자
+});
+
+///////list 가져오기=====================list===========================
+///////list 가져오기=====================list===========================
 app.get('/api/list', (req, res) => {
   console.log(req.query);
   console.log(req.body);
@@ -342,27 +375,26 @@ app.get('/api/list', (req, res) => {
     });
   }
 });
-/////comment삭제하기
-app.post('/api/comment/delete', (req, res) => {
-  let id = req.body.id;
 
-  ////////////////////// Role를 0으로 주고 관리자만 바꿀수있게하자
-  Comment.findOneAndUpdate(
-    { commentnum: id },
-    { $set: { content: '삭제된댓글입니다', role: 0 } },
-    (err, data) => {
-      if (err) return res.json(err);
-      return res.json(data);
-    }
-  );
-});
-
-////comment전부가져오기.. 댓글수를 달아야하니까
+////list에서 보여줄 댓글수를 위해 comment전부가져오기.. 댓글수를 달아야하니까
 app.get('/api/comment', (req, res) => {
   Comment.find((err, data) => {
     if (err) return res.json(err);
     return res.json({ data });
   });
+});
+
+///////////post 불러오기 개별항목 불러오기===================post관련======
+///////////post 불러오기 개별항목 불러오기===================post관련======
+app.get('/api/list/post/:id', (req, res) => {
+  let id = req.params.id;
+
+  List.findOne({ postnum: id })
+    .populate('writer', { nickname: 1, _id: 2 })
+    .then((err, data) => {
+      if (err) return res.json(err);
+      return res.json({ data });
+    });
 });
 
 ////post에 like하기 hate하기 가자아아아아
@@ -438,19 +470,9 @@ app.post('/api/post/hate/:id', (req, res) => {
     );
   }
 });
-///////////list 개별항목 불러오기
 
-app.get('/api/list/post/:id', (req, res) => {
-  let id = req.params.id;
-
-  List.findOne({ postnum: id })
-    .populate('writer', { nickname: 1, _id: 2 })
-    .then((err, data) => {
-      if (err) return res.json(err);
-      return res.json({ data });
-    });
-});
-////mypage
+////mypage===========================================ㅡmypage=========
+////mypage===========================================ㅡmypage=========
 app.get('/api/user/mypage', auth, (req, res) => {
   let id = req.user._id;
   User.findById(id)
