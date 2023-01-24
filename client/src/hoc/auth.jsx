@@ -28,11 +28,16 @@ export default function Auth(SpecificComponent, option, adminRoute = null) {
         }
         ///logged In
         else {
+          console.log(response.payload.isAdmin, 'admin??????????');
           if (adminRoute && !response.payload.isAdmin) {
-            console.log('로그인은햇지만 관리자가아니다, 관리자화면은ㄷ안됨');
+            console.log(
+              '로그인은햇지만 관리자가아니다, adminroute를 아직 못정함'
+            );
             navigate('/');
+          } else if (response.payload.isAdmin) {
+            console.log('로그인했고, 관리자다');
           } else {
-            console.log('로그인한 상태?');
+            console.log('로그인햇지만 관리자아님');
             if (option === false) {
               console.log('optionflase');
               navigate('/');

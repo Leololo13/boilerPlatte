@@ -130,6 +130,7 @@ app.get('/api/user/auth', auth, (req, res) => {
     .cookie('accessToken', req.user.access_token)
     .json({
       id: req.user.id,
+      ///role=0이면 관리자, 아니면 일반
       isAdmin: req.user.role == 0 ? true : false,
       isAuth: true,
       email: req.user.email,
