@@ -29,7 +29,7 @@ function LoginPage() {
         navigate(location.state?.background);
         window.location.reload();
       } else {
-        alert('Error');
+        alert(response.payload.message);
       }
     });
   };
@@ -77,7 +77,7 @@ function LoginPage() {
           </Link>
         </button>
         or
-        <GoogleLogins />
+        {/* <GoogleLogins /> */}
       </div>
     </div>
   );

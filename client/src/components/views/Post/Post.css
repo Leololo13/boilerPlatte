@@ -12,6 +12,12 @@
   display: flex;
   flex-direction: column;
 }
+.targetID {
+  margin-right: 10px;
+  color: black;
+  font-weight: bold;
+  background-color: bisque;
+}
 .post-title {
   margin: 0;
   padding: 10px;

@@ -176,7 +176,7 @@ userSchema.statics.findByToken = function (token, cb) {
         });
       } else {
         console.log('not expired==notlogin maybe');
-        console.log('hello');
+
         return cb(err);
       }
     }

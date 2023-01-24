@@ -27,7 +27,7 @@ function Comment() {
   const [commentOpen, setCommentOpen] = useState(true);
   const [modalVisibleId, setModalVisibleId] = useState('');
   const [writtenComment, setWrittenComment] = useState(initialState);
-
+  const [editOn, setEditOn] = useState(false);
   function elapsedTime(date) {
     const start = new Date(date);
     const end = new Date();
@@ -116,6 +116,7 @@ function Comment() {
     const fetchComment = async () => {
       try {
         const res = await axios.get(`/api/post/${id}/comment`);
+        console.log(res.data.data);
         setComments(res.data.data);
       } catch (error) {
         alert(error);
@@ -182,7 +183,8 @@ function Comment() {
                                     data-id={'hello'}
                                     style={{ fontSize: '1.2rem' }}
                                     onClick={() => {
-                                      console.log('edit클릭');
+                                      setEditOn(!editOn);
+                                      console.log(editOn, 'edit클릭');
                                     }}
                                   />
                                 </div>
@@ -204,14 +206,17 @@ function Comment() {
                       </div>
                     </div>
                     {/* 리코멘트누를떄 modal비슷한걸 하나 만들어서 값을 보내서 이때만 value를 받게하면될듯함 */}
+                    {/* 첫번쨰 댓글이기떄문에 첫번쨰 parentcommentnum=0을따라간다. */}
                     <Recomment
                       id={comment._id}
                       modalVisibleId={modalVisibleId}
                       setModalVisibleId={setModalVisibleId}
+                      parentcommentnum={comment.commentnum}
                       commentnum={comment.commentnum}
                       postnum={comment.postnum}
                       parentNick={comment.nickname}
                       value={comment.content}
+                      editon={editOn}
                     />
                     {/* recommenttttttttttttttttttttttttttttttt */}
                     <>
@@ -250,33 +255,57 @@ function Comment() {
                                         onClick={() => {
                                           recommentModalHandler(recomment._id);
                                         }}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{
+                                          cursor: 'pointer',
+                                          fontWeight: 'bold',
+                                        }}
                                         className='comment-recomment'
                                         data-id={recomment._id}
                                       >
                                         답댓글달기
                                       </div>
-                                      <div
-                                        className='comment-edit'
-                                        onClick={() => {
-                                          recommentModalHandler(comment._id);
-                                        }}
-                                        style={{ cursor: 'pointer' }}
-                                        data-id={comment._id}
-                                      >
-                                        <EditOutlined
-                                          style={{ fontSize: '1.2rem' }}
-                                        />
-                                      </div>
-                                      <div className='comment-delete'>
-                                        <DeleteOutlined
-                                          style={{ fontSize: '1.2rem' }}
-                                        />
-                                      </div>
+                                      {comment.writer === user?._id ? (
+                                        <>
+                                          {' '}
+                                          <div
+                                            className='comment-edit'
+                                            onClick={() => {
+                                              recommentModalHandler(
+                                                recomment._id
+                                              );
+                                            }}
+                                            style={{ cursor: 'pointer' }}
+                                            data-id={comment._id}
+                                          >
+                                            <EditOutlined
+                                              style={{ fontSize: '1.2rem' }}
+                                              onClick={() => {
+                                                setEditOn(!editOn);
+
+                                                console.log(
+                                                  editOn,
+                                                  'edit2클릭'
+                                                );
+                                              }}
+                                            />
+                                          </div>
+                                          <div className='comment-delete'>
+                                            <DeleteOutlined
+                                              style={{ fontSize: '1.2rem' }}
+                                            />
+                                          </div>{' '}
+                                        </>
+                                      ) : null}
                                     </div>
                                   </div>
 
                                   <div className='comment-content'>
+                                    <span className='targetID'>
+                                      {recomment.target
+                                        ? '@' + recomment.target
+                                        : ''}
+                                    </span>
+
                                     {recomment.content}
                                   </div>
                                 </div>
@@ -285,9 +314,12 @@ function Comment() {
                                 id={recomment._id}
                                 modalVisibleId={modalVisibleId}
                                 setModalVisibleId={setModalVisibleId}
+                                parentcommentnum={recomment.parentcommentnum}
                                 commentnum={recomment.commentnum}
                                 postnum={recomment.postnum}
                                 parentNick={recomment.nickname}
+                                value={recomment.content}
+                                editon={editOn}
                               />
                             </div>
                           );

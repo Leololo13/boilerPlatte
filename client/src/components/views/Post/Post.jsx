@@ -5,6 +5,7 @@ import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
+import Modal from 'react-modal';
 
 function Post() {
   const navigate = useNavigate();
@@ -16,6 +17,10 @@ function Post() {
 
   const { id, category } = useParams();
   const [post, setPost] = useState({});
+  const [deleteModal, setDeleteModal] = useState(false);
+  const deleteModalHandler = () => {
+    setDeleteModal(true);
+  };
   const postDeletehandler = async () => {
     try {
       await axios.post(`/api/post/delete/${id}`).then(navigate('/list/all'));
@@ -44,6 +49,34 @@ function Post() {
     }
   };
 
+  const overlayStyle = {
+    position: 'fixed',
+    backgroundColor: 'rgba(110, 110, 110, 0.4)',
+  };
+
+  const contentStyle = {
+    borderRadius: '15px',
+    display: 'flex',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%,-50%)',
+    border: '1px solid #ccc',
+    background: '#fff',
+    overflow: 'auto',
+    WebkitOverflowScrolling: 'touch',
+    borderRadius: '4px',
+    outline: 'none',
+    height: '120px',
+    width: '360px',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: '0',
+    padding: '0px',
+    paddingBottom: '20px',
+    fontSize: '1.1rem',
+  };
   function elapsedTime(date) {
     const start = new Date(date);
     const end = new Date();
@@ -88,6 +121,30 @@ function Post() {
   let content = post?.content;
   return (
     <div className='post'>
+      <Modal
+        isOpen={deleteModal}
+        ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
+        onRequestClose={() => {
+          setDeleteModal(false);
+        }}
+        style={{
+          overlay: overlayStyle,
+          content: contentStyle,
+        }}
+      >
+        <p>이 글을 삭제 하시겠습니까?</p>
+        <div>
+          <button
+            onClick={() => {
+              postDeletehandler();
+              navigate(-2);
+            }}
+          >
+            예
+          </button>
+          <button onClick={() => setDeleteModal(false)}>아니오</button>
+        </div>
+      </Modal>
       <header className='postHead'>
         <h4 className='post-title'>
           <Link className='link' to={location.pathname + location.search}>
@@ -151,7 +208,7 @@ function Post() {
               </Link>
               <button
                 className='footer-editbox-delete'
-                onClick={postDeletehandler}
+                onClick={deleteModalHandler}
               >
                 delete
               </button>

@@ -40,6 +40,9 @@ const commentSchema = mongoose.Schema({
     type: Number,
     default: 1,
   },
+  target: {
+    type: String,
+  },
 });
 
 commentSchema.methods.addRecomment = function (data) {

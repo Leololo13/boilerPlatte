@@ -4,7 +4,6 @@ import LandingPage from './components/views/LandingPage/LandingPage';
 import LoginPage from './components/views/LoginPage/LoginPage';
 import Register from './components/views/Register/Register';
 import BoardList from './components/views/BoardList/BoardList';
-import Write from './components/views/Write/Write';
 import Modalpopup from './components/views/Modal/Modalpopup';
 import Post from './components/views/Post/Post';
 import Logex from './components/views/LoginPage/Logex';

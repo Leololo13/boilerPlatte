@@ -56,9 +56,9 @@ app.post('/api/user/register', (req, res) => {
 app.post('/api/user/login', (req, res) => {
   User.findOne({ email: req.body.email }, (err, userData) => {
     /////db에 이메일이 있는지?
-    let { password, ...others } = userData;
+
     if (!userData)
-      return res.json({ LoginSuccess: false, message: 'no email' });
+      return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
     ///db에 이메일이 있으면 비번비교해서 통과시키키
     userData.comparePassword(req.body.password, (err, isMatch) => {
       if (!isMatch)
@@ -206,6 +206,8 @@ app.post('/api/post/comment', auth, (req, res) => {
     });
   });
 });
+//comment수정하기
+app.get('/api/post/comment/edit');
 ///comment가져오기 postnum으로 가져옴 모든 comment
 app.get('/api/post/:id/comment', (req, res) => {
   let id = req.params.id;

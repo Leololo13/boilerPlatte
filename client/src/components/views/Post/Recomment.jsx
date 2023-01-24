@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -9,10 +10,10 @@ function Recomment(props) {
     writer: '',
     nickname: '',
     postnum: props.postnum,
-    commentnum: 0,
-    parentcommentnum: props.commentnum,
+    parentcommentnum: props.parentcommentnum,
     like: [],
     hate: [],
+    target: props.parentNick,
   };
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
@@ -37,14 +38,37 @@ function Recomment(props) {
   const submitHandler = async (e) => {
     e.preventDefault();
     let body = recomment;
-    try {
-      await axios
-        .post(`/api/post/comment`, body)
-        .then(window.location.reload());
-    } catch (error) {
-      console.log(error);
+    if (props.editon) {
+      try {
+        await axios
+          .post(`/api/post/comment/${recomment.commentnum}/edit`, body)
+          .then(window.location.reload());
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        await axios
+          .post(`/api/post/comment`, body)
+          .then(window.location.reload());
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
+
+  useEffect(() => {
+    if (props.editon) {
+      setRecomment((prev) => ({
+        ...prev,
+        content: [props.value],
+      }));
+    } else {
+      setRecomment(initialState);
+      onCloseHandler();
+    }
+    console.log(props.editon);
+  }, [props.editon]);
 
   return (
     <div>
@@ -59,12 +83,13 @@ function Recomment(props) {
                   name='content'
                   type='text'
                   onChange={inputHandler}
+                  placeholder={'@' + recomment.target + props.value}
                 />
                 <button> 댓글달기</button>
               </form>
             </div>
           </div>
-          <button onClick={onCloseHandler}>닫아버리기</button>
+          <button onClick={onCloseHandler}>닫기</button>
         </div>
       ) : null}
     </div>
