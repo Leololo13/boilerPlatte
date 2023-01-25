@@ -24,14 +24,10 @@ const userSchema = mongoose.Schema({
   name: {
     type: String,
     maxlength: 50,
-    unique: 1,
-    trim: 1,
   },
   lastname: {
     type: String,
     maxlength: 50,
-    unique: 1,
-    trim: 1,
   },
   email: {
     type: String,
@@ -51,14 +47,22 @@ const userSchema = mongoose.Schema({
   image: {
     type: String,
   },
-  posts: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'List',
-  },
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'List',
+    },
+  ],
 
-  comments: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment',
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+    },
+  ],
+  signupDate: {
+    type: Date,
+    default: Date.now,
   },
   date: {
     type: Date,

@@ -163,9 +163,22 @@ app.post('/api/list/write', auth, (req, res) => {
     { $inc: { totalpost: 1 } }
   ).then((data) => {
     req.body.postnum = data.totalpost + 1;
+
     const list = new List(req.body);
     list.save((err, data) => {
+      console.log(data._id, req.user._id, '세이브전에정보확인');
       if (err) return res.json({ Writesuccess: false, err });
+      User.findByIdAndUpdate(
+        req.user._id,
+        { $addToSet: { posts: data._id } },
+        (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data, '유저정보에 posts_Id입력함');
+          }
+        }
+      );
       return res
         .status(200)
         .json({ Writesuccess: true, postnum: req.body.postnum });
@@ -475,12 +488,22 @@ app.post('/api/post/hate/:id', (req, res) => {
 ////mypage===========================================ㅡmypage=========
 app.get('/api/user/mypage', auth, (req, res) => {
   let id = req.user._id;
+  console.log('뭐지대체', id);
   User.findById(id)
-    .populate('posts')
+    .populate('posts', { title: 1, postnum: 2 })
     .then((err, data) => {
       if (err) return res.json(err);
       return res.json({ data });
     });
+
+  // List.findOne({ postnum: 123 })
+  //   .populate('writer', { nickname: 1, _id: 2 })
+  //   .then((err, data) => {
+  //     console.log('123');
+  //     if (err) return res.json(err);
+  //     console.log(data);
+  //     return res.json({ data });
+  //   });
 });
 
 /// =-===========reactquill 사용을 위한 multer설정 및 img 업로드

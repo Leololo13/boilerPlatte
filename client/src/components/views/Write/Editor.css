@@ -23,3 +23,27 @@
   align-items: center;
   justify-content: center;
 }
+.footer-btn-box {
+  width: 100%;
+  text-align: right;
+}
+.footer-btn-box button {
+  border: none;
+  border-radius: 5px;
+  margin-right: 20px;
+  font-size: 0.8rem;
+  padding: 5px;
+  font-weight: bold;
+  background-color: burlywood;
+  cursor: pointer;
+}
+.footer-btn-box span {
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 20px;
+  font-size: 0.8rem;
+  padding: 5px;
+  font-weight: bold;
+  background-color: burlywood;
+}

@@ -3,7 +3,6 @@ import './Navbar.css';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,7 +18,7 @@ function Navbar() {
     try {
       await axios.get('/api/user/logout');
       console.log('logout');
-      window.location.reload();
+      navigate('/');
     } catch (error) {
       window.location.reload();
       console.log(error);
@@ -64,14 +63,26 @@ function Navbar() {
       ),
     },
     data.email && {
+      key: '6',
+      label: (
+        <Link to={`/userpage?act=userInfo`} state={{ background: location }}>
+          <p rel='noopener noreferrer'>
+            <span style={{ color: 'blue' }}>{data.nickname}</span>
+            {data.email}
+          </p>
+        </Link>
+      ),
+    },
+    data.email && {
       key: '3',
       label: (
-        <Link to={`/user/mypage`} state={{ background: location }}>
+        <Link to={`/userpage`} state={{ background: location }}>
           {' '}
           <p rel='noopener noreferrer'>MY Page</p>
         </Link>
       ),
     },
+
     data.email && {
       key: '5',
       label: (
@@ -127,6 +138,11 @@ function Navbar() {
               <Dropdown
                 menu={{
                   items,
+                }}
+                overlayStyle={{
+                  width: '240px',
+                  fontSize: '60px',
+                  fontWeight: 'bold',
                 }}
                 placement='topRight'
               >

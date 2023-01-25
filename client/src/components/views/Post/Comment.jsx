@@ -170,8 +170,9 @@ function Comment() {
                               답댓글달기
                             </div>
 
-                            {comment.writer === user?._id &&
-                            comment.role === 1 ? (
+                            {(comment.writer === user?._id &&
+                              comment.role === 1) ||
+                            user?.isAdmin ? (
                               <>
                                 <div
                                   className='comment-edit'
@@ -267,7 +268,9 @@ function Comment() {
                                       >
                                         답댓글달기
                                       </div>
-                                      {comment.writer === user?._id ? (
+                                      {(comment.writer === user?._id &&
+                                        comment.role === 1) ||
+                                      user?.isAdmin ? (
                                         <>
                                           {' '}
                                           <div

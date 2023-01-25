@@ -64,13 +64,16 @@
 }
 
 @media screen and (max-width: 768px) {
+  .boardlist-table {
+    display: flex;
+    height: fit-content;
+  }
   .boardlist-table-title {
     display: flex;
+    justify-content: flex-start;
     flex-direction: column;
-
-    justify-content: center;
-    height: 4rem;
+    white-space: normal;
+    height: fit-content;
     gap: 5px;
-    flex: 0;
   }
 }

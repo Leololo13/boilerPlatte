@@ -135,10 +135,16 @@ function BoardList() {
               >
                 제목
               </td>
-              <td className='boardlist-box-head writer' style={{ flex: 2 }}>
+              <td
+                className='boardlist-box-head writer'
+                style={{ flex: 2, minWidth: '60px' }}
+              >
                 글쓴이
               </td>
-              <td className='boardlist-box-head date' style={{ flex: 2 }}>
+              <td
+                className='boardlist-box-head date'
+                style={{ flex: 2, minWidth: '60px' }}
+              >
                 날짜
               </td>
             </tr>
@@ -200,10 +206,11 @@ function BoardList() {
       <footer className='boardlist-footer'>
         <Pagination
           showQuickJumper
-          showTotal={(total) => `Total ${total} Lists`}
+          showTotal={(total) => `총 ${total} 게시물`}
           defaultPageSize={limit}
           size={'small'}
           defaultCurrent={1}
+          showSizeChanger={false}
           total={total}
           current={page}
           onChange={(page) => {

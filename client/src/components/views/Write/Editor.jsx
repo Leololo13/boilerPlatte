@@ -123,6 +123,7 @@ const Editor = (props) => {
     content: '',
     writer: user?._id,
     id: user?.id,
+    nickname: user?.nickname,
     postnum: 0,
     category: category,
   });
@@ -257,7 +258,7 @@ const Editor = (props) => {
     };
     FetchEdit();
   }, []);
-  console.log(writtenData.category);
+
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
@@ -304,8 +305,16 @@ const Editor = (props) => {
           modules={modules}
           formats={formats}
         />
-        <footer>
+        <footer className='footer-btn-box'>
           <button> {editOn ? '수정하기' : '글쓰기'}</button>
+          <span
+            onClick={() => {
+              navigate(-1);
+              console.log('돌아가ㄱ클릭');
+            }}
+          >
+            돌아가기
+          </span>
         </footer>
       </form>
     </div>
