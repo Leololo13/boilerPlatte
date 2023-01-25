@@ -55,30 +55,39 @@ app.post('/api/user/register', (req, res) => {
 
 ////login=====================
 app.post('/api/user/login', (req, res) => {
-  User.findOne({ email: req.body.email }, (err, userData) => {
-    /////db에 이메일이 있는지?
+  console.log(req.body);
+  User.findOneAndUpdate(
+    { email: req.body.email },
+    { date: req.body.date },
+    (err, userData) => {
+      /////db에 이메일이 있는지?
 
-    if (!userData)
-      return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
-    ///db에 이메일이 있으면 비번비교해서 통과시키키
-    userData.comparePassword(req.body.password, (err, isMatch) => {
-      if (!isMatch)
-        return res.json({ LoginSuccess: false, message: 'password is wrong' });
-      userData.genToken((err, userData) => {
-        if (err) return res.status(400).send(err);
-        res
-          .cookie('accessToken', userData.access_token)
-          .cookie('refreshToken', userData.refresh_token)
-          .status(200)
-          .json({
-            LoginSuccess: true,
-            userID: userData.id,
-            email: userData.email,
+      if (!userData)
+        return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
+      ///db에 이메일이 있으면 비번비교해서 통과시키키
+      userData.comparePassword(req.body.password, (err, isMatch) => {
+        if (!isMatch)
+          return res.json({
+            LoginSuccess: false,
+            message: 'password is wrong',
           });
+        userData.genToken((err, userData) => {
+          if (err) return res.status(400).send(err);
+
+          res
+            .cookie('accessToken', userData.access_token)
+            .cookie('refreshToken', userData.refresh_token)
+            .status(200)
+            .json({
+              LoginSuccess: true,
+              userID: userData.id,
+              email: userData.email,
+            });
+        });
       });
-    });
-    ///그리고 token만들어서 주기
-  });
+      ///그리고 token만들어서 주기
+    }
+  );
 });
 ////구글 로그인하기====================================googlegleglegleglgllgglgleeeeeee
 

@@ -16,7 +16,7 @@ function Mypage() {
         const { password, refresh_token, access_token, role, ...others } =
           res.data;
         setUserdata(others);
-        console.log(res.data);
+        console.log(others);
       } catch (error) {
         alert(error);
         console.log(error.message);
@@ -46,7 +46,25 @@ function Mypage() {
         </Link>
       </header>
       <h3>{userdata.nickname} 님의 회원정보입니다</h3>
-      <main>{}</main>
+      <main>
+        {act === 'userInfo' ? (
+          <>
+            <div className='mypage-userInfo'>
+              <p>*아이디 : {userdata.id}</p>
+              <p>*닉네임 : {userdata.nickname}</p>
+              <p>*E-mail : {userdata.email}</p>
+              <p>가입일 : {userdata.signupDate}</p>
+              <p>마지막 접속 일시 : {userdata.date}</p>
+            </div>
+            <div className='mypage-userAction'>
+              <button>로그아웃</button>
+              <button>회원정보 변경하기</button>
+              <button>비밀번호 변경</button>
+              <button> 회원 탈퇴</button>
+            </div>
+          </>
+        ) : null}
+      </main>
     </div>
   );
 }
