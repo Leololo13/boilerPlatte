@@ -125,8 +125,9 @@ const Editor = (props) => {
     id: user?.id,
     nickname: user?.nickname,
     postnum: 0,
-    category: category,
+    category: editOn ? category : 'humor',
   });
+  console.log(writtenData.category, '가즈아아');
   function dataHandler(e) {
     e.preventDefault();
     setWrittenData((prev) => ({

@@ -23,7 +23,12 @@ function Post() {
   };
   const postDeletehandler = async () => {
     try {
-      await axios.post(`/api/post/delete/${id}`).then(navigate('/list/all'));
+      await axios.post(`/api/post/delete/${id}`).then((res) => {
+        console.log(res.data);
+        !res.data.DeleteSuccess
+          ? alert(res.data.message)
+          : navigate('/list/all');
+      });
     } catch (error) {
       alert(error);
     }
@@ -55,7 +60,7 @@ function Post() {
   };
 
   const contentStyle = {
-    borderRadius: '15px',
+    borderRadius: '5px',
     display: 'flex',
     position: 'absolute',
     top: '50%',
@@ -65,7 +70,7 @@ function Post() {
     background: '#fff',
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
-    borderRadius: '4px',
+
     outline: 'none',
     height: '120px',
     width: '360px',
@@ -118,7 +123,7 @@ function Post() {
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
-
+  console.log(user, post);
   let content = post?.content;
   return (
     <div className='post'>
@@ -201,7 +206,7 @@ function Post() {
       <footer className='postFooter'>
         <div className='share-edit'>
           <div className='footer-share'>share</div>
-          {user?.id === post.id ? (
+          {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
               {' '}
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>

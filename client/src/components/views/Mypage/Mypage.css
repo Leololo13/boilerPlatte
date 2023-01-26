@@ -1,4 +1,50 @@
-.headerbox {
+.mypage-headerbox {
   display: flex;
   gap: 15px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.mypage-headerbox a:hover {
+  background-color: whitesmoke;
+  text-decoration: underline;
+}
+.mypage-main {
+  width: 100%;
+  height: fit-content;
+  padding: 10px;
+}
+.mypage-posts {
+  width: 100%;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.mypage-postsInfo {
+  gap: 15px;
+  display: flex;
+}
+.mypage-post-table {
+  padding: 10px;
+  width: 100%;
+  border-spacing: 0;
+  margin: 0;
+}
+.mypage-post-table th {
+  min-width: 50px;
+  font-size: 1rem;
+  text-align: center;
+  padding: 5px 0px;
+  border: none;
+  border-bottom: 1px solid lightgrey;
+}
+.mypage-post-table td {
+  text-align: center;
+  min-width: 50px;
+  padding: 5px 0px;
+  font-size: 1rem;
+  border-bottom: 1px solid lightgrey;
+}
+
+.mypage-post-each:hover {
+  background-color: whitesmoke;
 }

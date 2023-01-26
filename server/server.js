@@ -198,7 +198,13 @@ app.post('/api/list/write', auth, (req, res) => {
 app.post('/api/post/delete/:id', auth, (req, res) => {
   let id = req.params.id;
   console.log('딜리트욧청들어옴');
-  List.findOneAndDelete({ postnum: id }, (err, docs) => {
+  List.findOneAndDelete({ postnum: id, writer: req.user._id }, (err, docs) => {
+    if (!docs) {
+      return res.json({
+        DeleteSuccess: false,
+        message: '작성자 본인이 아니거나 요청하신 게시글이 없습니다.',
+      });
+    }
     if (err) return res.json(err);
     return res.json({ DeleteSuccess: true });
   });
@@ -209,10 +215,20 @@ app.post('/api/post/:id/edit', auth, (req, res) => {
   let data = req.body;
   console.log(id, data);
   console.log('edit하기');
-  List.findOneAndUpdate({ postnum: id }, data, (err, data) => {
-    if (err) return res.json(err);
-    return res.json({ EditSuccess: true });
-  });
+  List.findOneAndUpdate(
+    { postnum: id, writer: req.user._id },
+    data,
+    (err, data) => {
+      if (!data) {
+        return res.json({
+          DeleteSuccess: false,
+          message: '작성자 본인이 아니거나 요청하신 게시글이 없습니다.',
+        });
+      }
+      if (err) return res.json(err);
+      return res.json({ EditSuccess: true });
+    }
+  );
 });
 
 ////comment달기======================comment===============================
@@ -227,6 +243,13 @@ app.post('/api/post/comment', auth, (req, res) => {
     const comment = new Comment(req.body);
     comment.save((err, data) => {
       if (err) return res.json({ CommentSuccess: false, err });
+      User.findByIdAndUpdate(
+        req.user._id,
+        { $addToSet: { comments: data._id } },
+        (err, data) => {
+          if (err) throw err;
+        }
+      );
       return res.status(200).json({ CommentSuccess: true, data });
     });
   });
@@ -499,7 +522,15 @@ app.get('/api/user/mypage', auth, (req, res) => {
   let id = req.user._id;
   console.log('뭐지대체', id);
   User.findById(id)
-    .populate('posts', { title: 1, postnum: 2 })
+    .populate('posts', {
+      title: 1,
+      postnum: 2,
+      date: 3,
+      like: 4,
+      hate: 5,
+      category: 6,
+    })
+    .populate('comments')
     .then((err, data) => {
       if (err) return res.json(err);
       return res.json({ data });

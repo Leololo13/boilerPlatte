@@ -79,6 +79,7 @@ function BoardList() {
     console.log('useeffect render');
     fetchAllLists();
   }, [page, searchOn]);
+
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
