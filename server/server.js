@@ -306,6 +306,9 @@ app.post('/api/comment/delete', auth, (req, res) => {
 });
 
 ///////list 가져오기=====================list===========================
+app.get('/api/annouce', (req, res) => {
+  console.log(req.body);
+});
 ///////list 가져오기=====================list===========================
 app.get('/api/list', (req, res) => {
   console.log(req.query);
@@ -520,7 +523,7 @@ app.post('/api/post/hate/:id', (req, res) => {
 ////mypage===========================================ㅡmypage=========
 app.get('/api/user/mypage', auth, (req, res) => {
   let id = req.user._id;
-  console.log('뭐지대체', id);
+
   User.findById(id)
     .populate('posts', {
       title: 1,

@@ -150,11 +150,16 @@ function Navbar() {
                   style={{
                     border: 'none',
                     borderRadius: '50%',
+                    fontSize: '0.8rem',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontWeight: 'bold',
                     width: '3.5rem',
                     height: '3.5rem',
                   }}
                 >
-                  User
+                  {data?.isAdmin ? 'Admin' : 'User'}
                 </Button>
               </Dropdown>
             </Space>

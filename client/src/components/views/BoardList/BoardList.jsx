@@ -79,7 +79,10 @@ function BoardList() {
     console.log('useeffect render');
     fetchAllLists();
   }, [page, searchOn]);
-
+  console.log(
+    category,
+    (category === 'all' || category === 'search') && !false ? 'list' : category
+  );
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
@@ -150,13 +153,22 @@ function BoardList() {
               </td>
             </tr>
           </thead>
+
           <tbody>
+            <tr className='important-post'>
+              <td className='ip-post-title'>
+                <Link className='link' to={`/list/announce/${category}`}>
+                  공지 사항입니다s
+                </Link>
+              </td>
+            </tr>
             {lists
               .filter((list) =>
-                category === 'all' || 'search'
+                category === 'all' || category === 'search'
                   ? list
                   : list.category === category
               )
+              .filter((lst) => !lst.announce)
               .map((list) => (
                 <tr className='boardlist-table' key={list._id}>
                   <td
@@ -181,6 +193,7 @@ function BoardList() {
                         }?page=${page}&search=${search ?? null}`}
                       >
                         {list.title}
+                        {list.category}
                         {'   '}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
                           {
@@ -193,7 +206,9 @@ function BoardList() {
                     </div>
                     <div className='boardlist-table-repl'>{list.repl}</div>
                   </td>
-                  <td style={{ flex: 2, textAlign: 'center' }}>{list.id}</td>
+                  <td style={{ flex: 2, textAlign: 'center' }}>
+                    {list.nickname ?? list.id}
+                  </td>
                   <td
                     style={{ flex: 2, fontSize: '0.8rem', textAlign: 'center' }}
                   >

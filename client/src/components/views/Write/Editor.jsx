@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
-import { Select } from 'antd';
+import { Select, Checkbox } from 'antd';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
@@ -107,6 +107,15 @@ const Editor = (props) => {
       return state.rootReducer.user.userData;
     }
   });
+
+  const onChangeCheck = (e) => {
+    console.log(`checked = ${e.target.checked}`);
+    setWrittenData((prev) => ({
+      ...prev,
+      announce: e.target.checked,
+    }));
+  };
+
   const handleChange = (value) => {
     console.log(`selected ${value}`);
     setWrittenData((prev) => ({
@@ -126,6 +135,7 @@ const Editor = (props) => {
     nickname: user?.nickname,
     postnum: 0,
     category: editOn ? category : 'humor',
+    announce: 1,
   });
   console.log(writtenData.category, '가즈아아');
   function dataHandler(e) {
@@ -259,36 +269,69 @@ const Editor = (props) => {
     };
     FetchEdit();
   }, []);
-
+  console.log(user);
+  console.log(writtenData);
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
         {/* <button onClick={onClickcontents}>확인하기기</button> */}
-        <Select
-          defaultValue={editOn ? writtenData.category : 'humor'}
-          style={{
-            width: 120,
-          }}
-          onChange={handleChange}
-          options={[
-            {
-              value: 'humor',
-              label: 'Humor',
-            },
-            {
-              value: 'politic',
-              label: 'Politic',
-            },
-            {
-              value: '18+',
-              label: '18+',
-            },
-            {
-              value: 'healing',
-              label: 'healing',
-            },
-          ]}
-        />
+        <div>
+          {' '}
+          <Select
+            defaultValue={editOn ? writtenData.category : 'humor'}
+            style={{
+              width: 120,
+            }}
+            onChange={handleChange}
+            options={
+              user?.isAdmin
+                ? [
+                    {
+                      value: 'humor',
+                      label: 'Humor',
+                    },
+                    {
+                      value: 'politic',
+                      label: 'Politic',
+                    },
+                    {
+                      value: '18+',
+                      label: '18+',
+                    },
+                    {
+                      value: 'healing',
+                      label: 'healing',
+                    },
+                    {
+                      value: 'announce',
+                      label: 'Announce',
+                    },
+                  ]
+                : [
+                    {
+                      value: 'humor',
+                      label: 'Humor',
+                    },
+                    {
+                      value: 'politic',
+                      label: 'Politic',
+                    },
+                    {
+                      value: '18+',
+                      label: '18+',
+                    },
+                    {
+                      value: 'healing',
+                      label: 'healing',
+                    },
+                  ]
+            }
+          />
+          {user?.isAdmin ? (
+            <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox>
+          ) : null}
+        </div>
+
         <input
           type='text'
           name='title'
