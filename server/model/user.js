@@ -72,6 +72,7 @@ const userSchema = mongoose.Schema({
 
 userSchema.pre('save', function (next) {
   let user = this;
+  console.log('세이브할떄마다 이게되는것인가?');
   if (user.isModified('password')) {
     bcrypt.genSalt(saltRounds, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) => {
@@ -96,31 +97,34 @@ userSchema.methods.genToken = function (cb) {
   let user = this;
   let token1 = jwt.sign(
     {
-      id: user.id,
-      username: user.name,
+      _id: user._id,
+      username: user.nickname,
       email: user.email,
     },
     process.env.ACCESS_TOKEN,
     {
       expiresIn: '10m',
       issuer: 'About Tech',
+      algorithm: 'HS256',
     }
   );
   let token2 = jwt.sign(
     {
-      id: user.id,
-      username: user.name,
+      _id: user._id,
+      username: user.nickname,
       email: user.email,
     },
     process.env.REFRESH_TOKEN,
     {
       expiresIn: '24h',
+      algorithm: 'HS256',
       issuer: 'About Tech',
     }
   );
   user.access_token = token1;
   user.refresh_token = token2;
   user.save((err, user) => {
+    console.log('젠토큰 후 저장');
     if (err) return cb(err);
     cb(null, user);
   });
@@ -131,10 +135,11 @@ userSchema.statics.findByToken = function (token, cb) {
   //token decode==token에 어떤것을 넣었는지에 따라 decoded에서 뽑아내야함
 
   ////일단 acc_token으로 확인해봄
+
   jwt.verify(token.acc_token, process.env.ACCESS_TOKEN, (err, data) => {
     if (data) {
       user.findOne(
-        { id: data.id, access_token: token.acc_token },
+        { _id: data._id, access_token: token.acc_token },
         (error, user) => {
           if (err) {
             return cb(err);
@@ -148,14 +153,14 @@ userSchema.statics.findByToken = function (token, cb) {
         jwt.verify(token.ref_token, process.env.REFRESH_TOKEN, (err, data) => {
           if (data) {
             user.findOne(
-              { id: data.id, refresh_token: token.ref_token },
+              { _id: data._id, refresh_token: token.ref_token },
               (error, user) => {
                 if (err) {
                   return cb(err);
                 } else {
                   user.access_token = jwt.sign(
                     {
-                      id: user.id,
+                      _id: user._id,
                       username: user.name,
                       email: user.email,
                     },

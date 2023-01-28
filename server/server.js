@@ -75,8 +75,14 @@ app.post('/api/user/login', (req, res) => {
           if (err) return res.status(400).send(err);
 
           res
-            .cookie('accessToken', userData.access_token)
-            .cookie('refreshToken', userData.refresh_token)
+            .cookie('accessToken', userData.access_token, {
+              httpOnly: true,
+              secure: true,
+            })
+            .cookie('refreshToken', userData.refresh_token, {
+              httpOnly: true,
+              secure: true,
+            })
             .status(200)
             .json({
               LoginSuccess: true,
@@ -106,7 +112,12 @@ app.post('/api/user/googlelogin', async (req, res) => {
 
   console.log(tokens);
 
-  res.cookie('accessToken', tokens.access_token).json({ tokens });
+  res
+    .cookie('accessToken', tokens.access_token, {
+      httpOnly: true,
+      secure: true,
+    })
+    .json({ tokens });
 });
 
 ///구글 등록=====================================googlegleglegleglgllgglgleeeeeee
@@ -136,7 +147,10 @@ app.post('/api/user/googleregister', async (req, res) => {
 app.get('/api/user/auth', auth, (req, res) => {
   res
     .status(200)
-    .cookie('accessToken', req.user.access_token)
+    .cookie('accessToken', req.user.access_token, {
+      httpOnly: true,
+      secure: true,
+    })
     .json({
       id: req.user.id,
       isAdmin: req.user.role == 0 ? true : false,
@@ -149,11 +163,25 @@ app.get('/api/user/auth', auth, (req, res) => {
       nickname: req.user.nickname,
     });
 });
+///유저정보 변경하기
+app.post('/api/user/modify/Userinfo', auth, (req, res) => {
+  const modifiedInfo = req.body;
+
+  const { isAdmin, isAuth, _id, email, ...others } = modifiedInfo;
+  console.log(others);
+  console.log(req.user._id);
+
+  User.findOneAndUpdate({ _id: req.user._id }, others, (err, data) => {
+    console.log(data);
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
 
 ///로그아웃하기
 app.get('/api/user/logout', auth, (req, res) => {
   User.findOneAndUpdate(
-    { id: req.user.id },
+    { _id: req.user._id },
     { access_token: '' },
     (err, user) => {
       console.log('logout');
@@ -306,13 +334,23 @@ app.post('/api/comment/delete', auth, (req, res) => {
 });
 
 ///////list 가져오기=====================list===========================
-app.get('/api/annouce', (req, res) => {
-  console.log(req.body);
+///////////////공지사항 가져오기.. 어쩔수가 없다 가져와야함
+app.get('/api/announce/:cat', (req, res) => {
+  let cat = req.params.cat === 'all' ? 'humor' : req.params.cat;
+
+  if (!cat) {
+    res.json({ AnnounceCall: false });
+  } else {
+    List.find({ category: cat, announce: true }, (err, data) => {
+      if (err) return res.json({ AnnounceCall: false, err });
+      return res.json({ data });
+    });
+  }
 });
 ///////list 가져오기=====================list===========================
 app.get('/api/list', (req, res) => {
   console.log(req.query);
-  console.log(req.body);
+
   const { page, limit, category, search } = req.query;
   const Page = Number(page);
   const Limit = Number(limit);
@@ -335,7 +373,7 @@ app.get('/api/list', (req, res) => {
   ];
   if (!Category) {
     //첫화면에서 랜딩할때 사용
-    List.find((err, data) => {
+    List.find({ announce: false }, (err, data) => {
       if (err) return res.json(err);
       let lists = cat.map((cats) => {
         return data
@@ -389,7 +427,7 @@ app.get('/api/list', (req, res) => {
     });
   } else if (Category === 'all') {
     //카테고리가 all일때
-    List.find((err, data) => {
+    List.find({ announce: undefined }, (err, data) => {
       if (err) return res.json(err);
 
       let lists = data
@@ -412,7 +450,7 @@ app.get('/api/list', (req, res) => {
     });
   } else {
     //각자의 카테고리로 갓을떄
-    List.find({ category: category }, (err, data) => {
+    List.find({ category: category, announce: false }, (err, data) => {
       if (err) return res.json(err);
       let lists = data
         .reverse()

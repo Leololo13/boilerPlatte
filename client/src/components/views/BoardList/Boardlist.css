@@ -87,6 +87,7 @@
   .boardlist-table {
     display: flex;
     height: fit-content;
+    gap: 5px;
   }
   .boardlist-table-title {
     display: flex;
@@ -94,6 +95,5 @@
     flex-direction: column;
     white-space: normal;
     height: fit-content;
-    gap: 5px;
   }
 }

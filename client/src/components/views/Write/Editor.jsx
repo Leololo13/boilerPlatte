@@ -135,7 +135,7 @@ const Editor = (props) => {
     nickname: user?.nickname,
     postnum: 0,
     category: editOn ? category : 'humor',
-    announce: 1,
+    announce: false,
   });
   console.log(writtenData.category, '가즈아아');
   function dataHandler(e) {

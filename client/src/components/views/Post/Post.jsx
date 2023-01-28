@@ -7,6 +7,35 @@ import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
 
+const overlayStyle = {
+  position: 'fixed',
+  backgroundColor: 'rgba(110, 110, 110, 0.4)',
+};
+
+const contentStyle = {
+  borderRadius: '5px',
+  display: 'flex',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%,-50%)',
+  border: '1px solid #ccc',
+  background: '#fff',
+  overflow: 'auto',
+  WebkitOverflowScrolling: 'touch',
+
+  outline: 'none',
+  height: '120px',
+  width: '360px',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  margin: '0',
+  padding: '0px',
+  paddingBottom: '20px',
+  fontSize: '1.1rem',
+};
+
 function Post() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,6 +47,7 @@ function Post() {
   const { id, category } = useParams();
   const [post, setPost] = useState({});
   const [deleteModal, setDeleteModal] = useState(false);
+
   const deleteModalHandler = () => {
     setDeleteModal(true);
   };
@@ -53,35 +83,6 @@ function Post() {
       alert(error);
     }
   };
-
-  const overlayStyle = {
-    position: 'fixed',
-    backgroundColor: 'rgba(110, 110, 110, 0.4)',
-  };
-
-  const contentStyle = {
-    borderRadius: '5px',
-    display: 'flex',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%,-50%)',
-    border: '1px solid #ccc',
-    background: '#fff',
-    overflow: 'auto',
-    WebkitOverflowScrolling: 'touch',
-
-    outline: 'none',
-    height: '120px',
-    width: '360px',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: '0',
-    padding: '0px',
-    paddingBottom: '20px',
-    fontSize: '1.1rem',
-  };
   function elapsedTime(date) {
     const start = new Date(date);
     const end = new Date();
@@ -112,7 +113,6 @@ function Post() {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
         setPost(res.data);
-        console.log(res.data);
       } catch (err) {
         console.log(err);
       }

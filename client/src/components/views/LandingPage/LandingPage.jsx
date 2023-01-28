@@ -6,9 +6,9 @@ import Main from '../Main/Main';
 import './Landingpage.css';
 import GoogleLogins from '../LoginPage/GoogleLogin';
 import GoogleRegister from '../LoginPage/GoogleRegister';
-function LandingPage() {
+function LandingPage(props) {
   const outlet = useOutlet();
-
+  console.log(props, 'landingpage Props');
   return (
     <div className='landingpage'>
       <header className='landingpage-header'>
@@ -18,7 +18,7 @@ function LandingPage() {
           checkedChildren='Dark'
           unCheckedChildren='Light'
         /> */}
-        <Navbar />
+        <Navbar {...props} />
       </header>
 
       <main className='landingpage-main'>

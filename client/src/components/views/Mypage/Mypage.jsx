@@ -1,8 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Mypage.css';
 import { Pagination } from 'antd';
+import Modal from 'react-modal';
+
+const overlayStyle = {
+  position: 'fixed',
+  backgroundColor: 'rgba(110, 110, 110, 0.4)',
+};
+
+const contentStyle = {
+  borderRadius: '5px',
+  display: 'flex',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%,-50%)',
+  border: '1px solid #ccc',
+  background: '#fff',
+  overflow: 'auto',
+  WebkitOverflowScrolling: 'touch',
+
+  outline: 'none',
+  height: '120px',
+  width: '360px',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  margin: '0',
+  padding: '0px',
+  paddingBottom: '20px',
+  fontSize: '1.1rem',
+};
+
 function Mypage() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -10,12 +41,24 @@ function Mypage() {
   const [userdata, setUserdata] = useState({});
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
+  const [modal, setModal] = useState(false);
+
   ///page
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-
+  const navigate = useNavigate();
   const offset = (page - 1) * limit;
   const [total, setTotal] = useState('');
+  const logoutHandler = async () => {
+    try {
+      await axios.get('/api/user/logout');
+      console.log('logout');
+      navigate('/');
+    } catch (error) {
+      window.location.reload();
+      console.log(error);
+    }
+  };
 
   function elapsedTime(date) {
     const start = new Date(date);
@@ -90,7 +133,13 @@ function Mypage() {
               <p>마지막 접속 일시 : {userdata.date}</p>
             </div>
             <div className='mypage-userAction'>
-              <button>로그아웃</button>
+              <button
+                onClick={() => {
+                  setModal(true);
+                }}
+              >
+                로그아웃
+              </button>
               <button>회원정보 변경하기</button>
               <button>비밀번호 변경</button>
               <button> 회원 탈퇴</button>
@@ -220,7 +269,13 @@ function Mypage() {
           <div>
             <p>잘못된 요청입니다</p>
             <button>메인화면으로 돌아가기</button>
-            <button>로그 아웃</button>
+            <button
+              onClick={() => {
+                setModal(true);
+              }}
+            >
+              로그 아웃
+            </button>
           </div>
         );
     }
@@ -228,6 +283,29 @@ function Mypage() {
 
   return (
     <div>
+      <Modal
+        isOpen={modal}
+        ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
+        onRequestClose={() => {
+          setModal(false);
+        }}
+        style={{
+          overlay: overlayStyle,
+          content: contentStyle,
+        }}
+      >
+        <p>로그아웃 하시겠습니까?</p>
+        <div>
+          <button
+            onClick={() => {
+              logoutHandler();
+            }}
+          >
+            예
+          </button>
+          <button onClick={() => setModal(false)}>아니오</button>
+        </div>
+      </Modal>
       <header className='mypage-headerbox'>
         <Link to={'/userpage?act=userInfo'} className='link'>
           회원 정보 보기
