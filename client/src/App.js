@@ -37,9 +37,9 @@ function App() {
                 <Route path='editor' element={Auth(Editor, true)} />
                 <Route path='post/:id/edit' element={Auth(Editor, true)} />
               </Route>
-
-              <Route>
-                <Route></Route>
+              <Route path='userpage' element={Auth(Mypage, true)}>
+                <Route path='userinfo' element={Auth(Mypage, true)} />
+                <Route path='scrap' element={Auth(Mypage, true)} />
               </Route>
             </Route>
 
@@ -55,11 +55,10 @@ function App() {
           {matchUser && (
             <Routes>
               <Route path='/'>
-                {' '}
-                <Route path='/user' element={Auth(Modalpopup, null)}>
+                <Route path='user' element={Auth(Modalpopup, null)}>
                   <Route path='register' element={Auth(Register, false)} />
                   <Route path='login' element={Auth(LoginPage, null)} />
-                  <Route path='mypage' element={Auth(Mypage, true)} />
+
                   <Route path='log' element={<Logex />}></Route>
                 </Route>
               </Route>

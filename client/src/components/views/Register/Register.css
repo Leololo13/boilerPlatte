@@ -2,12 +2,20 @@
   gap: 0.5rem;
   color: burlywood;
 }
+.regi-form-item {
+  width: 360px;
+}
 .registerbox {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
 
+  align-items: center;
+  gap: 10px;
+  width: 360px;
+}
+.registerbox input {
+  width: 100%;
+}
 .register-form input {
   border: none;
   border-bottom: 1px solid burlywood;

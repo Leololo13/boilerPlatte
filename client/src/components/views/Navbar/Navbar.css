@@ -39,7 +39,7 @@
   color: grey;
   gap: 2rem;
 }
-.userprofile-box {
+/* .userprofile-box {
   border: none;
   display: flex;
   align-items: center;
@@ -53,8 +53,8 @@
   color: burlywood;
   font-size: 1rem;
   font-weight: bold;
-}
-.userprofile-box :hover {
+} */
+/* .userprofile-box :hover {
   border-radius: 50%;
   width: 3.5rem;
   height: 3.5rem;
@@ -65,7 +65,7 @@
   font-size: 1rem;
   font-weight: bold;
   color: white;
-}
+} */
 .iconbox {
   display: flex;
   gap: 1rem;

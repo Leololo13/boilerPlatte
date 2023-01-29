@@ -14,6 +14,7 @@ const { OAuth2Client } = require('google-auth-library');
 const { Commentnum, Postnum } = require('./model/Postnum');
 const { Comment } = require('./model/Comment');
 const { title } = require('process');
+const { isReadable } = require('stream');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -36,6 +37,7 @@ mongoose
 ///user-action============user-action==============================
 ///////register
 app.post('/api/user/register', (req, res) => {
+  console.log(req.body);
   const user = new User(req.body);
   console.log(user);
   User.findOne({ email: req.body.email }, (err, userData) => {
@@ -52,33 +54,87 @@ app.post('/api/user/register', (req, res) => {
     }
   });
 });
+///테스트
+//
+app.post('/api/user/checkID', (req, res) => {
+  let { id } = req.body;
+  console.log(id);
+  !id
+    ? res.json({ IDCheck: false, message: '닉네임을 입력하십시오' })
+    : User.findOne({ nickname: id }, (err, data) => {
+        if (err) return res.json({ IDCheck: false, err });
+        if (!data) {
+          return res.json({ IDCheck: true });
+        } else {
+          return res.json({
+            IDCheck: false,
+            message: '중복된 닉네임이있습니다',
+          });
+        }
+      });
+});
+//유저 정보 변경하기
+app.post('/api/user/infochange', (req, res) => {
+  User.findOne({ nickname: req.body.nickname }, (err, data) => {
+    if (data) {
+      return res.json({
+        infoChangeSuccess: false,
+        message: '중복되는 닉네임이 이미 있습니다',
+      });
+    }
+    if (err) return res.json({ infoChangeSuccess: false, err });
+    User.findOneAndUpdate(
+      { email: req.body.email },
+      { nickname: req.body.nickname },
+      (err, data) => {
+        if (err) return res.json({ infoChangeSuccess: false, err });
+        return res.json({ infoChangeSuccess: true, data });
+      }
+    );
+  });
+});
 
 ////login=====================
 app.post('/api/user/login', (req, res) => {
-  User.findOne({ email: req.body.email }, (err, userData) => {
-    /////db에 이메일이 있는지?
+  console.log(req.body);
+  User.findOneAndUpdate(
+    { email: req.body.email },
+    { date: req.body.date },
+    (err, userData) => {
+      /////db에 이메일이 있는지?
 
-    if (!userData)
-      return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
-    ///db에 이메일이 있으면 비번비교해서 통과시키키
-    userData.comparePassword(req.body.password, (err, isMatch) => {
-      if (!isMatch)
-        return res.json({ LoginSuccess: false, message: 'password is wrong' });
-      userData.genToken((err, userData) => {
-        if (err) return res.status(400).send(err);
-        res
-          .cookie('accessToken', userData.access_token)
-          .cookie('refreshToken', userData.refresh_token)
-          .status(200)
-          .json({
-            LoginSuccess: true,
-            userID: userData.id,
-            email: userData.email,
+      if (!userData)
+        return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
+      ///db에 이메일이 있으면 비번비교해서 통과시키키
+      userData.comparePassword(req.body.password, (err, isMatch) => {
+        if (!isMatch)
+          return res.json({
+            LoginSuccess: false,
+            message: 'password is wrong',
           });
+        userData.genToken((err, userData) => {
+          if (err) return res.status(400).send(err);
+
+          res
+            .cookie('accessToken', userData.access_token, {
+              httpOnly: true,
+              secure: true,
+            })
+            .cookie('refreshToken', userData.refresh_token, {
+              httpOnly: true,
+              secure: true,
+            })
+            .status(200)
+            .json({
+              LoginSuccess: true,
+              userID: userData.id,
+              email: userData.email,
+            });
+        });
       });
-    });
-    ///그리고 token만들어서 주기
-  });
+      ///그리고 token만들어서 주기
+    }
+  );
 });
 ////구글 로그인하기====================================googlegleglegleglgllgglgleeeeeee
 
@@ -97,7 +153,12 @@ app.post('/api/user/googlelogin', async (req, res) => {
 
   console.log(tokens);
 
-  res.cookie('accessToken', tokens.access_token).json({ tokens });
+  res
+    .cookie('accessToken', tokens.access_token, {
+      httpOnly: true,
+      secure: true,
+    })
+    .json({ tokens });
 });
 
 ///구글 등록=====================================googlegleglegleglgllgglgleeeeeee
@@ -127,7 +188,10 @@ app.post('/api/user/googleregister', async (req, res) => {
 app.get('/api/user/auth', auth, (req, res) => {
   res
     .status(200)
-    .cookie('accessToken', req.user.access_token)
+    .cookie('accessToken', req.user.access_token, {
+      httpOnly: true,
+      secure: true,
+    })
     .json({
       id: req.user.id,
       ///role=0이면 관리자, 아니면 일반
@@ -141,11 +205,25 @@ app.get('/api/user/auth', auth, (req, res) => {
       nickname: req.user.nickname,
     });
 });
+///유저정보 변경하기
+app.post('/api/user/modify/Userinfo', auth, (req, res) => {
+  const modifiedInfo = req.body;
+
+  const { isAdmin, isAuth, _id, email, ...others } = modifiedInfo;
+  console.log(others);
+  console.log(req.user._id);
+
+  User.findOneAndUpdate({ _id: req.user._id }, others, (err, data) => {
+    console.log(data);
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
 
 ///로그아웃하기
 app.get('/api/user/logout', auth, (req, res) => {
   User.findOneAndUpdate(
-    { id: req.user.id },
+    { _id: req.user._id },
     { access_token: '' },
     (err, user) => {
       console.log('logout');
@@ -164,9 +242,22 @@ app.post('/api/list/write', auth, (req, res) => {
     { $inc: { totalpost: 1 } }
   ).then((data) => {
     req.body.postnum = data.totalpost + 1;
+
     const list = new List(req.body);
     list.save((err, data) => {
+      console.log(data._id, req.user._id, '세이브전에정보확인');
       if (err) return res.json({ Writesuccess: false, err });
+      User.findByIdAndUpdate(
+        req.user._id,
+        { $addToSet: { posts: data._id } },
+        (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data, '유저정보에 posts_Id입력함');
+          }
+        }
+      );
       return res
         .status(200)
         .json({ Writesuccess: true, postnum: req.body.postnum });
@@ -177,7 +268,13 @@ app.post('/api/list/write', auth, (req, res) => {
 app.post('/api/post/delete/:id', auth, (req, res) => {
   let id = req.params.id;
   console.log('딜리트욧청들어옴');
-  List.findOneAndDelete({ postnum: id }, (err, docs) => {
+  List.findOneAndDelete({ postnum: id, writer: req.user._id }, (err, docs) => {
+    if (!docs) {
+      return res.json({
+        DeleteSuccess: false,
+        message: '작성자 본인이 아니거나 요청하신 게시글이 없습니다.',
+      });
+    }
     if (err) return res.json(err);
     return res.json({ DeleteSuccess: true });
   });
@@ -188,10 +285,20 @@ app.post('/api/post/:id/edit', auth, (req, res) => {
   let data = req.body;
   console.log(id, data);
   console.log('edit하기');
-  List.findOneAndUpdate({ postnum: id }, data, (err, data) => {
-    if (err) return res.json(err);
-    return res.json({ EditSuccess: true });
-  });
+  List.findOneAndUpdate(
+    { postnum: id, writer: req.user._id },
+    data,
+    (err, data) => {
+      if (!data) {
+        return res.json({
+          DeleteSuccess: false,
+          message: '작성자 본인이 아니거나 요청하신 게시글이 없습니다.',
+        });
+      }
+      if (err) return res.json(err);
+      return res.json({ EditSuccess: true });
+    }
+  );
 });
 
 ////comment달기======================comment===============================
@@ -206,6 +313,13 @@ app.post('/api/post/comment', auth, (req, res) => {
     const comment = new Comment(req.body);
     comment.save((err, data) => {
       if (err) return res.json({ CommentSuccess: false, err });
+      User.findByIdAndUpdate(
+        req.user._id,
+        { $addToSet: { comments: data._id } },
+        (err, data) => {
+          if (err) throw err;
+        }
+      );
       return res.status(200).json({ CommentSuccess: true, data });
     });
   });
@@ -262,10 +376,23 @@ app.post('/api/comment/delete', auth, (req, res) => {
 });
 
 ///////list 가져오기=====================list===========================
+///////////////공지사항 가져오기.. 어쩔수가 없다 가져와야함
+app.get('/api/announce/:cat', (req, res) => {
+  let cat = req.params.cat === 'all' ? 'humor' : req.params.cat;
+
+  if (!cat) {
+    res.json({ AnnounceCall: false });
+  } else {
+    List.find({ category: cat, announce: true }, (err, data) => {
+      if (err) return res.json({ AnnounceCall: false, err });
+      return res.json({ data });
+    });
+  }
+});
 ///////list 가져오기=====================list===========================
 app.get('/api/list', (req, res) => {
   console.log(req.query);
-  console.log(req.body);
+
   const { page, limit, category, search } = req.query;
   const Page = Number(page);
   const Limit = Number(limit);
@@ -288,7 +415,7 @@ app.get('/api/list', (req, res) => {
   ];
   if (!Category) {
     //첫화면에서 랜딩할때 사용
-    List.find((err, data) => {
+    List.find({ announce: false }, (err, data) => {
       if (err) return res.json(err);
       let lists = cat.map((cats) => {
         return data
@@ -342,7 +469,7 @@ app.get('/api/list', (req, res) => {
     });
   } else if (Category === 'all') {
     //카테고리가 all일때
-    List.find((err, data) => {
+    List.find({ announce: undefined }, (err, data) => {
       if (err) return res.json(err);
 
       let lists = data
@@ -365,7 +492,7 @@ app.get('/api/list', (req, res) => {
     });
   } else {
     //각자의 카테고리로 갓을떄
-    List.find({ category: category }, (err, data) => {
+    List.find({ category: category, announce: false }, (err, data) => {
       if (err) return res.json(err);
       let lists = data
         .reverse()
@@ -476,12 +603,30 @@ app.post('/api/post/hate/:id', (req, res) => {
 ////mypage===========================================ㅡmypage=========
 app.get('/api/user/mypage', auth, (req, res) => {
   let id = req.user._id;
+
   User.findById(id)
-    .populate('posts')
+    .populate('posts', {
+      title: 1,
+      postnum: 2,
+      date: 3,
+      like: 4,
+      hate: 5,
+      category: 6,
+    })
+    .populate('comments')
     .then((err, data) => {
       if (err) return res.json(err);
       return res.json({ data });
     });
+
+  // List.findOne({ postnum: 123 })
+  //   .populate('writer', { nickname: 1, _id: 2 })
+  //   .then((err, data) => {
+  //     console.log('123');
+  //     if (err) return res.json(err);
+  //     console.log(data);
+  //     return res.json({ data });
+  //   });
 });
 
 /// =-===========reactquill 사용을 위한 multer설정 및 img 업로드

@@ -7,6 +7,35 @@ import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
 
+const overlayStyle = {
+  position: 'fixed',
+  backgroundColor: 'rgba(110, 110, 110, 0.4)',
+};
+
+const contentStyle = {
+  borderRadius: '5px',
+  display: 'flex',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%,-50%)',
+  border: '1px solid #ccc',
+  background: '#fff',
+  overflow: 'auto',
+  WebkitOverflowScrolling: 'touch',
+
+  outline: 'none',
+  height: '120px',
+  width: '360px',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  margin: '0',
+  padding: '0px',
+  paddingBottom: '20px',
+  fontSize: '1.1rem',
+};
+
 function Post() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,12 +47,18 @@ function Post() {
   const { id, category } = useParams();
   const [post, setPost] = useState({});
   const [deleteModal, setDeleteModal] = useState(false);
+
   const deleteModalHandler = () => {
     setDeleteModal(true);
   };
   const postDeletehandler = async () => {
     try {
-      await axios.post(`/api/post/delete/${id}`).then(navigate('/list/all'));
+      await axios.post(`/api/post/delete/${id}`).then((res) => {
+        console.log(res.data);
+        !res.data.DeleteSuccess
+          ? alert(res.data.message)
+          : navigate('/list/all');
+      });
     } catch (error) {
       alert(error);
     }
@@ -47,35 +82,6 @@ function Post() {
     } catch (error) {
       alert(error);
     }
-  };
-
-  const overlayStyle = {
-    position: 'fixed',
-    backgroundColor: 'rgba(110, 110, 110, 0.4)',
-  };
-
-  const contentStyle = {
-    borderRadius: '15px',
-    display: 'flex',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%,-50%)',
-    border: '1px solid #ccc',
-    background: '#fff',
-    overflow: 'auto',
-    WebkitOverflowScrolling: 'touch',
-    borderRadius: '4px',
-    outline: 'none',
-    height: '120px',
-    width: '360px',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: '0',
-    padding: '0px',
-    paddingBottom: '20px',
-    fontSize: '1.1rem',
   };
   function elapsedTime(date) {
     const start = new Date(date);
@@ -117,7 +123,7 @@ function Post() {
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
-
+  console.log(user, post);
   let content = post?.content;
   return (
     <div className='post'>
@@ -200,7 +206,7 @@ function Post() {
       <footer className='postFooter'>
         <div className='share-edit'>
           <div className='footer-share'>share</div>
-          {user?.id === post.id ? (
+          {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
               {' '}
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>

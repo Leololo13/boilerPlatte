@@ -5,52 +5,95 @@ import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
 import GoogleRegister from '../LoginPage/GoogleRegister';
+import { AutoComplete, Button, Checkbox, Form, Input } from 'antd';
+import axios from 'axios';
+
+const formItemLayout = {
+  labelCol: {
+    xs: {
+      span: 24,
+    },
+    sm: {
+      span: 8,
+    },
+  },
+  wrapperCol: {
+    xs: {
+      span: 24,
+    },
+    sm: {
+      span: 16,
+    },
+  },
+};
+
+// const tailFormItemLayout = {
+//   wrapperCol: {
+//     xs: {
+//       span: 24,
+//       offset: 0,
+//     },
+//     sm: {
+//       span: 16,
+//       offset: 8,
+//     },
+//   },
+// };
 
 function Register() {
+  const [form] = Form.useForm();
+
+  // 전화번호 앞 국가번호
+  // const prefixSelector = (
+  //   <Form.Item name='prefix' noStyle>
+  //     <Select
+  //       style={{
+  //         width: 70,
+  //       }}
+  //     >
+  //       <Option value='86'>+86</Option>
+  //       <Option value='87'>+87</Option>
+  //     </Select>
+  //   </Form.Item>
+  // );
+  const userName = Form.useWatch('nickname', form);
+  const [idCheck, setIDCheck] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [userdata, setUserdata] = useState({
-    id: '',
-    email: '',
-    password: '',
-    name: '',
-    lastname: '',
-    nickname: '',
-    signupDate: new Date(),
-  });
-  const [confirmpw, setConfirmpw] = useState('');
-  const datahandler = function (e) {
-    e.preventDefault();
-    setUserdata((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const overlapCheckHandler = async (value) => {
+    console.log(userName);
+    try {
+      await axios.post('/api/user/checkID', { id: value }).then((res) => {
+        console.log(res.data);
+        if (res.data.message) {
+          return false; ///false면 중복이라는소리
+        } else return true;
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
-  const confirmpwHandler = function (e) {
-    setConfirmpw((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-  const onSubmitHandler = function (e) {
-    e.preventDefault();
-    let body = { email: userdata.email, password: userdata.password };
-    console.log(userdata);
-    dispatch(registerUser(userdata)).then((response) => {
+
+  const onSubmitHandler = function (values) {
+    const { agreement, confirm, ...others } = values;
+    others.signupDate = new Date();
+    let body = others;
+    console.log(body);
+    dispatch(registerUser(body)).then((response) => {
       if (response.payload.RegisterSuccess === true) {
+        alert('가입 성공');
         navigate('/');
       } else {
-        console.log(response.payload);
+        console.log(response.payload.err);
         alert(response.payload.message);
       }
     });
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignContent: 'center',
-        width: '240px',
-      }}
-      className='registerbox'
-    >
-      <form
+    <div className='registerbox'>
+      {/* <form
         action=''
         style={{ display: 'flex', flexDirection: 'column' }}
         onSubmit={onSubmitHandler}
@@ -108,8 +151,187 @@ function Register() {
         />{' '}
         <br />
         <button>Register</button>
-      </form>
-      <GoogleRegister className='googleRegister' />
+      </form> */}
+
+      <Form
+        {...formItemLayout}
+        form={form}
+        name='register'
+        onFinish={onSubmitHandler}
+        initialValues={{}}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          maxWidth: '100%',
+        }}
+        layout='vertical'
+        scrollToFirstError
+      >
+        <Form.Item
+          name='email'
+          label='E-mail'
+          className='regi-form-item'
+          hasFeedback
+          rules={[
+            {
+              type: 'email',
+              message: '이메일 형식으로 입력해주십시오',
+            },
+            {
+              required: true,
+              message: '이메일을 입력해주십시오',
+            },
+          ]}
+        >
+          <Input className='regi-form-input' />
+        </Form.Item>
+
+        <Form.Item
+          className='regi-form-item'
+          name='password'
+          label='Password'
+          rules={[
+            {
+              required: true,
+              message: 'Please input your password!',
+            },
+            {
+              validator(_, value) {
+                let condition =
+                  /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+
+                if (condition.test(value)) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error(
+                    '영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'
+                  )
+                );
+              },
+            },
+          ]}
+          hasFeedback
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Form.Item
+          name='confirm'
+          className='regi-form-item'
+          label='Confirm Password'
+          dependencies={['password']}
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: '비밀번호가 일치하는지 확인 해주십시오',
+            },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('비밀번호가 일치하지 않습니다')
+                );
+              },
+            }),
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Form.Item
+          name='nickname'
+          className='regi-form-item'
+          label='Nickname'
+          tooltip='현재 사이트에서 사용하실 닉네임입니다.'
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message:
+                '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
+            },
+            {
+              min: 3,
+              message: '3글자 이상 입력하십시오',
+            },
+            {
+              max: 10,
+              message: '10글자 이하로 입력하십시오',
+            },
+
+            {
+              validator(_, value) {
+                let condition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]*$/;
+
+                if (condition.test(value)) {
+                  console.log('오케이 여기로온다고?');
+                  return Promise.resolve();
+                } else {
+                  return Promise.reject(
+                    new Error('특수문자를 제외한 아이디로 입력해주십시오')
+                  );
+                }
+              },
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <div
+          className='register-overlap'
+          onClick={() => {
+            console.log(overlapCheckHandler(userName));
+          }}
+        >
+          닉네임 중복 확인
+        </div>
+        {/* -============phone number==================== */}
+        {/* <Form.Item
+          name='phone'
+          label='Phone Number'
+          rules={[
+            {
+              required: true,
+              message: 'Please input your phone number!',
+            },
+          ]}
+        >
+          <Input
+            addonBefore={prefixSelector}
+            style={{
+              width: '100%',
+            }}
+          />
+        </Form.Item> */}
+
+        <Form.Item
+          name='agreement'
+          valuePropName='checked'
+          rules={[
+            {
+              validator: (_, value) =>
+                value
+                  ? Promise.resolve()
+                  : Promise.reject(new Error('Should accept agreement')),
+            },
+          ]}
+        >
+          <Checkbox>
+            I have read the <a href=''>agreement</a>
+          </Checkbox>
+        </Form.Item>
+        <Form.Item>
+          <Button type='primary' htmlType='submit'>
+            Register
+          </Button>
+        </Form.Item>
+      </Form>
+      {/* <GoogleRegister className='googleRegister' /> */}
     </div>
   );
 }

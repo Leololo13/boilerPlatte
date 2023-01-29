@@ -20,6 +20,7 @@ function BoardList() {
   const [search, setSearch] = useState(searchtarget ?? '');
   const [searchOn, setSearchon] = useState(false);
   const [searchModal, setSearchModal] = useState(true);
+  const [announce, setAnnounce] = useState([]);
 
   const searchHandler = (e) => {
     e.preventDefault();
@@ -68,17 +69,21 @@ function BoardList() {
           category
         );
         const res2 = await axios.get('/api/comment');
-        console.log(res.data.data);
+        const res3 = await axios.get(`/api/announce/${category}`);
+
         setComments(res2.data.data);
         setLists(res.data.data);
         setTotal(res.data.total);
+        setAnnounce(res3.data.data);
       } catch (err) {
+        console.log(err);
         alert(err);
       }
     };
     console.log('useeffect render');
     fetchAllLists();
   }, [page, searchOn]);
+
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
@@ -125,7 +130,13 @@ function BoardList() {
             >
               <td
                 className='boardlist-box-head like'
-                style={{ flex: 2, textAlign: 'center' }}
+                style={{
+                  flex: 2,
+                  textAlign: 'center',
+                  minWidth: '50px',
+                  margin: '0',
+                  padding: '0',
+                }}
               >
                 👍/🤢
               </td>
@@ -135,18 +146,40 @@ function BoardList() {
               >
                 제목
               </td>
-              <td className='boardlist-box-head writer' style={{ flex: 2 }}>
+              <td
+                className='boardlist-box-head writer'
+                style={{ flex: 2, minWidth: '70px' }}
+              >
                 글쓴이
               </td>
-              <td className='boardlist-box-head date' style={{ flex: 2 }}>
+              <td
+                className='boardlist-box-head date'
+                style={{ flex: 2, minWidth: '70px' }}
+              >
                 날짜
               </td>
             </tr>
           </thead>
+
           <tbody>
+            {announce.map((anc, idx) => {
+              return (
+                <tr className='important-post' key={idx}>
+                  <td className='ip-post-title'>
+                    <Link
+                      className='link'
+                      to={`/list/${category}/post/${anc.postnum}`}
+                    >
+                      {anc.title}
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+
             {lists
               .filter((list) =>
-                category === 'all' || 'search'
+                category === 'all' || category === 'search'
                   ? list
                   : list.category === category
               )
@@ -160,12 +193,22 @@ function BoardList() {
                       display: 'flex',
                       gap: '2px',
                       alignContent: 'center',
+                      justifyContent: 'center',
                       flex: 2,
+                      minWidth: '45px',
                     }}
                   >
                     {list.like.length}/{list.hate.length}
                   </td>
-                  <td style={{ flex: 16, width: '100%' }}>
+                  <td
+                    style={{
+                      flex: 16,
+                      width: '100%',
+                      maxHeight: '3.5rem',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
                     <div className='boardlist-table-title'>
                       <Link
                         className='link'
@@ -174,7 +217,6 @@ function BoardList() {
                         }?page=${page}&search=${search ?? null}`}
                       >
                         {list.title}
-                        {'   '}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
                           {
                             comments.filter(
@@ -186,9 +228,22 @@ function BoardList() {
                     </div>
                     <div className='boardlist-table-repl'>{list.repl}</div>
                   </td>
-                  <td style={{ flex: 2, textAlign: 'center' }}>{list.id}</td>
                   <td
-                    style={{ flex: 2, fontSize: '0.8rem', textAlign: 'center' }}
+                    style={{
+                      flex: 2,
+                      textAlign: 'center',
+                      minWidth: '70px',
+                    }}
+                  >
+                    {list.nickname ?? list.id}
+                  </td>
+                  <td
+                    style={{
+                      flex: 2,
+                      fontSize: '0.8rem',
+                      textAlign: 'center',
+                      minWidth: '70px',
+                    }}
                   >
                     {elapsedTime(list.date)}
                   </td>
@@ -200,10 +255,11 @@ function BoardList() {
       <footer className='boardlist-footer'>
         <Pagination
           showQuickJumper
-          showTotal={(total) => `Total ${total} Lists`}
+          showTotal={(total) => `총 ${total} 게시물`}
           defaultPageSize={limit}
           size={'small'}
           defaultCurrent={1}
+          showSizeChanger={false}
           total={total}
           current={page}
           onChange={(page) => {

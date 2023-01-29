@@ -21,7 +21,7 @@ function LoginPage() {
 
   const onSubmitHandler = function (e) {
     e.preventDefault();
-    let body = { email: email, password: pw };
+    let body = { email: email, password: pw, date: new Date() };
 
     dispatch(loginUser(body)).then((response) => {
       if (response.payload.LoginSuccess === true) {

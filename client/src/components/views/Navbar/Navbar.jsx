@@ -3,23 +3,33 @@ import './Navbar.css';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Button, Dropdown, Space } from 'antd';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 
-function Navbar() {
+function Navbar(props) {
   const { category } = useParams();
   const [cookies, setCookie, removeCookies] = useCookies([]);
   const [data, setData] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
 
+  console.log(data, 'Navbar auth');
+
   //////////////////////////////
+  const trySave = async () => {
+    try {
+      await axios
+        .post('/api/user/modify/Userinfo', data)
+        .then((res) => console.log(res.data, '세이브테스트 완료'));
+    } catch (error) {
+      console.log(error, '세이브테스트실패');
+    }
+  };
   const logoutHandler = async () => {
     try {
       await axios.get('/api/user/logout');
       console.log('logout');
-      window.location.reload();
+      navigate('/');
     } catch (error) {
       window.location.reload();
       console.log(error);
@@ -34,14 +44,17 @@ function Navbar() {
         console.log(res.data);
       });
     } catch (err) {
-      console.log(err, 'navbar autherr');
+      console.log(err, 'navbar auth err발생함');
     }
   };
 
   ////////////////요청을 페이지 새로고침이나 이런거할때 계속 확인해서 버튼을보여줄지 말지 정한다.
   useEffect(() => {
     tryAuth();
-    console.log('navbar authtry');
+    // setData(props);
+    console.log(
+      'navbar auth try 할필요가 이제는 없다.. 왜? 이미햇으니까.. 첫페이지에서 useEffect'
+    );
   }, []);
   ///////////////nav bar 아이콘 내 항목
   const items = [
@@ -64,14 +77,26 @@ function Navbar() {
       ),
     },
     data.email && {
+      key: '6',
+      label: (
+        <Link to={`/userpage?act=userInfo`} state={{ background: location }}>
+          <p rel='noopener noreferrer'>
+            <span style={{ color: 'blue' }}>{data.nickname}</span>
+            {data.email}
+          </p>
+        </Link>
+      ),
+    },
+    data.email && {
       key: '3',
       label: (
-        <Link to={`/user/mypage`} state={{ background: location }}>
+        <Link to={`/userpage`} state={{ background: location }}>
           {' '}
           <p rel='noopener noreferrer'>MY Page</p>
         </Link>
       ),
     },
+
     data.email && {
       key: '5',
       label: (
@@ -91,6 +116,19 @@ function Navbar() {
         >
           {' '}
           <p rel='noopener noreferrer'>Auth test</p>
+        </button>
+      ),
+    },
+    {
+      key: '7',
+      label: (
+        <button
+          onClick={() => {
+            trySave();
+          }}
+        >
+          {' '}
+          <p rel='noopener noreferrer'>save test</p>
         </button>
       ),
     },
@@ -128,17 +166,27 @@ function Navbar() {
                 menu={{
                   items,
                 }}
+                overlayStyle={{
+                  width: '240px',
+                  fontSize: '60px',
+                  fontWeight: 'bold',
+                }}
                 placement='topRight'
               >
                 <Button
                   style={{
                     border: 'none',
                     borderRadius: '50%',
+                    fontSize: '0.8rem',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontWeight: 'bold',
                     width: '3.5rem',
                     height: '3.5rem',
                   }}
                 >
-                  User
+                  {data?.isAdmin ? 'Admin' : 'User'}
                 </Button>
               </Dropdown>
             </Space>

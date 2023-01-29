@@ -3,15 +3,44 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Recomment from './Recomment';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import Modal from 'react-modal';
 
+const overlayStyle = {
+  position: 'fixed',
+  backgroundColor: 'rgba(110, 110, 110, 0.4)',
+};
+
+const contentStyle = {
+  borderRadius: '5px',
+  display: 'flex',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%,-50%)',
+  border: '1px solid #ccc',
+  background: '#fff',
+  overflow: 'auto',
+  WebkitOverflowScrolling: 'touch',
+
+  outline: 'none',
+  height: '120px',
+  width: '360px',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  margin: '0',
+  padding: '0px',
+  paddingBottom: '20px',
+  fontSize: '1.1rem',
+};
 function Comment() {
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
-
+  const navigate = useNavigate();
   const { id } = useParams();
   let initialState = {
     writer: '',
@@ -28,6 +57,7 @@ function Comment() {
   const [modalVisibleId, setModalVisibleId] = useState('');
   const [writtenComment, setWrittenComment] = useState(initialState);
   const [editOn, setEditOn] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ open: false, num: '' });
   function elapsedTime(date) {
     const start = new Date(date);
     const end = new Date();
@@ -80,16 +110,16 @@ function Comment() {
     } else {
       try {
         axios.post('/api/comment/delete', { commentnum }).then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           // let cmt = comments.filter(
           //   (comment) => comment.postnum === parseInt(id)
           // );
-
           // setComments(cmt);
           // console.log(deletedCMT);
         });
       } catch (error) {
-        console.log(error);
+        alert(error);
+        console.log(error, 'comment delete error');
       }
     }
   };
@@ -118,15 +148,43 @@ function Comment() {
         console.log(res.data.data);
         setComments(res.data.data);
       } catch (error) {
-        alert(error);
+        alert(error, '코멘트 로딩 error');
       }
     };
     fetchComment();
   }, []);
-  console.log(user);
+
   return (
     <div>
-      {' '}
+      <Modal
+        isOpen={deleteModal.open}
+        ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
+        onRequestClose={() => {
+          setDeleteModal((prev) => ({ ...prev, open: false }));
+        }}
+        style={{
+          overlay: overlayStyle,
+          content: contentStyle,
+        }}
+      >
+        <p>이 글을 삭제 하시겠습니까?</p>
+        <div>
+          <button
+            onClick={(e) => {
+              console.log(deleteModal.num);
+              deleteHandler(deleteModal.num);
+              navigate(0);
+            }}
+          >
+            예
+          </button>
+          <button
+            onClick={() => setDeleteModal((prev) => ({ ...prev, open: false }))}
+          >
+            아니오
+          </button>
+        </div>
+      </Modal>
       <div className='footer-comment'>
         <div className='comment-title'>
           <p className='comment-modal' onClick={commentModalHandler}>
@@ -161,7 +219,10 @@ function Comment() {
                             <div
                               onClick={() => {
                                 setEditOn(false);
-                                recommentModalHandler(comment._id);
+                                console.log('닶댓글가즈아', editOn);
+                                modalVisibleId
+                                  ? setModalVisibleId('')
+                                  : recommentModalHandler(comment._id);
                               }}
                               style={{ cursor: 'pointer', fontWeight: 'bold' }}
                               className='comment-recomment'
@@ -172,7 +233,7 @@ function Comment() {
 
                             {(comment.writer === user?._id &&
                               comment.role === 1) ||
-                            user?.isAdmin === true ? (
+                            user?.isAdmin ? (
                               <>
                                 <div
                                   className='comment-edit'
@@ -193,7 +254,10 @@ function Comment() {
                                 <div
                                   className='comment-delete'
                                   onClick={() => {
-                                    deleteHandler(comment.commentnum);
+                                    setDeleteModal({
+                                      open: true,
+                                      num: comment.commentnum,
+                                    });
                                   }}
                                 >
                                   <DeleteOutlined
@@ -257,7 +321,11 @@ function Comment() {
                                       <div
                                         onClick={() => {
                                           setEditOn(false);
-                                          recommentModalHandler(recomment._id);
+                                          modalVisibleId
+                                            ? setModalVisibleId('')
+                                            : recommentModalHandler(
+                                                recomment._id
+                                              );
                                         }}
                                         style={{
                                           cursor: 'pointer',
@@ -268,8 +336,9 @@ function Comment() {
                                       >
                                         답댓글달기
                                       </div>
-                                      {comment.writer === user?._id ||
-                                      user?.isAdmin === true ? (
+                                      {(comment.writer === user?._id &&
+                                        comment.role === 1) ||
+                                      user?.isAdmin ? (
                                         <>
                                           {' '}
                                           <div
@@ -298,9 +367,10 @@ function Comment() {
                                             data-id={recomment.commentnum}
                                             className='comment-delete'
                                             onClick={() => {
-                                              deleteHandler(
-                                                recomment.commentnum
-                                              );
+                                              setDeleteModal({
+                                                open: true,
+                                                num: recomment.commentnum,
+                                              });
                                             }}
                                           >
                                             <DeleteOutlined
