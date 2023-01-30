@@ -171,6 +171,7 @@ const Editor = (props) => {
             `/list/${writtenData.category}/post/${response.payload.postnum}`
           );
         } else {
+          console.log(response.payload);
           alert(response.payload.err.message);
         }
       });

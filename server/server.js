@@ -245,7 +245,8 @@ app.post('/api/list/write', auth, (req, res) => {
 
     const list = new List(req.body);
     list.save((err, data) => {
-      console.log(data._id, req.user._id, '세이브전에정보확인');
+      console.log(data);
+      console.log(data?._id, req.user._id, '세이브전에정보확인');
       if (err) return res.json({ Writesuccess: false, err });
       User.findByIdAndUpdate(
         req.user._id,

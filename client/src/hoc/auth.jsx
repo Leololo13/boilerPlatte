@@ -37,6 +37,7 @@ export default function Auth(SpecificComponent, option, adminRoute = null) {
 
             navigate('/');
           } else if (response.payload.isAdmin) {
+            setUserinfo(response.payload);
             console.log('로그인했고, 관리자다');
           } else {
             setUserinfo(response.payload);

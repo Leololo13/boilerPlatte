@@ -36,10 +36,10 @@ const contentStyle = {
   fontSize: '1.1rem',
 };
 
-function Post() {
+function Post(props) {
   const navigate = useNavigate();
   const location = useLocation();
-
+  console.log(props, 'in post props');
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
@@ -123,7 +123,7 @@ function Post() {
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
-  console.log(user, post);
+  console.log(post);
   let content = post?.content;
   return (
     <div className='post'>

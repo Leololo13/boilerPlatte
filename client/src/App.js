@@ -10,7 +10,6 @@ import Logex from './components/views/LoginPage/Logex';
 import Auth from './hoc/auth';
 import Editor from './components/views/Write/Editor';
 import Mypage from './components/views/Mypage/Mypage';
-import Edit from './components/views/Write/Edit';
 
 ////////////  A || B는 a가 트루면 a, false면 b
 ////////////// A && B a가 트루면 b, false면 a

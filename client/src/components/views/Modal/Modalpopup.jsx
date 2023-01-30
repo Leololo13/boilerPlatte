@@ -27,7 +27,7 @@ function Modalpopup(props) {
     borderRadius: '4px',
     outline: 'none',
     height: 'fit-content',
-    width: '360px',
+    width: '380px',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',

@@ -1,12 +1,43 @@
 import React from 'react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
 import GoogleRegister from '../LoginPage/GoogleRegister';
 import { AutoComplete, Button, Checkbox, Form, Input } from 'antd';
 import axios from 'axios';
+import Modal from 'react-modal';
+import Agreement from './Agreement';
+
+const overlayStyle = {
+  position: 'fixed',
+  backgroundColor: 'rgba(110, 110, 110, 0.4)',
+};
+
+const contentStyle = {
+  borderRadius: '5px',
+  display: 'flex',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%,-50%)',
+  border: '1px solid #ccc',
+  background: '#fff',
+  overflow: 'auto',
+  WebkitOverflowScrolling: 'touch',
+  outline: 'none',
+  height: '720px',
+  width: '360px',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  margin: '0',
+  padding: '10px',
+  paddingBottom: '20px',
+  fontSize: '1.1rem',
+  gap: '10px',
+};
 
 const formItemLayout = {
   labelCol: {
@@ -27,18 +58,18 @@ const formItemLayout = {
   },
 };
 
-// const tailFormItemLayout = {
-//   wrapperCol: {
-//     xs: {
-//       span: 24,
-//       offset: 0,
-//     },
-//     sm: {
-//       span: 16,
-//       offset: 8,
-//     },
-//   },
-// };
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 8,
+    },
+  },
+};
 
 function Register() {
   const [form] = Form.useForm();
@@ -60,6 +91,8 @@ function Register() {
   const [idCheck, setIDCheck] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [modal, setModal] = useState(false);
+  const agreementModalHandler = () => {};
 
   const overlapCheckHandler = async (value) => {
     console.log(userName);
@@ -93,6 +126,39 @@ function Register() {
 
   return (
     <div className='registerbox'>
+      <Modal
+        isOpen={modal}
+        ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
+        onRequestClose={() => {
+          setModal(false);
+        }}
+        style={{
+          overlay: overlayStyle,
+          content: contentStyle,
+        }}
+      >
+        <Agreement />
+        <Checkbox style={{ width: '240px' }}>
+          I have read the{' '}
+          <span
+            style={{
+              color: 'black',
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+          >
+            agreement
+          </span>
+        </Checkbox>
+        <button
+          onClick={() => {
+            setModal(false);
+          }}
+        >
+          닫기
+        </button>
+      </Modal>
       {/* <form
         action=''
         style={{ display: 'flex', flexDirection: 'column' }}
@@ -163,7 +229,11 @@ function Register() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0',
+          margin: '0',
           maxWidth: '100%',
+          width: '300px',
         }}
         layout='vertical'
         scrollToFirstError
@@ -184,7 +254,7 @@ function Register() {
             },
           ]}
         >
-          <Input className='regi-form-input' />
+          <Input className='regi-form-input' style={{ width: '240px' }} />
         </Form.Item>
 
         <Form.Item
@@ -214,13 +284,14 @@ function Register() {
           ]}
           hasFeedback
         >
-          <Input.Password />
+          <Input.Password style={{ width: '240px' }} />
         </Form.Item>
 
         <Form.Item
           name='confirm'
           className='regi-form-item'
           label='Confirm Password'
+          labelCol={3}
           dependencies={['password']}
           hasFeedback
           rules={[
@@ -240,13 +311,14 @@ function Register() {
             }),
           ]}
         >
-          <Input.Password />
+          <Input.Password style={{ width: '240px' }} />
         </Form.Item>
 
         <Form.Item
           name='nickname'
           className='regi-form-item'
           label='Nickname'
+          labelCol={3}
           tooltip='현재 사이트에서 사용하실 닉네임입니다.'
           hasFeedback
           rules={[
@@ -280,16 +352,9 @@ function Register() {
             },
           ]}
         >
-          <Input />
+          <Input style={{ width: '240px' }} />
         </Form.Item>
-        <div
-          className='register-overlap'
-          onClick={() => {
-            console.log(overlapCheckHandler(userName));
-          }}
-        >
-          닉네임 중복 확인
-        </div>
+
         {/* -============phone number==================== */}
         {/* <Form.Item
           name='phone'
@@ -321,16 +386,34 @@ function Register() {
             },
           ]}
         >
-          <Checkbox>
-            I have read the <a href=''>agreement</a>
+          <Checkbox style={{ width: '240px' }}>
+            I have read the{' '}
+            <span
+              onClick={() => {
+                setModal(true);
+              }}
+              style={{
+                color: 'black',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+              }}
+            >
+              agreement
+            </span>
           </Checkbox>
         </Form.Item>
         <Form.Item>
-          <Button type='primary' htmlType='submit'>
+          <Button
+            style={{ backgroundColor: 'bisque', color: 'darkgrey' }}
+            type='primary'
+            htmlType='submit'
+          >
             Register
           </Button>
         </Form.Item>
       </Form>
+      <div>Or</div>
       {/* <GoogleRegister className='googleRegister' /> */}
     </div>
   );
