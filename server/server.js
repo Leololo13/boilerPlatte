@@ -143,15 +143,121 @@ const oAuth2Client = new OAuth2Client(
   process.env.CLIENT_SECRET,
   'postmessage'
 );
+///////////////////////////////////////구글가입?
+async function verifyGoogleToken(token) {
+  try {
+    const ticket = await oAuth2Client.verifyIdToken({
+      idToken: token,
+    });
+    return { payload: ticket.getPayload() };
+  } catch (error) {
+    return { error: 'invalid user detected. pleas Try Again' };
+  }
+}
+app.post('/api/user/googlesignup', async (req, res) => {
+  console.log(req.body, '??????????????????????????????????????????');
+  try {
+    console.log({ verified: verifyGoogleToken(req.body.credential) });
+    if (req.body.credential) {
+      const verifyRes = await verifyGoogleToken(req.body.credential);
+      if (verifyRes.error) {
+        return res.status(400).json({
+          message: verifyRes.error,
+        });
+      }
+      const profile = verifyRes?.payload;
+
+      console.log(profile, 'google profile');
+      ///프로파일 겟함.. 이걸로 가입하자
+      const user = new User(profile);
+      User.findOne({ email: profile.email }, (err, data) => {
+        console.log('오긴한겁니까');
+        if (err) return res.json({ RegisterSuccess: false, message: err });
+        if (!data) {
+          user.save((error, data) => {
+            if (error) return res.json({ RegisterSuccess: false, error });
+            return res.status(200).json({ RegisterSuccess: true, data });
+          });
+        } else {
+          return res.json({
+            RegisterSuccess: false,
+            message: '이미 가입하신 이메일이 있습니다',
+          });
+        }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'An error occurred. Registration failed.',
+    });
+  }
+});
+///구글로긴
+app.post('/api/user/googlesignin', async (req, res) => {
+  try {
+    console.log({ verified: verifyGoogleToken(req.body.credential) });
+    if (req.body.credential) {
+      const verifyRes = await verifyGoogleToken(req.body.credential);
+      if (verifyRes.error) {
+        return res.status(400).json({
+          message: verifyRes.error,
+        });
+      }
+      const profile = verifyRes?.payload;
+
+      console.log(profile, 'google profile');
+      ///프로파일 겟함.. 이걸로 로그인
+
+      User.findOne({ email: profile.email }, (err, data) => {
+        console.log('오긴한겁니까, 로그인');
+        if (err) return res.json({ LoginSuccess: false, message: err });
+        if (!data) {
+          return res.json({
+            LoginSuccess: false,
+            message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
+          });
+        } else {
+          data.genToken((err, userData) => {
+            if (err) return res.status(400).send(err);
+
+            res
+              .cookie('accessToken', userData.access_token, {
+                httpOnly: true,
+                secure: true,
+              })
+              .cookie('refreshToken', userData.refresh_token, {
+                httpOnly: true,
+                secure: true,
+              })
+              .status(200)
+              .json({
+                message: '로그인 성공',
+                LoginSuccess: true,
+                userID: userData.id,
+                email: userData.email,
+              });
+          });
+        }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'An error occurred. login failed.',
+    });
+  }
+});
+
 ///사실 구글로그인은 auth랑 같다
 app.post('/api/user/googlelogin', async (req, res) => {
   ///토큰을 받아서 acc,refresh저장해
   console.log(req.body, 'qwokqwoekqwoekoqwek');
   const { tokens } = await oAuth2Client.getToken(req.body.code); // exchange code for tokens
-
+  // const ticket = await oAuth2Client.verifyIdToken({
+  //   idToken: string;
+  // })
   //userinfo받아서 넣어줘 끝!
 
-  console.log(tokens);
+  console.log(tokens, 'hhhgggggggggggggggggggtoken');
 
   res
     .cookie('accessToken', tokens.access_token, {
@@ -163,7 +269,7 @@ app.post('/api/user/googlelogin', async (req, res) => {
 
 ///구글 등록=====================================googlegleglegleglgllgglgleeeeeee
 app.post('/api/user/googleregister', async (req, res) => {
-  console.log(req.body);
+  console.log(req.body, '배다뱆다배다뱆답재다뱆답ㅈ대바뱆다뱆다');
   const user = new User(req.body);
   User.findOne({ email: req.body.email }, (err, userData) => {
     if (!userData) {

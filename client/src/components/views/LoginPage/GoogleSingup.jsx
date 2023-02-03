@@ -6,11 +6,12 @@ import { useState } from 'react';
 
 const GoogleSingup = () => {
   const [profile, setProfile] = useState([]);
-  const { handleGoogle, loading, error } = useFetch('/api/user/googleregister');
+  const { handleGoogle, loading, error } = useFetch('/api/user/googlesignup');
   const ClientId = process.env.REACT_APP_CLIENT_ID;
 
   useEffect(() => {
     if (window.google) {
+      console.log('구글 로긴 진행');
       window.google.accounts.id.initialize({
         client_id: ClientId,
         callback: handleGoogle,
@@ -19,16 +20,17 @@ const GoogleSingup = () => {
       window.google.accounts.id.renderButton(
         document.getElementById('signUpDiv'),
         {
-          type: 'standard',
-          theme: 'filled_black',
+          type: 'icon',
+          theme: 'filled_blue',
           //size: 'small',
-          text: 'signup_with',
+          text: 'continue_with',
           shape: 'pill',
         }
       );
-      window.google.accounts.id.prompt();
+      // window.google.accounts.id.prompt();
     }
   }, [handleGoogle]);
+
   return (
     <>
       {/* <nav style={{ padding: '2rem' }}>

@@ -4,8 +4,7 @@ import Footer from '../Footer/Footer';
 import { Outlet, useOutlet } from 'react-router-dom';
 import Main from '../Main/Main';
 import './Landingpage.css';
-import GoogleLogins from '../LoginPage/GoogleLogin';
-import GoogleRegister from '../LoginPage/GoogleRegister';
+
 function LandingPage(props) {
   const outlet = useOutlet();
   console.log(props, 'landingpage Props');
@@ -31,7 +30,7 @@ function LandingPage(props) {
           // }}
         >
           <aside>
-            <div>asaide "</div>
+            <div>asaide "{/* <GooglSignin /> */}</div>
           </aside>
           <article className='landingpage-main-content'>
             {outlet ? <Outlet /> : <Main />}

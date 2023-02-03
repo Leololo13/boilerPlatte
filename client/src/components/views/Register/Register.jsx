@@ -5,10 +5,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
 import GoogleRegister from '../LoginPage/GoogleRegister';
-import { AutoComplete, Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input } from 'antd';
 import axios from 'axios';
 import Modal from 'react-modal';
 import Agreement from './Agreement';
+import GoogleSingup from '../LoginPage/GoogleSingup';
 
 const overlayStyle = {
   position: 'fixed',
@@ -413,8 +414,16 @@ function Register() {
           </Button>
         </Form.Item>
       </Form>
-      <div>Or</div>
+
       {/* <GoogleRegister className='googleRegister' /> */}
+      <div
+        style={{
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ paddingBottom: '15px' }}>-----OR-----</div>
+        <GoogleSingup />
+      </div>
     </div>
   );
 }

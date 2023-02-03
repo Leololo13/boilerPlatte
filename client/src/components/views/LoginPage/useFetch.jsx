@@ -1,26 +1,33 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const useFetch = (url) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
   const handleGoogle = async (res) => {
     setLoading(true);
-    let body = JSON.stringify({ credential: res.credential });
+    let body = { credential: res.credential };
+
     await axios
       .post(url, body)
       .then((res) => {
         setLoading(false);
-        return res.json();
-      })
-      .then((data) => {
-        if (data?.user) {
-          console.log(data.user);
+        console.log(res);
+        if (res?.data) {
+          console.log(res?.data);
+          localStorage.setItem('user', JSON.stringify(res?.data.userID));
+          navigate('/');
         }
+        throw new Error(res?.data.message || res.data);
       })
-      .catch((err) => setError(err?.message));
-    console.log(res);
+      .catch((err) => {
+        console.log(err);
+        setError(err?.message);
+      });
   };
+
   return { loading, error, handleGoogle };
 };
 

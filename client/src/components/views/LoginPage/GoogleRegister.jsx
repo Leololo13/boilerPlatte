@@ -55,6 +55,7 @@ const GoogleRegister = () => {
     };
     registerUser();
   }, [profile]);
+
   return (
     <div>
       <button className='googleRegister' onClick={googleLogin}>

@@ -13,7 +13,7 @@ function Navbar(props) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  console.log(data, 'Navbar auth');
+  console.log(props, 'props from auth APP.js');
 
   //////////////////////////////
   const trySave = async () => {
@@ -41,7 +41,6 @@ function Navbar(props) {
     try {
       await axios.get(`/api/user/auth`).then((res) => {
         setData(res.data);
-        console.log(res.data);
       });
     } catch (err) {
       console.log(err, 'navbar auth err발생함');
@@ -53,7 +52,7 @@ function Navbar(props) {
     tryAuth();
     // setData(props);
     console.log(
-      'navbar auth try 할필요가 이제는 없다.. 왜? 이미햇으니까.. 첫페이지에서 useEffect'
+      '뭐가 더빠른지 모르겟다. props를 받을지 아니면 자료를 받아올지 첫페이지에서 useEffect'
     );
   }, []);
   ///////////////nav bar 아이콘 내 항목
