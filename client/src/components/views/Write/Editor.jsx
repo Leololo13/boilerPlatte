@@ -11,6 +11,7 @@ import { Select, Checkbox } from 'antd';
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
 
+let imgurll = '';
 function getVideoUrl(url) {
   let match =
     url.match(
@@ -22,6 +23,7 @@ function getVideoUrl(url) {
     url.match(/^.*(youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/);
   // console.log(match[2]);
   if (match && match[2].length === 11) {
+    imgurll = ` https://img.youtube.com/vi/${match[2]}/mqdefault.jpg`;
     return (
       'https' +
       '://www.youtube.com/embed/' +
@@ -50,9 +52,14 @@ class CoustomVideo extends Video {
   }
 
   static create(value) {
+    if (!imgurll) {
+      imgurll = value;
+    }
+
     const node = super.create(value);
     const utubeUrl = value.includes('youtube');
     const videoUrl = value.includes('video');
+
     console.log(utubeUrl ? 'iframe' : 'video');
     // this.State({
     //   iFrameHeight: '100px',
@@ -136,7 +143,9 @@ const Editor = (props) => {
     postnum: 0,
     category: editOn ? category : 'humor',
     announce: false,
+    image: '',
   });
+
   console.log(writtenData.category, '가즈아아');
   function dataHandler(e) {
     e.preventDefault();
@@ -151,6 +160,9 @@ const Editor = (props) => {
 
     let body = writtenData;
     body.content = value;
+    if (body.image === '' && imgurll) {
+      body.image = imgurll;
+    }
     if (editOn) {
       axios.post(`/api/post/${id}/edit`, body).then((res) => {
         if (res.data.EditSuccess === true) {
@@ -193,6 +205,7 @@ const Editor = (props) => {
       console.log('온체인지');
       const file = input.files;
       console.log(file);
+
       ///뮬터에 맞는 형식으로 만들어주기
       const formData = new FormData();
       for (let i = 0; i < file.length; i++) {
@@ -208,7 +221,7 @@ const Editor = (props) => {
         console.log('성공시 백엔드가 데이터보내줌', res.data);
         const FILES = res.data.files;
         const IMG_URL = res.data.url;
-
+        setWrittenData((prev) => ({ ...prev, image: IMG_URL[0] }));
         ///퀼의 가지고있는 에디터 가져오기!
         const editor = quillRef.current.getEditor();
         //현재 마우스위치 알려주기. 그래야 여기에 이미지를 넣음
@@ -271,6 +284,7 @@ const Editor = (props) => {
     FetchEdit();
   }, []);
   console.log(user);
+  console.log(imgurll);
   console.log(writtenData);
   return (
     <div className='editorbox'>

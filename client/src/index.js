@@ -12,14 +12,12 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <CookiesProvider>
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
-      <Provider store={store}>
-        <BrowserRouter>
-          {' '}
-          <App />
-        </BrowserRouter>
-      </Provider>
-    </GoogleOAuthProvider>
+    <Provider store={store}>
+      <BrowserRouter>
+        {' '}
+        <App />
+      </BrowserRouter>
+    </Provider>
   </CookiesProvider>
 );
 

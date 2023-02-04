@@ -8,6 +8,7 @@ import './Landingpage.css';
 function LandingPage(props) {
   const outlet = useOutlet();
   console.log(props, 'landingpage Props');
+
   return (
     <div className='landingpage'>
       <header className='landingpage-header'>
@@ -30,7 +31,7 @@ function LandingPage(props) {
           // }}
         >
           <aside>
-            <div>asaide "{/* <GooglSignin /> */}</div>
+            <div>asaide "</div>
           </aside>
           <article className='landingpage-main-content'>
             {outlet ? <Outlet /> : <Main />}

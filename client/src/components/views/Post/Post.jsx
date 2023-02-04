@@ -48,6 +48,29 @@ function Post(props) {
   const [post, setPost] = useState({});
   const [deleteModal, setDeleteModal] = useState(false);
 
+  function shareKakao() {
+    window.Kakao.Share.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: post.title,
+        imageUrl: post.image,
+        link: {
+          // [내 애플리케이션] > [플랫폼] 에서 등록한 사이트 도메인과 일치해야 함
+          mobileWebUrl: `http://localhost:3000${location.pathname}`,
+          webUrl: `http://localhost:3000${location.pathname}`,
+        },
+      },
+      buttons: [
+        {
+          title: '앱으로 보기',
+          link: {
+            mobileWebUrl: `http://localhost:3000${location.pathname}`,
+            webUrl: `http://localhost:3000${location.pathname}`,
+          },
+        },
+      ],
+    });
+  }
   const deleteModalHandler = () => {
     setDeleteModal(true);
   };
@@ -117,6 +140,14 @@ function Post(props) {
         console.log(err);
       }
     };
+    if (window.Kakao) {
+      console.log('카카카카');
+      if (!window.Kakao.isInitialized()) {
+        console.log('쉐어준비완료');
+        window.Kakao.init('b18ca2d74f4a17d6908f33d9c4958961');
+      }
+    }
+
     fetchPost();
   }, []);
   console.log('render');
@@ -125,6 +156,7 @@ function Post(props) {
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
   console.log(post);
   let content = post?.content;
+
   return (
     <div className='post'>
       <Modal
@@ -205,7 +237,26 @@ function Post(props) {
       </main>
       <footer className='postFooter'>
         <div className='share-edit'>
-          <div className='footer-share'>share</div>
+          <div className='footer-share'>
+            <p
+              id='kakaotalk-sharing-btn'
+              style={{
+                cursor: 'pointer',
+                margin: '0',
+                padding: '0',
+                width: '40px',
+                height: '40px',
+              }}
+              onClick={shareKakao}
+            >
+              <img
+                src='https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png'
+                alt='카카오톡 공유 보내기 버튼'
+                width='100%'
+                height='100%'
+              />
+            </p>
+          </div>
           {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
               {' '}
