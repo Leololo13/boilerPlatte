@@ -43,6 +43,9 @@ const commentSchema = mongoose.Schema({
   target: {
     type: String,
   },
+  image: {
+    type: String,
+  },
 });
 
 commentSchema.methods.addRecomment = function (data) {

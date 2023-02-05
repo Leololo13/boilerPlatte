@@ -194,7 +194,7 @@ function Mypage() {
                   onChange={userInfoHandler}
                 />{' '}
                 {IDcondition.test(userdata.nickname)
-                  ? '통과'
+                  ? '사용가능한 닉네임입니다'
                   : '특수문자를 제외한 3~10글자로 입력해주십시오'}
                 {console.log(IDcondition.test(userdata.nickname))}
               </p>

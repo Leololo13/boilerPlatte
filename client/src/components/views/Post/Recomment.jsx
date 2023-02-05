@@ -3,7 +3,8 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-
+import { UserOutlined } from '@ant-design/icons';
+import { Avatar } from 'antd';
 function Recomment(props) {
   const initialState = {
     content: '',
@@ -33,12 +34,11 @@ function Recomment(props) {
       content: e.target.value,
       writer: user?._id,
       nickname: user?.nickname,
+      image: user?.image,
     }));
   };
 
   const submitHandler = async (e) => {
-    e.preventDefault();
-
     let body = recomment;
 
     if (props.editon) {
@@ -90,7 +90,13 @@ function Recomment(props) {
         <div className='recomment-main-edit'>
           <div className='comment-write'>
             <div className='comment-write-main'>
-              <div className='comment-write-img'>사진</div>
+              <div className='comment-write-img'>
+                {user?.image ? (
+                  <img src={user?.image} alt='' width='56px' />
+                ) : (
+                  <Avatar shape='square' size={56} icon={<UserOutlined />} />
+                )}
+              </div>
               <form action='' onSubmit={submitHandler}>
                 <input
                   value={recomment.content}

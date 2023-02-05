@@ -121,6 +121,7 @@ userSchema.methods.genToken = function (cb) {
       issuer: 'About Tech',
     }
   );
+
   user.access_token = token1;
   user.refresh_token = token2;
   user.save((err, user) => {

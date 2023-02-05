@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import './Navbar.css';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { Button, Dropdown, Space } from 'antd';
+import { Button, Dropdown, Space, Avatar } from 'antd';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
+import { UserOutlined } from '@ant-design/icons';
+import Listmodal from './Listmodal';
 
+/////////////////네브바
 function Navbar(props) {
   const { category } = useParams();
   const [cookies, setCookie, removeCookies] = useCookies([]);
   const [data, setData] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
+  const [listModal, setListModal] = useState(false);
 
   console.log(props, 'props from auth APP.js');
 
@@ -80,8 +84,18 @@ function Navbar(props) {
       label: (
         <Link to={`/userpage?act=userInfo`} state={{ background: location }}>
           <p rel='noopener noreferrer'>
-            <span style={{ color: 'blue' }}>{data.nickname}</span>
-            {data.email}
+            <Avatar
+              style={{ color: 'darkgrey', backgroundColor: 'bisque' }}
+              gap={3}
+              size={40}
+              icon={<UserOutlined />}
+            />
+            <span
+              style={{ paddingLeft: '5px', color: 'black', fontWeight: 'bold' }}
+            >
+              {data.nickname}
+            </span>
+            {/* {data.email} */}
           </p>
         </Link>
       ),
@@ -135,6 +149,7 @@ function Navbar(props) {
 
   return (
     <div className='navbar-box'>
+      <Listmodal listModal={listModal} setListModal={setListModal} />
       <div className='leftbox'>
         <div className='logo'>
           <Link to={'/'} className='link'>
@@ -147,6 +162,13 @@ function Navbar(props) {
       </div>
       <div className='rightbox'>
         <div className='iconbox'>
+          <button
+            onClick={() => {
+              setListModal(!listModal);
+            }}
+          >
+            모달
+          </button>
           {data.email ? (
             <Link to={`/list/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>

@@ -194,6 +194,7 @@ app.post('/api/user/googlesignup', async (req, res) => {
 });
 ///구글로긴
 app.post('/api/user/googlesignin', async (req, res) => {
+  const date = new Date();
   try {
     console.log({ verified: verifyGoogleToken(req.body.credential) });
     if (req.body.credential) {
@@ -208,37 +209,41 @@ app.post('/api/user/googlesignin', async (req, res) => {
       console.log(profile, 'google profile');
       ///프로파일 겟함.. 이걸로 로그인
 
-      User.findOne({ email: profile.email }, (err, data) => {
-        console.log('오긴한겁니까, 로그인');
-        if (err) return res.json({ LoginSuccess: false, message: err });
-        if (!data) {
-          return res.json({
-            LoginSuccess: false,
-            message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
-          });
-        } else {
-          data.genToken((err, userData) => {
-            if (err) return res.status(400).send(err);
+      User.findOneAndUpdate(
+        { email: profile.email },
+        { date: date },
+        (err, data) => {
+          console.log('오긴한겁니까, 로그인');
+          if (err) return res.json({ LoginSuccess: false, message: err });
+          if (!data) {
+            return res.json({
+              LoginSuccess: false,
+              message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
+            });
+          } else {
+            data.genToken((err, userData) => {
+              if (err) return res.status(400).send(err);
 
-            res
-              .cookie('accessToken', userData.access_token, {
-                httpOnly: true,
-                secure: true,
-              })
-              .cookie('refreshToken', userData.refresh_token, {
-                httpOnly: true,
-                secure: true,
-              })
-              .status(200)
-              .json({
-                message: '로그인 성공',
-                LoginSuccess: true,
-                userID: userData.id,
-                email: userData.email,
-              });
-          });
+              res
+                .cookie('accessToken', userData.access_token, {
+                  httpOnly: true,
+                  secure: true,
+                })
+                .cookie('refreshToken', userData.refresh_token, {
+                  httpOnly: true,
+                  secure: true,
+                })
+                .status(200)
+                .json({
+                  message: '로그인 성공',
+                  LoginSuccess: true,
+                  userID: userData.id,
+                  email: userData.email,
+                });
+            });
+          }
         }
-      });
+      );
     }
   } catch (error) {
     res.status(500).json({
@@ -247,48 +252,48 @@ app.post('/api/user/googlesignin', async (req, res) => {
   }
 });
 
-///사실 구글로그인은 auth랑 같다
-app.post('/api/user/googlelogin', async (req, res) => {
-  ///토큰을 받아서 acc,refresh저장해
-  console.log(req.body, 'qwokqwoekqwoekoqwek');
-  const { tokens } = await oAuth2Client.getToken(req.body.code); // exchange code for tokens
-  // const ticket = await oAuth2Client.verifyIdToken({
-  //   idToken: string;
-  // })
-  //userinfo받아서 넣어줘 끝!
+// ///사실 구글로그인은 auth랑 같다
+// app.post('/api/user/googlelogin', async (req, res) => {
+//   ///토큰을 받아서 acc,refresh저장해
+//   console.log(req.body, 'qwokqwoekqwoekoqwek');
+//   const { tokens } = await oAuth2Client.getToken(req.body.code); // exchange code for tokens
+//   // const ticket = await oAuth2Client.verifyIdToken({
+//   //   idToken: string;
+//   // })
+//   //userinfo받아서 넣어줘 끝!
 
-  console.log(tokens, 'hhhgggggggggggggggggggtoken');
+//   console.log(tokens, 'hhhgggggggggggggggggggtoken');
 
-  res
-    .cookie('accessToken', tokens.access_token, {
-      httpOnly: true,
-      secure: true,
-    })
-    .json({ tokens });
-});
+//   res
+//     .cookie('accessToken', tokens.access_token, {
+//       httpOnly: true,
+//       secure: true,
+//     })
+//     .json({ tokens });
+// });
 
-///구글 등록=====================================googlegleglegleglgllgglgleeeeeee
-app.post('/api/user/googleregister', async (req, res) => {
-  console.log(req.body, '배다뱆다배다뱆답재다뱆답ㅈ대바뱆다뱆다');
-  const user = new User(req.body);
-  User.findOne({ email: req.body.email }, (err, userData) => {
-    if (!userData) {
-      user.save((err, data) => {
-        if (err) return res.json({ RegisterSuccess: false, err });
-        return res.status(200).json({ RegisterSuccess: true, data });
-      });
-    } else {
-      return res.json({
-        RegisterSuccess: false,
-        message: '이미 가입하신 이메일이 있습니다.',
-      });
-    }
-  });
-  ///유져인포를 받음.
-  //유저가 이미 가입했는지 확인
-  // 유저 인포 저장.
-  //그리고 로그인페이지로 보내주기.
-});
+// ///구글 등록=====================================googlegleglegleglgllgglgleeeeeee
+// app.post('/api/user/googleregister', async (req, res) => {
+//   console.log(req.body, '배다뱆다배다뱆답재다뱆답ㅈ대바뱆다뱆다');
+//   const user = new User(req.body);
+//   User.findOne({ email: req.body.email }, (err, userData) => {
+//     if (!userData) {
+//       user.save((err, data) => {
+//         if (err) return res.json({ RegisterSuccess: false, err });
+//         return res.status(200).json({ RegisterSuccess: true, data });
+//       });
+//     } else {
+//       return res.json({
+//         RegisterSuccess: false,
+//         message: '이미 가입하신 이메일이 있습니다.',
+//       });
+//     }
+//   });
+//   ///유져인포를 받음.
+//   //유저가 이미 가입했는지 확인
+//   // 유저 인포 저장.
+//   //그리고 로그인페이지로 보내주기.
+// });
 
 ///인증하기
 app.get('/api/user/auth', auth, (req, res) => {
@@ -576,7 +581,7 @@ app.get('/api/list', (req, res) => {
     });
   } else if (Category === 'all') {
     //카테고리가 all일때
-    List.find({ announce: undefined }, (err, data) => {
+    List.find({ announce: false }, (err, data) => {
       if (err) return res.json(err);
 
       let lists = data

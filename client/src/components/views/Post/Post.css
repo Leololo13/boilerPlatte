@@ -178,7 +178,7 @@
   font-size: 0.8rem;
 }
 .recomment-main {
-  padding: 10px 0px;
+  padding: 0px 0px;
   gap: 5px;
 }
 .recomment-main-edit {
@@ -192,15 +192,17 @@
   gap: 10px;
   justify-content: center;
 }
-
+.comment-modal:hover {
+  text-decoration: underline;
+}
 .comment-writer-img {
   width: 64px;
   height: 64px;
   text-align: center;
-  font-size: 3rem;
-  color: darkgrey;
-  background-color: lightgrey;
-  border: darkgray;
+}
+.comment-writer-img img {
+  border-radius: 5px;
+  width: 56px;
 }
 .comment-info {
   display: flex;
@@ -227,23 +229,25 @@
   padding-bottom: 20px;
 }
 .comment-write-img {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   padding: 0;
   margin: 0;
-
-  background-color: lightgrey;
+}
+.comment-write-img img {
+  border-radius: 5px;
 }
 .comment-write-main {
   height: 120px;
   gap: 10px;
-
+  padding-top: 10px;
   display: flex;
   height: auto;
 }
 .comment-write-main form {
   display: flex;
   width: 100%;
+  height: 56px;
   gap: 10px;
 }
 .comment-write-main form button {
@@ -255,8 +259,8 @@
   color: black;
   background-color: burlywood;
 }
-.comment-write-main input {
-  min-height: 64px;
+.comment-write-main textarea {
+  height: 100%;
   width: 100%;
   font-size: 1rem;
 }

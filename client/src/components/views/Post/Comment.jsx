@@ -7,6 +7,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Recomment from './Recomment';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Modal from 'react-modal';
+import { UserOutlined } from '@ant-design/icons';
+import { Avatar } from 'antd';
 
 const overlayStyle = {
   position: 'fixed',
@@ -50,6 +52,7 @@ function Comment() {
     nickname: '',
     like: [],
     hate: [],
+    image: '',
   };
 
   const [comments, setComments] = useState([]);
@@ -92,6 +95,7 @@ function Comment() {
       content: e.target.value,
       writer: user._id,
       nickname: user.nickname,
+      image: user.image ?? '',
     }));
   }
 
@@ -200,7 +204,17 @@ function Comment() {
                 return (
                   <div className='comment-main' key={comment._id}>
                     <div className='post-comment'>
-                      <div className='comment-writer-img'>?</div>
+                      <div className='comment-writer-img'>
+                        {comment.image ? (
+                          <img src={comment.image} alt='' />
+                        ) : (
+                          <Avatar
+                            shape='square'
+                            size={56}
+                            icon={<UserOutlined />}
+                          />
+                        )}
+                      </div>
                       <div className='comment-main-main'>
                         <div className='comment-info'>
                           <div className='comment-writer'>
@@ -303,7 +317,21 @@ function Comment() {
                                   borderTop: '1px solid burlywood',
                                 }}
                               >
-                                <div className='comment-writer-img'>?</div>
+                                <div className='comment-writer-img'>
+                                  {recomment.image ? (
+                                    <img
+                                      src={recomment?.image}
+                                      alt=''
+                                      width='56px'
+                                    />
+                                  ) : (
+                                    <Avatar
+                                      shape='square'
+                                      size={56}
+                                      icon={<UserOutlined />}
+                                    />
+                                  )}
+                                </div>
                                 <div className='comment-main-main'>
                                   <div className='comment-info'>
                                     <div className='comment-writer'>
@@ -416,12 +444,17 @@ function Comment() {
 
         {user?.id ? (
           <div className='comment-write'>
-            <p>댓글쓰기</p>
             <div className='comment-write-main'>
-              <div className='comment-write-img'>?</div>
+              <div className='comment-write-img'>
+                {user?.image ? (
+                  <img src={user?.image} alt='' width='56px' />
+                ) : (
+                  <Avatar shape='square' size={56} icon={<UserOutlined />} />
+                )}
+              </div>
               <form action='' onSubmit={commentSubmitHandler}>
-                <input onChange={dataHandler} name='content' type='text' />
-                <button> 댓글달기</button>
+                <textarea onChange={dataHandler} name='content' type='text' />
+                <button> 댓글 쓰기</button>
               </form>
             </div>
           </div>
