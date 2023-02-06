@@ -3,13 +3,11 @@ import {
   AppstoreOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import { Divider, Menu } from 'antd';
+import { Menu } from 'antd';
 import { useState } from 'react';
 import React from 'react';
 import Modal from 'react-modal';
-import './Listmodal.css';
 import { useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
 
 const contentStyle = {
   display: 'flex',

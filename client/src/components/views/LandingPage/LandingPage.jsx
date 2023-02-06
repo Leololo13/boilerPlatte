@@ -4,6 +4,7 @@ import Footer from '../Footer/Footer';
 import { Outlet, useOutlet } from 'react-router-dom';
 import Main from '../Main/Main';
 import './Landingpage.css';
+import KakaoLogin from '../LoginPage/KakaoLogin';
 
 function LandingPage(props) {
   const outlet = useOutlet();
@@ -31,7 +32,9 @@ function LandingPage(props) {
           // }}
         >
           <aside>
-            <div>asaide "</div>
+            <div>
+              asaide " <KakaoLogin />
+            </div>
           </aside>
           <article className='landingpage-main-content'>
             {outlet ? <Outlet /> : <Main />}

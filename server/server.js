@@ -15,6 +15,8 @@ const { Commentnum, Postnum } = require('./model/Postnum');
 const { Comment } = require('./model/Comment');
 const { title } = require('process');
 const { isReadable } = require('stream');
+const axios = require('axios');
+const qs = require('qs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -249,6 +251,51 @@ app.post('/api/user/googlesignin', async (req, res) => {
     res.status(500).json({
       message: 'An error occurred. login failed.',
     });
+  }
+});
+
+///카카오관련사항
+
+const REST_API_KEY = 'be27c24b34303e11325a8037494dcd27';
+const REDIRECT_URI = 'http://localhost:3000/kakao/oauth';
+const CLIENT_SECRET = 'rMvI4fJxYM91ghrxVwdBh3H1PAO4XwN7';
+////카카오로그인
+app.get('/api/user/kakaologin', async (req, res) => {
+  let code = req.query.code;
+
+  let payload = qs.stringify({
+    grant_type: 'authorization_code',
+    client_id: REST_API_KEY,
+    redirect_uri: REDIRECT_URI,
+    code: code,
+    client_secret: CLIENT_SECRET,
+  });
+  let token;
+  console.log(
+    '카카오로그인카로그인카카오로그인카카오로그인카카오로그인카카오로그인'
+  );
+  try {
+    token = await axios.post(`https://kauth.kakao.com/oauth/token`, payload);
+    console.log(token.data);
+  } catch (error) {
+    res.json({ message: error });
+  }
+  if (token.data.access_token) {
+    try {
+      await axios
+        .get('https://kapi.kakao.com/v2/user/me', {
+          headers: {
+            Authorization: `Bearer ${token.data.access_token}`,
+          },
+        })
+        .then((data) => {
+          console.log(data.data);
+          res.json({ message: '카카오로그인성공', data: data.data });
+        });
+    } catch (error) {
+      console.log(error);
+      res.json({ message: '카카오로그인 실패' });
+    }
   }
 });
 
