@@ -5,6 +5,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { loginUser } from '../../../_actions/user_action';
 import './Login.css';
 import GooglSignin from './GooglSignin';
+import KakaoLogin from './KakaoLogin';
 
 function LoginPage() {
   const location = useLocation();
@@ -70,8 +71,8 @@ function LoginPage() {
         <button>Login</button>
       </form>
       <div className='register-config'>
-        <span>
-          <GooglSignin />
+        <span style={{ display: 'flex', gap: '5px' }}>
+          <GooglSignin /> <KakaoLogin />
         </span>
         아직 회원이 아니신가요?
         <button>

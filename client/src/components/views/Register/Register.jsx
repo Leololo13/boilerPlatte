@@ -4,12 +4,12 @@ import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
-import GoogleRegister from '../LoginPage/GoogleRegister';
 import { Button, Checkbox, Form, Input } from 'antd';
 import axios from 'axios';
 import Modal from 'react-modal';
 import Agreement from './Agreement';
 import GoogleSingup from '../LoginPage/GoogleSingup';
+import KakaoSignup from '../LoginPage/KakaoSignup';
 
 const overlayStyle = {
   position: 'fixed',
@@ -416,14 +416,20 @@ function Register() {
       </Form>
 
       {/* <GoogleRegister className='googleRegister' /> */}
-      <div
+      <footer
         style={{
           textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
         }}
       >
-        <div style={{ paddingBottom: '15px' }}>-----OR-----</div>
-        <GoogleSingup />
-      </div>
+        <div>-----OR-----</div>
+        <span style={{ display: 'flex', gap: '5px' }}>
+          <GoogleSingup />
+          <KakaoSignup />
+        </span>
+      </footer>
     </div>
   );
 }

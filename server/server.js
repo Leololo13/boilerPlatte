@@ -17,6 +17,17 @@ const { title } = require('process');
 const { isReadable } = require('stream');
 const axios = require('axios');
 const qs = require('qs');
+const session = require('express-session');
+
+///세션생성시 옵션설정 세션을설정할때 쿠키가 생성된다. 어느 라우터든 req session값이 존재하게 된다.
+app.use(
+  session({
+    secret: 'ddosun',
+    resave: true,
+    secure: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -156,6 +167,7 @@ async function verifyGoogleToken(token) {
     return { error: 'invalid user detected. pleas Try Again' };
   }
 }
+////
 app.post('/api/user/googlesignup', async (req, res) => {
   console.log(req.body, '??????????????????????????????????????????');
   try {
@@ -256,46 +268,78 @@ app.post('/api/user/googlesignin', async (req, res) => {
 
 ///카카오관련사항
 
-const REST_API_KEY = 'be27c24b34303e11325a8037494dcd27';
-const REDIRECT_URI = 'http://localhost:3000/kakao/oauth';
-const CLIENT_SECRET = 'rMvI4fJxYM91ghrxVwdBh3H1PAO4XwN7';
-////카카오로그인
-app.get('/api/user/kakaologin', async (req, res) => {
+////카카오로그인 및 가입기능
+app.get('/api/user/kakao', async (req, res) => {
   let code = req.query.code;
-
+  let cond = req.query.cond;
+  console.log(req.query);
   let payload = qs.stringify({
     grant_type: 'authorization_code',
-    client_id: REST_API_KEY,
-    redirect_uri: REDIRECT_URI,
+    client_id: process.env.REST_API_KEY,
+    redirect_uri: process.env.REDIRECT_URI,
     code: code,
-    client_secret: CLIENT_SECRET,
+    client_secret: process.env.CLIENT_SECRET,
   });
-  let token;
+  console.log(payload);
   console.log(
     '카카오로그인카로그인카카오로그인카카오로그인카카오로그인카카오로그인'
   );
   try {
-    token = await axios.post(`https://kauth.kakao.com/oauth/token`, payload);
-    console.log(token.data);
-  } catch (error) {
-    res.json({ message: error });
-  }
-  if (token.data.access_token) {
-    try {
-      await axios
-        .get('https://kapi.kakao.com/v2/user/me', {
-          headers: {
-            Authorization: `Bearer ${token.data.access_token}`,
-          },
-        })
-        .then((data) => {
-          console.log(data.data);
-          res.json({ message: '카카오로그인성공', data: data.data });
-        });
-    } catch (error) {
-      console.log(error);
-      res.json({ message: '카카오로그인 실패' });
-    }
+    await axios
+      .post(`https://kauth.kakao.com/oauth/token`, payload)
+      .then((result) => {
+        console.log(result.data);
+        if (result.data.access_token) {
+          try {
+            axios
+              .get('https://kapi.kakao.com/v2/user/me', {
+                headers: {
+                  Authorization: `Bearer ${result.data.access_token}`,
+                },
+              })
+              .then(
+                (data) => {
+                  ///////////////////////////여기서부터 가입시작.
+                  console.log(data.data);
+                  let userInfo = {
+                    id: data.data.id,
+                    nickname: data.data.properties.nickname,
+                    image: data.data.properties.image,
+                    email: data.data.properties.email,
+                  };
+                  let user = new User(userInfo);
+                  User.findOne({ id: userInfo.id }, (err, docs) => {
+                    if (err) return res.json(err);
+                    if (docs) {
+                      return res.json({
+                        RegisterSuccess: false,
+                        message: '이미 가입하신 ID가 있습니다',
+                      });
+                    } else {
+                      user.save((error, data) => {
+                        if (error)
+                          return res.json({ RegisterSuccess: false, error });
+                        return res
+                          .status(200)
+                          .json({ RegisterSuccess: true, data });
+                      });
+                    }
+                  });
+                }
+
+                // res.json({ message: '카카오로그인성공', data: data.data })
+              );
+          } catch (error) {
+            console.log(error);
+            res.json({ message: '카카오 로그인에 실패했습니다' });
+          }
+        } else {
+          res.json({ message: '토큰을 발급받지 못했습니다' });
+        }
+      });
+  } catch (err) {
+    console.log(err);
+    res.json({ message: err });
   }
 });
 
