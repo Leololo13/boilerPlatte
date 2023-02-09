@@ -269,14 +269,14 @@ app.post('/api/user/googlesignin', async (req, res) => {
 ///카카오관련사항
 
 ////카카오로그인 및 가입기능
-app.get('/api/user/kakao', async (req, res) => {
+app.get('/api/user/kakao/:cond', async (req, res) => {
   let code = req.query.code;
-  let cond = req.query.cond;
-  console.log(req.query);
+  let { cond } = req.params;
+  console.log(cond, 'owewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww');
   let payload = qs.stringify({
     grant_type: 'authorization_code',
     client_id: process.env.REST_API_KEY,
-    redirect_uri: process.env.REDIRECT_URI,
+    redirect_uri: process.env.REDIRECT_URI + cond,
     code: code,
     client_secret: process.env.CLIENT_SECRET,
   });

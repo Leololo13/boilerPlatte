@@ -9,7 +9,7 @@ const KakaoCb = () => {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const code = searchParams.get('code');
-  const condition = useParams('condition').action;
+  const { condition } = useParams();
   console.log(condition);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
@@ -55,7 +55,7 @@ const KakaoCb = () => {
     setLoading(true);
     try {
       await axios
-        .get(`/api/user/kakao?code=${code}&cond=${condition}`)
+        .get(`/api/user/kakao/${condition}?code=${code}`)
         .then((res) => {
           console.log(res.data);
 
@@ -66,13 +66,14 @@ const KakaoCb = () => {
             email: res.data.data.properties?.email,
             date: res.data.data.connected_at,
           });
+
           setLoading(false);
           throw new Error(res?.data.message || res.data);
         });
     } catch (error) {
       console.log(error);
       setErr(error?.message);
-      console.log(err);
+      console.log(error);
     }
   };
 

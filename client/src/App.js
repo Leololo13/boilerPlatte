@@ -40,7 +40,7 @@ function App() {
                 <Route path='userinfo' element={Auth(Mypage, true)} />
                 <Route path='scrap' element={Auth(Mypage, true)} />
               </Route>
-              <Route path='kakao/oauth' element={<KakaoCb />}></Route>
+              <Route path='kakao/:condition' element={<KakaoCb />}></Route>
             </Route>
 
             <Route

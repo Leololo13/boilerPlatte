@@ -7,7 +7,7 @@ const KakaoSignup = () => {
       window.Kakao.init('b18ca2d74f4a17d6908f33d9c4958961');
 
       window.Kakao.Auth.authorize({
-        redirectUri: `http://localhost:3000/kakao/oauth`,
+        redirectUri: `http://localhost:3000/kakao/signup`,
       });
     }
   }
