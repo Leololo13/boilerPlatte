@@ -66,7 +66,7 @@ function Navbar(props) {
       label: (
         <Link to={'/user/login'} state={{ background: location }}>
           {' '}
-          <p rel='noopener noreferrer'>SIGN IN</p>
+          <p rel='noopener noreferrer'>로그인</p>
         </Link>
       ),
     },
@@ -75,7 +75,7 @@ function Navbar(props) {
       label: (
         <Link to={'/user/register'} state={{ background: location }}>
           {' '}
-          <p rel='noopener noreferrer'>SIGN UP</p>
+          <p rel='noopener noreferrer'>회원 가입</p>
         </Link>
       ),
     },
@@ -83,10 +83,13 @@ function Navbar(props) {
       key: '6',
       label: (
         <Link to={`/userpage?act=userInfo`} state={{ background: location }}>
-          <p rel='noopener noreferrer'>
+          <span rel='noopener noreferrer'>
             <Avatar
-              style={{ color: 'darkgrey', backgroundColor: 'bisque' }}
-              gap={3}
+              style={{
+                color: 'darkgrey',
+                backgroundColor: 'bisque',
+                margin: 0,
+              }}
               size={40}
               icon={<UserOutlined />}
             />
@@ -96,7 +99,7 @@ function Navbar(props) {
               {data.nickname}
             </span>
             {/* {data.email} */}
-          </p>
+          </span>
         </Link>
       ),
     },
@@ -105,19 +108,14 @@ function Navbar(props) {
       label: (
         <Link to={`/userpage`} state={{ background: location }}>
           {' '}
-          <p rel='noopener noreferrer'>MY Page</p>
+          <p>회원 정보</p>
         </Link>
       ),
     },
 
     data.email && {
       key: '5',
-      label: (
-        <div rel='noopener noreferrer' onClick={logoutHandler}>
-          {' '}
-          LogOut
-        </div>
-      ),
+      label: <p onClick={logoutHandler}> 로그아웃</p>,
     },
     {
       key: '4',

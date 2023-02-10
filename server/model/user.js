@@ -68,6 +68,10 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  logintype: {
+    type: String,
+    default: 'normal', /////구글로그인,카카오로그인,네이버 로그인은 비밀번호 변경불가함. 닉네임만가능하게
+  },
 });
 
 userSchema.pre('save', function (next) {
