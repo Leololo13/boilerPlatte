@@ -17,7 +17,7 @@ function Navbar(props) {
   const navigate = useNavigate();
   const [listModal, setListModal] = useState(false);
 
-  console.log(props, 'props from auth APP.js');
+  console.log(props, 'navBar props from auth APP.js');
 
   //////////////////////////////
   const trySave = async () => {
@@ -149,14 +149,20 @@ function Navbar(props) {
 
   return (
     <div className='navbar-box'>
-      <Listmodal listModal={listModal} setListModal={setListModal} />
+      <Listmodal
+        logoutHandler={logoutHandler}
+        nickname={props.nickname}
+        isAuth={props.isAuth}
+        listModal={listModal}
+        setListModal={setListModal}
+      />
       <div className='leftbox'>
         <div className='logo'>
           <Link to={'/'} className='link'>
-            <img src='/logo/cow.png' className='leftbox-logimg' alt='' />{' '}
+            <img src='/logo/logo1.png' className='leftbox-logimg' alt='' />{' '}
           </Link>
           <Link to={'/'} className='link'>
-            BMCow.Com
+            A'LunchTime
           </Link>
         </div>
       </div>

@@ -2,12 +2,14 @@ import {
   MailOutlined,
   AppstoreOutlined,
   SettingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
-import { Menu } from 'antd';
+import { Menu, Avatar } from 'antd';
 import { useState } from 'react';
 import React from 'react';
 import Modal from 'react-modal';
 import { useEffect } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 const contentStyle = {
   display: 'flex',
@@ -43,36 +45,157 @@ function getItem(label, key, icon, children, type) {
     type,
   };
 }
-const items = [
-  getItem('Navigation One', 'sub1', <MailOutlined />, [
-    getItem('Option 1', '1'),
-    getItem('Option 2', '2'),
-    getItem('Option 3', '3'),
-    getItem('Option 4', '4'),
-  ]),
-  getItem('Navigation Two', 'sub2', <AppstoreOutlined />, [
-    getItem('Option 5', '5'),
-    getItem('Option 6', '6'),
-    getItem('Submenu', 'sub3', null, [
-      getItem('Option 7', '7'),
-      getItem('Option 8', '8'),
-    ]),
-  ]),
-  getItem('Navigation Three', 'sub4', <SettingOutlined />, [
-    getItem('Option 9', '9'),
-    getItem('Option 10', '10'),
-    getItem('Option 11', '11'),
-    getItem('Option 12', '12'),
-  ]),
-];
 
 // submenu keys of first level
-const rootSubmenuKeys = ['sub1', 'sub2', 'sub4'];
+const rootSubmenuKeys = ['user', 'list', 'comu'];
 
 const Listmodal = (props) => {
+  const cat = useParams().category;
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const userAction = searchParams.get('act');
+
   const [ovstyle, setOvstyle] = useState(overlayStyle);
   const [cntStyle, setCntStyle] = useState(contentStyle);
   const [modal, setModal] = useState(false);
+
+  const loginUser = getItem(
+    <Link to={`/userpage`} className='link'>
+      {props.nickname}
+    </Link>,
+    'user',
+    <Avatar
+      style={{
+        color: 'darkgrey',
+        backgroundColor: 'bisque',
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+      gap={3}
+      size={40}
+      icon={<UserOutlined />}
+    />,
+    [
+      getItem(
+        <Link to={`/userpage?act=userInfo`} className='link'>
+          회원 정보
+        </Link>,
+        '1'
+      ),
+      getItem(
+        <Link to={`/userpage?act=post`} className='link'>
+          작성 글
+        </Link>,
+        '2'
+      ),
+      getItem(
+        <Link to={`/userpage?act=comment`} className='link'>
+          작성 댓글
+        </Link>,
+        '3'
+      ),
+      getItem(<div onClick={props.logoutHandler}>로그 아웃</div>, '4'),
+    ]
+  );
+  const nloginUser = getItem(
+    <Link to={`/user/login`} className='link'>
+      로그인 혹은 회원가입하기
+    </Link>,
+
+    'user',
+    <UserOutlined />
+  );
+  const items = [
+    props.isAuth ? loginUser : nloginUser,
+
+    getItem(
+      <Link to={`/list/all`} className='link'>
+        힐링 시간
+      </Link>,
+      'list',
+      <AppstoreOutlined />,
+      [
+        getItem(
+          <Link to={`/list/healing`} className='link'>
+            힐링
+          </Link>,
+          '5'
+        ),
+        getItem(
+          <Link to={`/list/humor`} className='link'>
+            유머
+          </Link>,
+          '6'
+        ),
+        getItem(
+          <Link to={`/list/info`} className='link'>
+            정보
+          </Link>,
+          '7'
+        ),
+        getItem(
+          <Link to={`/list/enter`} className='link'>
+            연예인
+          </Link>,
+          '8'
+        ),
+      ]
+    ),
+    getItem(
+      <Link to={`/comu/all`} className='link'>
+        커뮤니티
+      </Link>,
+      'comu',
+      <AppstoreOutlined />,
+      [
+        getItem(
+          <Link to={`/comu/lunch`} className='link'>
+            점심자랑
+          </Link>,
+          '5'
+        ),
+        getItem(
+          <Link to={`/comu/AI`} className='link'>
+            AI 대유쾌마운틴
+          </Link>,
+          '6'
+        ),
+        getItem(
+          <Link to={`/comu/comic`} className='link'>
+            만화 추천
+          </Link>,
+          '7'
+        ),
+      ]
+    ),
+    getItem(
+      <Link to={`/blind/all`} className='link'>
+        블라인드
+      </Link>,
+      'blind',
+      <SettingOutlined />,
+      [
+        getItem(
+          <Link to={`/blind/any`} className='link'>
+            익명 - 아무말
+          </Link>,
+          '9'
+        ),
+        getItem(
+          <Link to={`/blind/politic`} className='link'>
+            익명 - 정치
+          </Link>,
+          '10'
+        ),
+        getItem(
+          <Link to={`/blind/blind`} className='link'>
+            블라인드
+          </Link>,
+          '11'
+        ),
+      ]
+    ),
+  ];
 
   function timedelay(now) {
     setModal(now);
@@ -92,8 +215,13 @@ const Listmodal = (props) => {
       setOvstyle(overlayStyle);
     }, 500);
   }
-  const [openKeys, setOpenKeys] = useState(['sub1']);
+
+  const [openKeys, setOpenKeys] = useState([
+    cat ? 'list' : userAction ? 'user' : 'comu',
+  ]);
+
   const onOpenChange = (keys) => {
+    console.log(keys);
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
       setOpenKeys(keys);

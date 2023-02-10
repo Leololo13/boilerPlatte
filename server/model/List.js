@@ -32,7 +32,6 @@ const listSchema = mongoose.Schema({
     type: Array,
     default: [],
   },
-
   image: {
     type: String,
   },
@@ -45,7 +44,9 @@ const listSchema = mongoose.Schema({
   },
   category: {
     type: String,
-    trim: 1,
+  },
+  topcategory: {
+    type: String,
   },
   writer: {
     type: mongoose.Schema.Types.ObjectId,
