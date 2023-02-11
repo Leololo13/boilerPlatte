@@ -3,9 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Main.css';
 function Main() {
-  const topCategory = ['list', 'comu', 'blind'];
   const category = ['healing', 'humor', 'info', 'enter'];
   const categorycomu = ['lunch', 'AI', 'comic'];
+  const valTotitle = {
+    healing: '힐링',
+    humor: '유머',
+    info: '정보글',
+    enter: '연예 및 가십',
+    lunch: '점심자랑',
+    AI: 'AI그림 게시판',
+    comic: '만화추천',
+  };
+
   const [lists, setLists] = useState([]);
 
   useEffect(() => {
@@ -28,7 +37,7 @@ function Main() {
           <div key={idx} className='mainCategory'>
             <h3 className='mainCategory-cat'>
               <Link state={cat} className='link' to={`/list/${cat}`}>
-                {cat}
+                {valTotitle[cat]}
               </Link>
             </h3>
             {lists.map((list) =>
@@ -54,7 +63,7 @@ function Main() {
           <div key={idx} className='mainCategory'>
             <h3 className='mainCategory-cat'>
               <Link state={cat} className='link' to={`/comu/${cat}`}>
-                {cat}
+                {valTotitle[cat]}
               </Link>
             </h3>
             {lists.map((list) =>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './Navbar.css';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Button, Dropdown, Space, Avatar } from 'antd';
@@ -20,19 +20,10 @@ function Navbar(props) {
   console.log(props, 'navBar props from auth APP.js');
 
   //////////////////////////////
-  const trySave = async () => {
-    try {
-      await axios
-        .post('/api/user/modify/Userinfo', data)
-        .then((res) => console.log(res.data, '세이브테스트 완료'));
-    } catch (error) {
-      console.log(error, '세이브테스트실패');
-    }
-  };
+
   const logoutHandler = async () => {
     try {
       await axios.get('/api/user/logout');
-      console.log('logout');
       navigate('/');
     } catch (error) {
       window.location.reload();
@@ -52,16 +43,10 @@ function Navbar(props) {
   };
 
   ////////////////요청을 페이지 새로고침이나 이런거할때 계속 확인해서 버튼을보여줄지 말지 정한다.
-  useEffect(() => {
-    tryAuth();
-    // setData(props);
-    console.log(
-      '뭐가 더빠른지 모르겟다. props를 받을지 아니면 자료를 받아올지 첫페이지에서 useEffect'
-    );
-  }, []);
+
   ///////////////nav bar 아이콘 내 항목
   const items = [
-    data.email ?? {
+    props.isAuth ?? {
       key: '1',
       label: (
         <Link to={'/user/login'} state={{ background: location }}>
@@ -70,7 +55,7 @@ function Navbar(props) {
         </Link>
       ),
     },
-    data.email ?? {
+    props.isAuth ?? {
       key: '2',
       label: (
         <Link to={'/user/register'} state={{ background: location }}>
@@ -79,7 +64,7 @@ function Navbar(props) {
         </Link>
       ),
     },
-    data.email && {
+    props.isAuth && {
       key: '6',
       label: (
         <Link to={`/userpage?act=userInfo`} state={{ background: location }}>
@@ -94,26 +79,31 @@ function Navbar(props) {
               icon={<UserOutlined />}
             />
             <span
-              style={{ paddingLeft: '5px', color: 'black', fontWeight: 'bold' }}
+              style={{
+                paddingLeft: '5px',
+                color: 'black',
+                fontWeight: 'bold',
+                fontSize: '1rem',
+              }}
             >
-              {data.nickname}
+              {props.nickname}
             </span>
             {/* {data.email} */}
           </span>
         </Link>
       ),
     },
-    data.email && {
+    props.isAuth && {
       key: '3',
       label: (
-        <Link to={`/userpage`} state={{ background: location }}>
+        <Link to={`/userpage?act=userInfo`} state={{ background: location }}>
           {' '}
           <p>회원 정보</p>
         </Link>
       ),
     },
 
-    data.email && {
+    props.isAuth && {
       key: '5',
       label: <p onClick={logoutHandler}> 로그아웃</p>,
     },
@@ -127,19 +117,6 @@ function Navbar(props) {
         >
           {' '}
           <p rel='noopener noreferrer'>Auth test</p>
-        </button>
-      ),
-    },
-    {
-      key: '7',
-      label: (
-        <button
-          onClick={() => {
-            trySave();
-          }}
-        >
-          {' '}
-          <p rel='noopener noreferrer'>save test</p>
         </button>
       ),
     },
@@ -173,7 +150,7 @@ function Navbar(props) {
           >
             모달
           </button>
-          {data.email ? (
+          {props.isAuth ? (
             <Link to={`/list/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>
             </Link>
