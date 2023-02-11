@@ -130,6 +130,13 @@ const Editor = (props) => {
       category: value,
     }));
   };
+  const tophandleChange = (value) => {
+    console.log(`selected ${value}`);
+    setWrittenData((prev) => ({
+      ...prev,
+      topcategory: value,
+    }));
+  };
 
   const quillRef = useRef(); //
 
@@ -293,54 +300,50 @@ const Editor = (props) => {
         <div>
           {' '}
           <Select
+            defaultValue={editOn ? writtenData.category : 'list'}
+            style={{
+              width: 120,
+            }}
+            onChange={tophandleChange}
+            options={[
+              {
+                value: 'list',
+                label: '힐링 시간',
+              },
+              {
+                value: 'comu',
+                label: '커뮤니티',
+              },
+              {
+                value: 'blind',
+                label: '블라인드',
+              },
+            ]}
+          />{' '}
+          <Select
             defaultValue={editOn ? writtenData.category : 'humor'}
             style={{
               width: 120,
             }}
             onChange={handleChange}
-            options={
-              user?.isAdmin
-                ? [
-                    {
-                      value: 'humor',
-                      label: 'Humor',
-                    },
-                    {
-                      value: 'politic',
-                      label: 'Politic',
-                    },
-                    {
-                      value: '18+',
-                      label: '18+',
-                    },
-                    {
-                      value: 'healing',
-                      label: 'healing',
-                    },
-                    {
-                      value: 'announce',
-                      label: 'Announce',
-                    },
-                  ]
-                : [
-                    {
-                      value: 'humor',
-                      label: 'Humor',
-                    },
-                    {
-                      value: 'politic',
-                      label: 'Politic',
-                    },
-                    {
-                      value: '18+',
-                      label: '18+',
-                    },
-                    {
-                      value: 'healing',
-                      label: 'healing',
-                    },
-                  ]
-            }
+            options={[
+              {
+                value: 'humor',
+                label: 'Humor',
+              },
+              {
+                value: 'politic',
+                label: 'Politic',
+              },
+              {
+                value: '18+',
+                label: '18+',
+              },
+              {
+                value: 'healing',
+                label: 'healing',
+              },
+            ]}
           />
           {user?.isAdmin ? (
             <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox>

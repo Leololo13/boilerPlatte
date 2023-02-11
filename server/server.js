@@ -596,12 +596,13 @@ app.get('/api/announce/:cat', (req, res) => {
 app.get('/api/list', (req, res) => {
   console.log(req.query);
 
-  const { page, limit, category, search } = req.query;
+  let { page, limit, category, search } = req.query;
   const Page = Number(page);
+  const topc = req.query.topc ?? 'list';
   const Limit = Number(limit);
   const Offset = (Page - 1) * Limit;
   const Category = search ? 'search' : category === 'search' ? 'all' : category;
-  const cat = ['humor', 'politic', 'healing', '18+'];
+  const cat = ['humor', 'info', 'healing', 'enter'];
   console.log(Category, 'cateeeeeeeeeeeeee');
   const searchCondition = [
     {
@@ -615,10 +616,13 @@ app.get('/api/list', (req, res) => {
         },
       },
     },
+    {
+      $match: { topcategory: topc },
+    },
   ];
   if (!Category) {
     //첫화면에서 랜딩할때 사용
-    List.find({ announce: false }, (err, data) => {
+    List.find({ announce: false, topcategory: topc }, (err, data) => {
       if (err) return res.json(err);
       let lists = cat.map((cats) => {
         return data
@@ -672,7 +676,7 @@ app.get('/api/list', (req, res) => {
     });
   } else if (Category === 'all') {
     //카테고리가 all일때
-    List.find({ announce: false }, (err, data) => {
+    List.find({ announce: false, topcategory: topc }, (err, data) => {
       if (err) return res.json(err);
 
       let lists = data
@@ -685,6 +689,7 @@ app.get('/api/list', (req, res) => {
   } ////search 할때 카테고리를 설정해서 뽑아주기
   else if (Category === 'search') {
     console.log('??');
+
     List.aggregate(searchCondition, (err, data) => {
       if (err) return res.json(err);
       let lists = data
@@ -695,15 +700,18 @@ app.get('/api/list', (req, res) => {
     });
   } else {
     //각자의 카테고리로 갓을떄
-    List.find({ category: category, announce: false }, (err, data) => {
-      if (err) return res.json(err);
-      let lists = data
-        .reverse()
-        .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
-        .map((data) => data);
+    List.find(
+      { category: category, announce: false, topcategory: topc },
+      (err, data) => {
+        if (err) return res.json(err);
+        let lists = data
+          .reverse()
+          .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
+          .map((data) => data);
 
-      return res.json({ data: lists, total: data.length });
-    });
+        return res.json({ data: lists, total: data.length });
+      }
+    );
   }
 });
 
