@@ -598,12 +598,12 @@ app.get('/api/list', (req, res) => {
 
   let { page, limit, category, search } = req.query;
   const Page = Number(page);
-  const topc = req.query.topc ?? 'list';
+  const topc = req.query.topc ?? 'all';
   const Limit = Number(limit);
   const Offset = (Page - 1) * Limit;
   const Category = search ? 'search' : category === 'search' ? 'all' : category;
-  const cat = ['humor', 'info', 'healing', 'enter'];
-  console.log(Category, 'cateeeeeeeeeeeeee');
+  const cat = ['healing', 'humor', 'info', 'enter', 'lunch', 'AI', 'comic'];
+  console.log(Category, topc, 'cateeeeeeeeeeeeee');
   const searchCondition = [
     {
       $search: {
@@ -622,7 +622,7 @@ app.get('/api/list', (req, res) => {
   ];
   if (!Category) {
     //첫화면에서 랜딩할때 사용
-    List.find({ announce: false, topcategory: topc }, (err, data) => {
+    List.find({ announce: false }, (err, data) => {
       if (err) return res.json(err);
       let lists = cat.map((cats) => {
         return data
@@ -678,7 +678,7 @@ app.get('/api/list', (req, res) => {
     //카테고리가 all일때
     List.find({ announce: false, topcategory: topc }, (err, data) => {
       if (err) return res.json(err);
-
+      console.log(data);
       let lists = data
         .reverse()
         .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
