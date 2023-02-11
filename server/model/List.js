@@ -47,6 +47,7 @@ const listSchema = mongoose.Schema({
   },
   topcategory: {
     type: String,
+    default: 'list',
   },
   writer: {
     type: mongoose.Schema.Types.ObjectId,

@@ -21,6 +21,7 @@ function BoardList() {
   const [searchOn, setSearchon] = useState(false);
   const [searchModal, setSearchModal] = useState(true);
   const [announce, setAnnounce] = useState([]);
+  const topcategory = location.pathname.split('/')[1];
 
   const searchHandler = (e) => {
     e.preventDefault();
@@ -57,6 +58,9 @@ function BoardList() {
     return '방금 전';
   }
 
+  /////
+  ///topcategory를 뭘로 나눌것인가? pathname?으로 나눈다음에 axio에서 선별해서 보내면 편할거같기는한데..
+  //path로 나누고, query로 보내주자
   ///outlet 에 값이 있으면 true 가 나오는듯
   /////////////////////////////
   useEffect(() => {
@@ -65,7 +69,7 @@ function BoardList() {
         const res = await axios.get(
           `/api/list?page=${page}&category=${
             search ? 'search' : category
-          }&limit=${limit}&search=${search}`,
+          }&limit=${limit}&search=${search}&topc=${topcategory}`,
           category
         );
         const res2 = await axios.get('/api/comment');
@@ -87,10 +91,19 @@ function BoardList() {
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
-        <h3>{category}</h3>
+        <h3>
+          {topcategory === 'list'
+            ? '힐링시간'
+            : topcategory === 'comu'
+            ? '커뮤니티'
+            : topcategory === 'blind'
+            ? '블라인드'
+            : ''}
+        </h3>
         <section className='boardlist-header-section'>
           {' '}
-          section list <div> option</div>
+          {category}
+          <div> option</div>
         </section>
         <div>
           <Input.Search

@@ -152,19 +152,19 @@ const Listmodal = (props) => {
           <Link to={`/comu/lunch`} className='link'>
             점심자랑
           </Link>,
-          '5'
+          '9'
         ),
         getItem(
           <Link to={`/comu/AI`} className='link'>
             AI 대유쾌마운틴
           </Link>,
-          '6'
+          '10'
         ),
         getItem(
           <Link to={`/comu/comic`} className='link'>
             만화 추천
           </Link>,
-          '7'
+          '11'
         ),
       ]
     ),
@@ -179,19 +179,19 @@ const Listmodal = (props) => {
           <Link to={`/blind/any`} className='link'>
             익명 - 아무말
           </Link>,
-          '9'
+          '12'
         ),
         getItem(
           <Link to={`/blind/politic`} className='link'>
             익명 - 정치
           </Link>,
-          '10'
+          '13'
         ),
         getItem(
           <Link to={`/blind/blind`} className='link'>
             블라인드
           </Link>,
-          '11'
+          '14'
         ),
       ]
     ),

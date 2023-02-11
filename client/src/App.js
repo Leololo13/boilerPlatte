@@ -36,6 +36,16 @@ function App() {
                 <Route path='editor' element={Auth(Editor, true)} />
                 <Route path='post/:id/edit' element={Auth(Editor, true)} />
               </Route>
+              <Route path='comu/:category' element={Auth(BoardList, null)}>
+                <Route path='post/:id' element={Auth(Post, null)} />
+                <Route path='editor' element={Auth(Editor, true)} />
+                <Route path='post/:id/edit' element={Auth(Editor, true)} />
+              </Route>
+              <Route path='blind/:category' element={Auth(BoardList, null)}>
+                <Route path='post/:id' element={Auth(Post, null)} />
+                <Route path='editor' element={Auth(Editor, true)} />
+                <Route path='post/:id/edit' element={Auth(Editor, true)} />
+              </Route>
               <Route path='userpage' element={Auth(Mypage, true)}>
                 <Route path='userinfo' element={Auth(Mypage, true)} />
                 <Route path='scrap' element={Auth(Mypage, true)} />
