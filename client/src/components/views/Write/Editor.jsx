@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
-import { Select, Checkbox } from 'antd';
+import { Select, Checkbox, Space } from 'antd';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
@@ -98,7 +98,68 @@ CoustomVideo.className = 'ql-video';
 CoustomVideo.tagName = 'DIV';
 
 Quill.register('formats/video', CoustomVideo);
-
+const topCategories = [
+  {
+    value: 'list',
+    label: '힐링 시간',
+  },
+  {
+    value: 'comu',
+    label: '커뮤니티',
+  },
+  {
+    value: 'blind',
+    label: '블라인드',
+  },
+];
+const cateData = {
+  list: [
+    {
+      value: 'healing',
+      label: '힐링',
+    },
+    {
+      value: 'humor',
+      label: '유머',
+    },
+    {
+      value: 'info',
+      label: '정보글',
+    },
+    {
+      value: 'enter',
+      label: '연예인',
+    },
+    {
+      value: 'comic',
+      label: '만화책 추천',
+    },
+  ],
+  comu: [
+    {
+      value: 'lunch',
+      label: '점심 자랑',
+    },
+    {
+      value: 'AI',
+      label: 'AI 대유쾌 마운틴',
+    },
+    {
+      value: 'anycomu',
+      label: '아무글이나',
+    },
+  ],
+  blind: [
+    {
+      value: 'any',
+      label: '익명 - 아무말',
+    },
+    {
+      value: 'politic',
+      label: '익명 - 정치',
+    },
+  ],
+};
 /////////////////////////////////////////////////////////////////////////////
 const Editor = (props) => {
   const { id } = useParams();
@@ -108,6 +169,8 @@ const Editor = (props) => {
   const editOn = searchParams.get('editOn');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const topcategory = location.pathname.split('/')[1];
+  const quillRef = useRef(); //
 
   const user = useSelector((state) => {
     if (state.rootReducer.user.userData?.isAuth) {
@@ -123,24 +186,37 @@ const Editor = (props) => {
     }));
   };
 
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
-    setWrittenData((prev) => ({
-      ...prev,
-      category: value,
-    }));
-  };
+  const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
+
+  const [categories, setCategories] = useState(
+    cateData[topCategories[0].value] ////이걸로 2번을고른다.즉 대분류에 의한 결과가나와야함
+  );
+  const [sCate, setScate] = useState(cateData[topCategories[0].value][0].value); //2번에서고른다
+
   const tophandleChange = (value) => {
     console.log(`selected ${value}`);
+    ///선택하면 list,comu,blund 대분류가 들어온다.
+    //이걸로 소분류를 선택해준다
+    // 소분류
+
+    setCategories(cateData[value]);
+    setScate(cateData[value][0].value);
+
     setWrittenData((prev) => ({
       ...prev,
       topcategory: value,
     }));
   };
+  const handleChange = (value) => {
+    console.log(`selected ${value}`);
+    setScate(value);
 
-  const quillRef = useRef(); //
+    setWrittenData((prev) => ({
+      ...prev,
+      category: value,
+    }));
+  };
 
-  const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
   const [writtenData, setWrittenData] = useState({
     title: '',
     content: '',
@@ -148,12 +224,12 @@ const Editor = (props) => {
     id: user?.id,
     nickname: user?.nickname,
     postnum: 0,
-    category: editOn ? category : 'humor',
+    category: editOn ? category : 'healing',
     announce: false,
     image: '',
+    topcategory: editOn ? topcategory : 'list',
   });
 
-  console.log(writtenData.category, '가즈아아');
   function dataHandler(e) {
     e.preventDefault();
     setWrittenData((prev) => ({
@@ -167,6 +243,7 @@ const Editor = (props) => {
 
     let body = writtenData;
     body.content = value;
+    body.category = sCate;
     if (body.image === '' && imgurll) {
       body.image = imgurll;
     }
@@ -290,9 +367,9 @@ const Editor = (props) => {
     };
     FetchEdit();
   }, []);
-  console.log(user);
-  console.log(imgurll);
-  console.log(writtenData);
+
+  console.log(writtenData, sCate);
+
   return (
     <div className='editorbox'>
       <form action='' className='editor-form' onSubmit={onSubmitHandler}>
@@ -300,50 +377,27 @@ const Editor = (props) => {
         <div>
           {' '}
           <Select
-            defaultValue={editOn ? writtenData.category : 'list'}
+            defaultValue={editOn ? writtenData.topcategory : 'list'}
             style={{
               width: 120,
             }}
             onChange={tophandleChange}
-            options={[
-              {
-                value: 'list',
-                label: '힐링 시간',
-              },
-              {
-                value: 'comu',
-                label: '커뮤니티',
-              },
-              {
-                value: 'blind',
-                label: '블라인드',
-              },
-            ]}
+            options={topCategories.map((topc) => ({
+              label: topc.label,
+              value: topc.value,
+            }))}
           />{' '}
           <Select
-            defaultValue={editOn ? writtenData.category : 'humor'}
+            defaultValue={editOn ? writtenData.category : 'healing'}
             style={{
               width: 120,
             }}
+            value={sCate}
             onChange={handleChange}
-            options={[
-              {
-                value: 'humor',
-                label: 'Humor',
-              },
-              {
-                value: 'politic',
-                label: 'Politic',
-              },
-              {
-                value: '18+',
-                label: '18+',
-              },
-              {
-                value: 'healing',
-                label: 'healing',
-              },
-            ]}
+            options={categories.map((cat) => ({
+              label: cat.label,
+              value: cat.value,
+            }))}
           />
           {user?.isAdmin ? (
             <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox>

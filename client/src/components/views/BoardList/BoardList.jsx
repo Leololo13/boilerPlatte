@@ -181,7 +181,7 @@ function BoardList() {
                   <td className='ip-post-title'>
                     <Link
                       className='link'
-                      to={`/list/${category}/post/${anc.postnum}`}
+                      to={`/${topcategory}/${category}/post/${anc.postnum}`}
                     >
                       {anc.title}
                     </Link>
@@ -225,9 +225,11 @@ function BoardList() {
                     <div className='boardlist-table-title'>
                       <Link
                         className='link'
-                        to={`/list/${search ? 'search' : category}/post/${
-                          list.postnum
-                        }?page=${page}&search=${search ?? null}`}
+                        to={`/${topcategory}/${
+                          search ? 'search' : category
+                        }/post/${list.postnum}?page=${page}&search=${
+                          search ?? null
+                        }`}
                       >
                         {list.title}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
