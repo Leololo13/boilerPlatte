@@ -73,7 +73,7 @@
 .right-icon {
   cursor: pointer;
 }
-@media screen and (max-width: 380px) {
+@media screen and (max-width: 540px) {
   .navbar-box {
     flex-direction: column;
     justify-content: center;

@@ -31,60 +31,66 @@ function Main() {
   }, []);
   console.log(lists.map((lst) => lst.map((list) => list.title)));
   return (
-    <>
-      {category.map((cat, idx) => {
-        return (
-          <div key={idx} className='mainCategory'>
-            <h3 className='mainCategory-cat'>
-              <Link state={cat} className='link' to={`/list/${cat}`}>
-                {valTotitle[cat]}
-              </Link>
-            </h3>
-            {lists.map((list) =>
-              list.reverse().map((lst) => {
-                return lst.category === cat ? (
-                  <div key={lst._id} className='mainCategory-post'>
-                    {' '}
-                    <Link
-                      to={`/list/${cat}/post/${lst.postnum}`}
-                      className='link'
-                    >
-                      {lst.title}
-                    </Link>
-                  </div>
-                ) : null;
-              })
-            )}
-          </div>
-        );
-      })}
-      {categorycomu.map((cat, idx) => {
-        return (
-          <div key={idx} className='mainCategory'>
-            <h3 className='mainCategory-cat'>
-              <Link state={cat} className='link' to={`/comu/${cat}`}>
-                {valTotitle[cat]}
-              </Link>
-            </h3>
-            {lists.map((list) =>
-              list.reverse().map((lst) => {
-                return lst.category === cat ? (
-                  <div key={lst._id} className='mainCategory-post'>
-                    {' '}
-                    <Link
-                      to={`/comu/${cat}/post/${lst.postnum}`}
-                      className='link'
-                    >
-                      {lst.title}
-                    </Link>
-                  </div>
-                ) : null;
-              })
-            )}
-          </div>
-        );
-      })}
-    </>
+    <div className='mainbox'>
+      <div className='mainbox-divider'>
+        {' '}
+        {category.map((cat, idx) => {
+          return (
+            <div key={idx} className='mainCategory'>
+              <h3 className='mainCategory-cat'>
+                <Link state={cat} className='link' to={`/list/${cat}`}>
+                  {valTotitle[cat]}
+                </Link>
+              </h3>
+              {lists.map((list) =>
+                list.reverse().map((lst) => {
+                  return lst.category === cat ? (
+                    <div key={lst._id} className='mainCategory-post'>
+                      {' '}
+                      <Link
+                        to={`/list/${cat}/post/${lst.postnum}`}
+                        className='link'
+                      >
+                        {lst.title}
+                      </Link>
+                    </div>
+                  ) : null;
+                })
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className='mainbox-divider'>
+        {' '}
+        {categorycomu.map((cat, idx) => {
+          return (
+            <div key={idx} className='mainCategory'>
+              <h4 className='mainCategory-cat'>
+                <Link state={cat} className='link' to={`/comu/${cat}`}>
+                  {valTotitle[cat]}
+                </Link>
+              </h4>
+              {lists.map((list) =>
+                list.reverse().map((lst) => {
+                  return lst.category === cat ? (
+                    <div key={lst._id} className='mainCategory-post'>
+                      {' '}
+                      <Link
+                        to={`/comu/${cat}/post/${lst.postnum}`}
+                        className='link'
+                      >
+                        {lst.title}
+                      </Link>
+                    </div>
+                  ) : null;
+                })
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

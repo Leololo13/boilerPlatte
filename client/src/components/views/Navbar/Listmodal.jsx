@@ -10,6 +10,13 @@ import React from 'react';
 import Modal from 'react-modal';
 import { useEffect } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import {
+  topCategories,
+  listCategories,
+  comuCategories,
+  blindCategories,
+  valTotitle,
+} from '../BoardList/category';
 
 const contentStyle = {
   display: 'flex',
@@ -105,6 +112,7 @@ const Listmodal = (props) => {
     'user',
     <UserOutlined />
   );
+
   const items = [
     props.isAuth ? loginUser : nloginUser,
 
@@ -114,38 +122,15 @@ const Listmodal = (props) => {
       </Link>,
       'list',
       <AppstoreOutlined />,
-      [
-        getItem(
-          <Link to={`/list/healing`} className='link'>
-            힐링
+
+      listCategories.map((list, i) => {
+        return getItem(
+          <Link to={`/${topCategories[0]}/${list}`} className='link'>
+            {valTotitle[list]}
           </Link>,
-          '5'
-        ),
-        getItem(
-          <Link to={`/list/humor`} className='link'>
-            유머
-          </Link>,
-          '6'
-        ),
-        getItem(
-          <Link to={`/list/info`} className='link'>
-            정보
-          </Link>,
-          '7'
-        ),
-        getItem(
-          <Link to={`/list/enter`} className='link'>
-            연예인
-          </Link>,
-          '8'
-        ),
-        getItem(
-          <Link to={`/comu/comic`} className='link'>
-            만화 추천
-          </Link>,
-          '9'
-        ),
-      ]
+          `${i + 5}`
+        );
+      })
     ),
     getItem(
       <Link to={`/comu/all`} className='link'>
@@ -153,26 +138,14 @@ const Listmodal = (props) => {
       </Link>,
       'comu',
       <AppstoreOutlined />,
-      [
-        getItem(
-          <Link to={`/comu/lunch`} className='link'>
-            점심자랑
+      comuCategories.map((list, i) => {
+        return getItem(
+          <Link to={`/${topCategories[1]}/${list}`} className='link'>
+            {valTotitle[list]}
           </Link>,
-          '10'
-        ),
-        getItem(
-          <Link to={`/comu/AI`} className='link'>
-            AI 대유쾌마운틴
-          </Link>,
-          '11'
-        ),
-        getItem(
-          <Link to={`/comu/comic`} className='link'>
-            만화 추천
-          </Link>,
-          '12'
-        ),
-      ]
+          `${i + 9}`
+        );
+      })
     ),
     getItem(
       <Link to={`/blind/all`} className='link'>
@@ -180,26 +153,14 @@ const Listmodal = (props) => {
       </Link>,
       'blind',
       <SettingOutlined />,
-      [
-        getItem(
-          <Link to={`/blind/any`} className='link'>
-            익명 - 아무말
+      blindCategories.map((list, i) => {
+        return getItem(
+          <Link to={`/${topCategories[2]}/${list}`} className='link'>
+            {valTotitle[list]}
           </Link>,
-          '13'
-        ),
-        getItem(
-          <Link to={`/blind/politic`} className='link'>
-            익명 - 정치
-          </Link>,
-          '14'
-        ),
-        getItem(
-          <Link to={`/blind/blind`} className='link'>
-            블라인드
-          </Link>,
-          '15'
-        ),
-      ]
+          `${i + 13}`
+        );
+      })
     ),
   ];
 
@@ -227,7 +188,6 @@ const Listmodal = (props) => {
   ]);
 
   const onOpenChange = (keys) => {
-    console.log(keys);
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
       setOpenKeys(keys);

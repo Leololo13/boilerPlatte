@@ -1,3 +1,10 @@
+.mainbox {
+  width: 100%;
+  display: flex;
+}
+.mainbox-divider {
+  width: 50%;
+}
 .mainCategory {
   display: flex;
   flex-direction: column;
@@ -5,6 +12,7 @@
   align-items: flex-start;
   width: 100%;
 }
+
 .mainCategory-cat {
   font-size: 1.5rem;
   color: burlywood;

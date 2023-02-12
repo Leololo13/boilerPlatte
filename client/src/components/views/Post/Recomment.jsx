@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
+
 function Recomment(props) {
   const initialState = {
     content: '',
@@ -16,6 +17,7 @@ function Recomment(props) {
     hate: [],
     target: props.parentNick,
   };
+
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
@@ -52,7 +54,6 @@ function Recomment(props) {
             } else {
               alert(res.data.err.message);
             }
-            console.log(res.data, 'ressssssssssssssssssssssssssssss');
           });
         console.log('누름');
         // .then(window.location.reload());
@@ -85,34 +86,36 @@ function Recomment(props) {
   }, [props.editon]);
 
   return (
-    <div>
+    <>
       {props.modalVisibleId === props.id ? (
-        <div className='recomment-main-edit'>
-          <div className='comment-write'>
-            <div className='comment-write-main'>
-              <div className='comment-write-img'>
-                {user?.image ? (
-                  <img src={user?.image} alt='' width='56px' />
-                ) : (
-                  <Avatar shape='square' size={56} icon={<UserOutlined />} />
-                )}
-              </div>
-              <form action='' onSubmit={submitHandler}>
-                <input
-                  value={recomment.content}
-                  name='content'
-                  type='text'
-                  onChange={inputHandler}
-                  placeholder={'@' + recomment.target}
-                />
-                <button> {props.editon ? '댓글 수정' : '댓글 쓰기'}</button>
-              </form>
-            </div>
+        <div className='recomment-write-main'>
+          <div className='comment-write-img'>
+            {user?.image ? (
+              <img src={user?.image} alt='' width='56px' />
+            ) : (
+              <Avatar shape='square' size={56} icon={<UserOutlined />} />
+            )}
           </div>
-          <button onClick={onCloseHandler}>닫기</button>
+
+          <form action='' onSubmit={submitHandler}>
+            <textarea
+              value={
+                recomment.content.length >= 200
+                  ? alert(
+                      '200글자가 넘었습니다. 댓글은 200글자 밑으로 적어주십시오.'
+                    )
+                  : recomment.content
+              }
+              name='content'
+              type='text'
+              onChange={inputHandler}
+              placeholder={'@' + recomment.target}
+            />
+            <button> {props.editon ? '댓글 수정' : '댓글 쓰기'}</button>
+          </form>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }
 

@@ -272,7 +272,7 @@ function Post(props) {
             </div>
           ) : null}
         </div>
-        <Comment />
+        <Comment writer={post.nickname} />
       </footer>
     </div>
   );

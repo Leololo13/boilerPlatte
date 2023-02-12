@@ -130,10 +130,6 @@ const cateData = {
       value: 'enter',
       label: '연예인',
     },
-    {
-      value: 'comic',
-      label: '만화책 추천',
-    },
   ],
   comu: [
     {
@@ -143,6 +139,10 @@ const cateData = {
     {
       value: 'AI',
       label: 'AI 대유쾌 마운틴',
+    },
+    {
+      value: 'recommend',
+      label: '아무거나 추천',
     },
     {
       value: 'anycomu',
@@ -264,7 +264,7 @@ const Editor = (props) => {
         }
         if (response.payload.Writesuccess === true) {
           navigate(
-            `/list/${writtenData.category}/post/${response.payload.postnum}`
+            `/${writtenData.topcategory}/${writtenData.category}/post/${response.payload.postnum}`
           );
         } else {
           console.log(response.payload);

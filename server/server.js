@@ -545,8 +545,25 @@ app.post('/api/post/comment/:id/edit', auth, (req, res) => {
 app.get('/api/post/:id/comment', (req, res) => {
   let id = req.params.id;
   Comment.find({ postnum: id }, (err, data) => {
+    let sortedData = [];
+
+    data
+      .filter((maincmt) => maincmt.parentcommentnum === 0)
+      .map((maincmt) => {
+        sortedData.push(maincmt);
+        data
+          .filter((r) => r.parentcommentnum === maincmt.commentnum)
+          .map((rc) => {
+            console.log(rc);
+            sortedData.push(rc);
+          });
+
+        // console.log(maincmt, '메인코멘트');
+        // console.log(rcmt, 'qwodkqwodkqowdkowqdk');
+      });
+    console.log(sortedData, 'sorted data');
     if (err) return res.json(err);
-    return res.json({ data });
+    return res.json({ sortedData });
   });
 });
 /////comment삭제하기

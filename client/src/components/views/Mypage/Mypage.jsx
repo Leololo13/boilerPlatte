@@ -279,7 +279,9 @@ function Mypage() {
             <h3 style={{ padding: '0px', margin: '10px 0px' }}>작성글 보기</h3>
             <div className='mypage-postsInfo'>
               <span>총 댓글 수: {total} </span>
-              <span>Page {page}/1</span>
+              <span>
+                Page {page}/{Math.ceil(total / limit)}
+              </span>
             </div>
             <table className='mypage-post-table'>
               <thead>
@@ -292,9 +294,7 @@ function Mypage() {
               </thead>
               <tbody>
                 {comments
-
                   .slice(offset < 0 ? 0 : offset, offset + limit)
-
                   .map((cmt, idx) => {
                     return (
                       <tr key={idx + offset + 1} className='mypage-post-each'>
@@ -302,7 +302,7 @@ function Mypage() {
                         <td>
                           <Link
                             className='link'
-                            to={`/list/all/post/${cmt.postnum}`}
+                            to={`/${cmt.topcategory}/all/post/${cmt.postnum}`}
                           >
                             {cmt.content}
                           </Link>
@@ -317,8 +317,6 @@ function Mypage() {
               </tbody>
             </table>
             <Pagination
-              showQuickJumper
-              showTotal={(total) => `총 ${total} 게시물`}
               defaultPageSize={limit}
               size={'small'}
               defaultCurrent={1}

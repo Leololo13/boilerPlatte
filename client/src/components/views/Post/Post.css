@@ -12,12 +12,7 @@
   display: flex;
   flex-direction: column;
 }
-.targetID {
-  margin-right: 10px;
-  color: black;
-  font-weight: bold;
-  background-color: bisque;
-}
+
 .post-title {
   margin: 0;
   padding: 10px;
@@ -152,16 +147,23 @@
   border-radius: 5px;
   padding: 10px;
 }
+.postContent a {
+  color: black;
+  background-color: aliceblue;
+  text-decoration: none;
+}
+.postContent a:hover {
+  text-decoration: underline;
+}
 
 .footer-comment {
   display: flex;
   flex-direction: column;
-  gap: 5px;
 }
 .comment-title {
   font-weight: bold;
   padding-left: 10px;
-  border-bottom: 1px solid burlywood;
+  /* border-bottom: 1px solid burlywood; */
 }
 .comment-title p {
   width: fit-content;
@@ -170,11 +172,20 @@
   font-size: 1rem;
 }
 .comment-main {
-  padding: 5px 10px;
+  padding: 7px 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-bottom: 1px solid burlywood;
+  border-top: 1px solid burlywood;
+  font-size: 0.8rem;
+}
+.comment-main-depth {
+  padding: 7px 10px;
+  margin-left: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top: 1px solid burlywood;
   font-size: 0.8rem;
 }
 .recomment-main {
@@ -184,21 +195,25 @@
 .recomment-main-edit {
   padding-top: 10px;
   border-top: 1px solid burlywood;
-
   margin-top: 10px;
 }
 .post-comment {
   display: flex;
+
+  align-items: center;
   gap: 10px;
   justify-content: center;
 }
+
 .comment-modal:hover {
   text-decoration: underline;
 }
 .comment-writer-img {
+  display: flex;
   width: 64px;
   height: 64px;
-  text-align: center;
+  align-items: center;
+  justify-content: center;
 }
 .comment-writer-img img {
   border-radius: 5px;
@@ -226,7 +241,40 @@
 .comment-write {
   height: auto;
   padding: 0 10px;
+  border-top: 1px solid burlywood;
   padding-bottom: 20px;
+}
+
+.recomment-write-main {
+  display: flex;
+  gap: 10px;
+  height: 100%;
+  padding: 10px 0px;
+  border-top: 1px solid burlywood;
+  width: 100%;
+}
+.recomment-write-main form {
+  display: flex;
+  height: 56px;
+  width: 100%;
+  gap: 10px;
+}
+.recomment-write-main form textarea {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  font-size: 1rem;
+  resize: none;
+}
+.recomment-write-main form button {
+  border: none;
+  text-align: center;
+  cursor: pointer;
+  width: 88px;
+  border-radius: 5px;
+  color: black;
+  background-color: burlywood;
 }
 .comment-write-img {
   width: 56px;
@@ -262,12 +310,20 @@
 .comment-write-main textarea {
   height: 100%;
   width: 100%;
+  overflow-y: auto;
   font-size: 1rem;
+  resize: none;
 }
 .comment-content {
-  padding: 10px;
+  padding: 10px 10px;
   width: 100%;
   height: auto;
+}
+.targetID {
+  margin-right: 10px;
+  color: black;
+  font-weight: bold;
+  background-color: bisque;
 }
 .comment-delete {
   cursor: pointer;
