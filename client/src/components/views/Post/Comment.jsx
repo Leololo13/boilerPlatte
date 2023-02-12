@@ -358,17 +358,20 @@ function Comment(props) {
           </div>
         ) : null}
       </div>
-      <Pagination
-        defaultPageSize={limit}
-        size={'small'}
-        defaultCurrent={1}
-        showSizeChanger={false}
-        current={page}
-        total={total}
-        onChange={(page) => {
-          setPage(page);
-        }}
-      />
+      <div className='pagination-box'>
+        {' '}
+        <Pagination
+          defaultPageSize={limit}
+          size={'small'}
+          defaultCurrent={1}
+          showSizeChanger={false}
+          current={page}
+          total={total}
+          onChange={(page) => {
+            setPage(page);
+          }}
+        />
+      </div>
     </div>
   );
 }
