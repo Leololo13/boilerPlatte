@@ -9,6 +9,21 @@
   padding-left: 10px;
   width: 230px;
 }
+.agreement-checkbox:hover {
+  text-decoration: underline;
+}
+.agrement-check {
+  color: black;
+  width: 240px;
+  font-size: 1rem;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.agrement-check:hover {
+  text-decoration: underline;
+}
 .registerbox {
   display: flex;
   flex-direction: column;

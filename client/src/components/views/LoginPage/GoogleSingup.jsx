@@ -1,11 +1,9 @@
 import React from 'react';
 import { useEffect } from 'react';
 import useFetch from './useFetch';
-import { gapi } from 'gapi-script';
 import { useState } from 'react';
 
 const GoogleSingup = () => {
-  const [profile, setProfile] = useState([]);
   const { handleGoogle, loading, error } = useFetch('/api/user/googlesignup');
   const ClientId = process.env.REACT_APP_CLIENT_ID;
 

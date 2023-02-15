@@ -3,8 +3,9 @@ import './Boardlist.css';
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useState } from 'react';
-import { Pagination, Input } from 'antd';
+import { Pagination, Input, Select } from 'antd';
 import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
+import { valTotitle } from './category';
 
 function BoardList() {
   const location = useLocation();
@@ -91,7 +92,7 @@ function BoardList() {
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
-        <h3>
+        <h4>
           {topcategory === 'list'
             ? '힐링시간'
             : topcategory === 'comu'
@@ -99,25 +100,32 @@ function BoardList() {
             : topcategory === 'blind'
             ? '블라인드'
             : ''}
-        </h3>
+        </h4>
         <section className='boardlist-header-section'>
           {' '}
-          {category}
+          {valTotitle[category]}
           <div> option</div>
         </section>
         <div>
-          <Input.Search
-            allowClear
-            style={{
-              width: '120px',
-            }}
-            maxLength={20}
-            size='middle'
-            defaultValue=''
-            onChange={searchHandler}
-            onSearch={searchSubmit}
-            value={search}
-          />
+          {' '}
+          <Input.Group compact>
+            <Select defaultValue='Zhejiang'>
+              <Select value='Zhejiang'>Zhejiang</Select>
+              <Select value='Jiangsu'>Jiangsu</Select>
+            </Select>
+            <Input.Search
+              allowClear
+              style={{
+                width: '120px',
+              }}
+              maxLength={20}
+              size='middle'
+              defaultValue=''
+              onChange={searchHandler}
+              onSearch={searchSubmit}
+              value={search}
+            />{' '}
+          </Input.Group>
         </div>
       </header>
       <main className='boardlist-main'>

@@ -272,7 +272,7 @@ function Post(props) {
             </div>
           ) : null}
         </div>
-        <Comment writer={post.nickname} />
+        <Comment writer={post.nickname} isAuth={props.isAuth} />
       </footer>
     </div>
   );

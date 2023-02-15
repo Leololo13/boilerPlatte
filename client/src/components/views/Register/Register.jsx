@@ -1,15 +1,17 @@
 import React from 'react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
 import { Button, Checkbox, Form, Input } from 'antd';
-import axios from 'axios';
 import Modal from 'react-modal';
 import Agreement from './Agreement';
 import GoogleSingup from '../LoginPage/GoogleSingup';
 import KakaoSignup from '../LoginPage/KakaoSignup';
+import useSubmitFetch from '../Post/useSubmitFetch';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 const overlayStyle = {
   position: 'fixed',
@@ -28,8 +30,8 @@ const contentStyle = {
   overflow: 'auto',
   WebkitOverflowScrolling: 'touch',
   outline: 'none',
-  height: '720px',
-  width: '360px',
+  height: '880px',
+  width: '560px',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
@@ -59,22 +61,10 @@ const formItemLayout = {
   },
 };
 
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
-
 function Register() {
+  const [checked, setChecked] = useState(false);
   const [form] = Form.useForm();
-
+  const nameValue = Form.useWatch('nickname', form);
   // 전화번호 앞 국가번호
   // const prefixSelector = (
   //   <Form.Item name='prefix' noStyle>
@@ -88,43 +78,83 @@ function Register() {
   //     </Select>
   //   </Form.Item>
   // );
-  const userName = Form.useWatch('nickname', form);
-  const [idCheck, setIDCheck] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [checkID, setCheckID] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
-  const agreementModalHandler = () => {};
-
-  const overlapCheckHandler = async (value) => {
-    console.log(userName);
+  const timerid = async (value) => {
+    let id = { id: value };
     try {
-      await axios.post('/api/user/checkID', { id: value }).then((res) => {
-        console.log(res.data);
-        if (res.data.message) {
-          return false; ///false면 중복이라는소리
-        } else return true;
+      await axios.post('/api/user/checkID', id).then((res) => {
+        console.log(res);
+        if (!res.data.CheckID) {
+          setCheckID(false);
+        } else {
+          setCheckID(true);
+        }
       });
     } catch (error) {
       console.log(error);
     }
   };
 
+  const onChange = (e) => {
+    console.log('checked = ', e.target.checked);
+    setChecked(e.target.checked);
+  };
   const onSubmitHandler = function (values) {
+    setLoading(true);
     const { agreement, confirm, ...others } = values;
     others.signupDate = new Date();
     let body = others;
-    console.log(body);
     dispatch(registerUser(body)).then((response) => {
-      if (response.payload.RegisterSuccess === true) {
+      if (response.payload.isloading) {
+        setLoading(true);
+        console.log(response);
+      } else if (response.payload.RegisterSuccess === true) {
+        console.log(response);
         alert('가입 성공');
+        setLoading(false);
         navigate('/');
       } else {
-        console.log(response.payload.err);
+        console.log(response);
         alert(response.payload.message);
       }
     });
   };
-
+  const checIdFetch = async () => {
+    if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
+      let id = { id: form.getFieldValue('nickname') };
+      console.log(id);
+      try {
+        await axios.post('/api/user/checkID', id).then((res) => {
+          console.log(res);
+          if (!res.data.CheckID) {
+            form.setFields([
+              {
+                name: 'nickname',
+                errors: ['사용중인 닉네임 입니다'],
+              },
+            ]);
+          } else {
+            form.setFields([
+              {
+                name: 'nickname',
+                message: ['사용가능한 ID입니다'],
+              },
+            ]);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+  console.log(checkID);
+  useEffect(() => {
+    console.log('useeffect');
+  }, [checkID]);
   return (
     <div className='registerbox'>
       <Modal
@@ -139,18 +169,20 @@ function Register() {
         }}
       >
         <Agreement />
-        <Checkbox style={{ width: '240px' }}>
-          I have read the{' '}
+        <Checkbox className='agreement-checkbox' defaultChecked={checked} onChange={onChange}>
+          위의 내용을 모두 읽었으며
           <span
+            className='agrement-check'
             style={{
               color: 'black',
-              fontSize: '1.2rem',
+              fontSize: '1rem',
               fontWeight: 'bold',
               cursor: 'pointer',
             }}
           >
-            agreement
+            {'  '}동의{'  '}
           </span>
+          합니다
         </Checkbox>
         <button
           onClick={() => {
@@ -257,29 +289,23 @@ function Register() {
         >
           <Input className='regi-form-input' style={{ width: '240px' }} />
         </Form.Item>
-
         <Form.Item
           className='regi-form-item'
           name='password'
-          label='Password'
+          label='비밀번호'
           rules={[
             {
               required: true,
-              message: 'Please input your password!',
+              message: '비밀번호를 입력해주십시오',
             },
             {
               validator(_, value) {
-                let condition =
-                  /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+                let condition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
 
                 if (condition.test(value)) {
                   return Promise.resolve();
                 }
-                return Promise.reject(
-                  new Error(
-                    '영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'
-                  )
-                );
+                return Promise.reject(new Error('영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'));
               },
             },
           ]}
@@ -287,11 +313,10 @@ function Register() {
         >
           <Input.Password style={{ width: '240px' }} />
         </Form.Item>
-
         <Form.Item
           name='confirm'
           className='regi-form-item'
-          label='Confirm Password'
+          label='비밀번호 일치 확인'
           labelCol={3}
           dependencies={['password']}
           hasFeedback
@@ -305,28 +330,24 @@ function Register() {
                 if (!value || getFieldValue('password') === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(
-                  new Error('비밀번호가 일치하지 않습니다')
-                );
+                return Promise.reject(new Error('비밀번호가 일치하지 않습니다'));
               },
             }),
           ]}
         >
           <Input.Password style={{ width: '240px' }} />
         </Form.Item>
-
         <Form.Item
           name='nickname'
           className='regi-form-item'
-          label='Nickname'
+          label='닉네임'
           labelCol={3}
           tooltip='현재 사이트에서 사용하실 닉네임입니다.'
           hasFeedback
           rules={[
             {
               required: true,
-              message:
-                '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
+              message: '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
             },
             {
               min: 3,
@@ -342,20 +363,16 @@ function Register() {
                 let condition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]*$/;
 
                 if (condition.test(value)) {
-                  console.log('오케이 여기로온다고?');
                   return Promise.resolve();
                 } else {
-                  return Promise.reject(
-                    new Error('특수문자를 제외한 아이디로 입력해주십시오')
-                  );
+                  return Promise.reject(new Error('특수문자를 제외한 아이디로 입력해주십시오'));
                 }
               },
             },
           ]}
         >
-          <Input style={{ width: '240px' }} />
+          <Input style={{ width: '240px' }} onBlur={checIdFetch} />
         </Form.Item>
-
         {/* -============phone number==================== */}
         {/* <Form.Item
           name='phone'
@@ -374,43 +391,42 @@ function Register() {
             }}
           />
         </Form.Item> */}
-
+        <div
+          className='agrement-check'
+          onClick={() => {
+            setModal(true);
+          }}
+        >
+          약관 사항 읽어보기
+        </div>{' '}
         <Form.Item
           name='agreement'
           valuePropName='checked'
+          style={{ textAlign: 'center' }}
           rules={[
             {
               validator: (_, value) =>
-                value
-                  ? Promise.resolve()
-                  : Promise.reject(new Error('Should accept agreement')),
+                value ? Promise.resolve() : Promise.reject(new Error('관련 약관을 읽어보신 후 동의하셔야합니다')),
             },
           ]}
         >
-          <Checkbox style={{ width: '240px' }}>
-            I have read the{' '}
-            <span
-              onClick={() => {
-                setModal(true);
-              }}
-              style={{
-                color: 'black',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-              }}
-            >
-              agreement
-            </span>
+          <Checkbox
+            className='agreement-checkbox'
+            checked={checked}
+            onChange={onChange}
+            style={{ width: '240px', fontSize: '0.8rem' }}
+          >
+            약관 사항 을 모두 읽었으며 동의합니다.
           </Checkbox>
         </Form.Item>
         <Form.Item>
           <Button
+            // disabled={loading ? true : false}
             style={{ backgroundColor: 'bisque', color: 'darkgrey' }}
             type='primary'
             htmlType='submit'
           >
-            Register
+            회원가입
           </Button>
         </Form.Item>
       </Form>
@@ -427,6 +443,7 @@ function Register() {
         <div>-----OR-----</div>
         <span style={{ display: 'flex', gap: '5px' }}>
           <GoogleSingup />
+
           <KakaoSignup />
         </span>
       </footer>
