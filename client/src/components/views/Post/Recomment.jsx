@@ -45,16 +45,14 @@ function Recomment(props) {
 
     if (props.editon) {
       try {
-        await axios
-          .post(`/api/post/comment/${props.commentnum}/edit`, body)
-          .then((res) => {
-            if (res.data.commentEditSuccess) {
-              setRecomment(res.data);
-              window.location.reload();
-            } else {
-              alert(res.data.err.message);
-            }
-          });
+        await axios.post(`/api/post/comment/${props.commentnum}/edit`, body).then((res) => {
+          if (res.data.commentEditSuccess) {
+            setRecomment(res.data);
+            window.location.reload();
+          } else {
+            alert(res.data.err.message);
+          }
+        });
         console.log('누름');
         // .then(window.location.reload());
       } catch (error) {
@@ -63,9 +61,7 @@ function Recomment(props) {
       }
     } else {
       try {
-        await axios
-          .post(`/api/post/comment`, body)
-          .then(window.location.reload());
+        await axios.post(`/api/post/comment`, body).then(window.location.reload());
       } catch (error) {
         console.log(error);
       }
@@ -91,9 +87,9 @@ function Recomment(props) {
         <div className='recomment-write-main'>
           <div className='comment-write-img'>
             {user?.image ? (
-              <img src={user?.image} alt='' width='56px' />
+              <img src={user?.image} alt='' width='56px' style={{ borderRadius: '50%' }} />
             ) : (
-              <Avatar shape='square' size={56} icon={<UserOutlined />} />
+              <Avatar size={56} icon={<UserOutlined />} />
             )}
           </div>
 
@@ -101,9 +97,7 @@ function Recomment(props) {
             <textarea
               value={
                 recomment.content.length >= 200
-                  ? alert(
-                      '200글자가 넘었습니다. 댓글은 200글자 밑으로 적어주십시오.'
-                    )
+                  ? alert('200글자가 넘었습니다. 댓글은 200글자 밑으로 적어주십시오.')
                   : recomment.content
               }
               name='content'

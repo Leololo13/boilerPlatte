@@ -48,7 +48,12 @@
   border-bottom: 1px solid lightgray;
   font-size: 0.8rem;
 }
-
+.ant-input-search
+  :where(.css-dev-only-do-not-override-26rdvq).ant-input-group
+  .ant-input-affix-wrapper:not(:last-child) {
+  border-start-start-radius: 0px;
+  border-end-start-radius: 0px;
+}
 .important-post {
   display: flex;
   border-bottom: 1px solid lightgrey;

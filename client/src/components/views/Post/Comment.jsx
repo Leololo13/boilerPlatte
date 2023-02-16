@@ -56,7 +56,7 @@ function Comment(props) {
     image: '',
   };
 
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(1);
   const offset = (page - 1) * limit;
   const [total, setTotal] = useState(0);
@@ -194,9 +194,9 @@ function Comment(props) {
                   <div className='post-comment'>
                     <div className='comment-writer-img'>
                       {comment.image ? (
-                        <img src={comment.image} alt='' />
+                        <img src={comment.image} alt='' style={{ borderRadius: '50%' }} />
                       ) : (
-                        <Avatar shape='square' size={56} icon={<UserOutlined />} />
+                        <Avatar size={56} icon={<UserOutlined />} />
                       )}
                     </div>
                     <div className='comment-main-main'>
@@ -301,9 +301,9 @@ function Comment(props) {
             <div className='comment-write-main'>
               <div className='comment-write-img'>
                 {user?.image ? (
-                  <img src={user?.image} alt='' width='56px' />
+                  <img src={user?.image} alt='' style={{ borderRadius: '50%' }} width='56px' />
                 ) : (
-                  <Avatar shape='square' size={56} icon={<UserOutlined />} />
+                  <Avatar size={56} icon={<UserOutlined />} />
                 )}
               </div>
               <form action='' onSubmit={commentSubmitHandler}>

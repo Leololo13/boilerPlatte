@@ -18,6 +18,7 @@ const axios = require('axios');
 const qs = require('qs');
 const session = require('express-session');
 const { limiter_normal, limiter_write } = require('./middleware/Limiter');
+const { text } = require('body-parser');
 
 ///세션생성시 옵션설정 세션을설정할때 쿠키가 생성된다. 어느 라우터든 req session값이 존재하게 된다.
 app.use(
@@ -46,7 +47,6 @@ mongoose
 ///user-action============user-action==============================
 ///////register
 app.post('/api/user/checkID', (req, res) => {
-  console.log(req.body);
   User.findOne({ nickname: req.body.id }, (err, data) => {
     console.log(data);
     if (!data) {
@@ -77,23 +77,23 @@ app.post('/api/user/register', (req, res) => {
 });
 ///테스트
 //
-app.post('/api/user/checkID', (req, res) => {
-  let { id } = req.body;
-  console.log(id);
-  !id
-    ? res.json({ IDCheck: false, message: '닉네임을 입력하십시오' })
-    : User.findOne({ nickname: id }, (err, data) => {
-        if (err) return res.json({ IDCheck: false, err });
-        if (!data) {
-          return res.json({ IDCheck: true });
-        } else {
-          return res.json({
-            IDCheck: false,
-            message: '중복된 닉네임이있습니다',
-          });
-        }
-      });
-});
+// app.post('/api/user/checkID', (req, res) => {
+//   let { id } = req.body;
+
+//   !id
+//     ? res.json({ IDCheck: false, message: '닉네임을 입력하십시오' })
+//     : User.findOne({ nickname: id }, (err, data) => {
+//         if (err) return res.json({ IDCheck: false, err });
+//         if (!data) {
+//           return res.json({ IDCheck: true });
+//         } else {
+//           return res.json({
+//             IDCheck: false,
+//             message: '중복된 닉네임이있습니다',
+//           });
+//         }
+//       });
+// });
 //유저 정보 변경하기
 app.post('/api/user/infochange', (req, res) => {
   User.findOne({ nickname: req.body.nickname }, (err, data) => {
@@ -563,9 +563,12 @@ app.get('/api/announce/:cat', (req, res) => {
 });
 ///////list 가져오기=====================list===========================
 app.get('/api/list', (req, res) => {
-  console.log(req.query);
+  console.log(req.query, 'oqwijdoiqwjdioqwj');
 
-  let { page, limit, category, search } = req.query;
+  let { page, limit, category, search, soption } = req.query;
+  console.log(soption, typeof soption);
+  soption = soption?.split(',');
+  console.log(soption);
   const Page = Number(page);
   const topc = req.query.topc ?? 'all';
   const Limit = Number(limit);
@@ -573,22 +576,35 @@ app.get('/api/list', (req, res) => {
   const Category = search ? 'search' : category === 'search' ? 'all' : category;
   const cat = ['healing', 'humor', 'info', 'enter', 'lunch', 'AI', 'comic'];
   console.log(Category, topc, 'cateeeeeeeeeeeeee');
-  const searchCondition = [
-    {
-      $search: {
-        index: 'titleSearch',
-        text: {
-          query: search,
-          path: {
-            wildcard: '*',
+  const searchCondition =
+    soption === ['comment']
+      ? [
+          {
+            $search: {
+              index: 'commentSearch',
+              text: {
+                query: search,
+                path: 'content',
+              },
+            },
           },
-        },
-      },
-    },
-    {
-      $match: { topcategory: topc },
-    },
-  ];
+        ]
+      : [
+          {
+            $search: {
+              index: 'titleSearch',
+              text: {
+                query: search,
+
+                path: soption?.includes('all') ? { wildcard: '*' } : soption,
+              },
+            },
+          },
+          {
+            $match: { topcategory: topc },
+          },
+        ];
+
   if (!Category) {
     //첫화면에서 랜딩할때 사용
     List.find({ announce: false }, (err, data) => {
@@ -647,7 +663,6 @@ app.get('/api/list', (req, res) => {
     //카테고리가 all일때
     List.find({ announce: false, topcategory: topc }, (err, data) => {
       if (err) return res.json(err);
-      console.log(data);
       let lists = data
         .reverse()
         .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
@@ -658,15 +673,39 @@ app.get('/api/list', (req, res) => {
   } ////search 할때 카테고리를 설정해서 뽑아주기
   else if (Category === 'search') {
     console.log('??');
-
-    List.aggregate(searchCondition, (err, data) => {
-      if (err) return res.json(err);
-      let lists = data
-        .reverse()
-        .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
-        .map((data) => data);
-      res.json({ data: lists, total: data.length });
-    });
+    // List.findOne({ postnum: id })
+    //   .populate('writer', { nickname: 1, _id: 2 })
+    //   .then((err, data) => {
+    //     if (err) return res.json(err);
+    //     return res.json({ data });
+    //   });
+    ///////////////댓글로 post를 찾을때
+    if (soption === ['comment']) {
+      console.log('코멘트검색', searchCondition);
+      Comment.aggregate(searchCondition, (error, data) => {
+        if (error) return res.json(error);
+        let posts = data.map((d) => d.postnum);
+        List.find({ postnum: { $in: posts } }, (err, list) => {
+          console.log(posts);
+          if (err) return res.json(err);
+          let lists = list
+            .reverse()
+            .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
+            .map((data) => data);
+          res.json({ data: lists, total: data.length });
+        });
+      });
+    } else {
+      List.aggregate(searchCondition, (err, data) => {
+        console.log('list검샏', searchCondition[0].$search.text.path);
+        if (err) return res.json(err);
+        let lists = data
+          .reverse()
+          .slice(Offset < 0 ? 0 : Offset, Offset + Limit)
+          .map((data) => data);
+        res.json({ data: lists, total: data.length });
+      });
+    }
   } else {
     //각자의 카테고리로 갓을떄
     List.find({ category: category, announce: false, topcategory: topc }, (err, data) => {

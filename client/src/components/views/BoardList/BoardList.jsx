@@ -12,6 +12,7 @@ function BoardList() {
   const searchParams = new URLSearchParams(location.search);
   const cp = searchParams.get('page');
   const searchtarget = searchParams.get('search');
+  const ssoption = searchParams.get('soption');
   const { category } = useParams();
   const [lists, setLists] = useState([]);
   const [comments, setComments] = useState([]);
@@ -23,7 +24,11 @@ function BoardList() {
   const [searchModal, setSearchModal] = useState(true);
   const [announce, setAnnounce] = useState([]);
   const topcategory = location.pathname.split('/')[1];
+  const [searchOption, setSearchOption] = useState(ssoption);
 
+  const optionHandler = (e) => {
+    setSearchOption(e);
+  };
   const searchHandler = (e) => {
     e.preventDefault();
     setSearch(e.target.value);
@@ -70,12 +75,11 @@ function BoardList() {
         const res = await axios.get(
           `/api/list?page=${page}&category=${
             search ? 'search' : category
-          }&limit=${limit}&search=${search}&topc=${topcategory}`,
-          category
+          }&limit=${limit}&search=${search}&topc=${topcategory}&soption=${searchOption ?? 'title'}`
         );
         const res2 = await axios.get('/api/comment');
         const res3 = await axios.get(`/api/announce/${category}`);
-
+        console.log(res.data);
         setComments(res2.data.data);
         setLists(res.data.data);
         setTotal(res.data.total);
@@ -101,22 +105,20 @@ function BoardList() {
             ? '블라인드'
             : ''}
         </h4>
-        <section className='boardlist-header-section'>
-          {' '}
-          {valTotitle[category]}
-          <div> option</div>
-        </section>
+        <section className='boardlist-header-section'> {valTotitle[category] ?? ''}</section>
         <div>
-          {' '}
-          <Input.Group compact>
-            <Select defaultValue='Zhejiang'>
-              <Select value='Zhejiang'>Zhejiang</Select>
-              <Select value='Jiangsu'>Jiangsu</Select>
+          <Input.Group compact style={{ width: '280px' }}>
+            <Select defaultValue={searchOption ?? 'title'} onChange={optionHandler} style={{ width: '120px' }}>
+              <Select value='title'>제목</Select>
+              <Select value='title,content'>제목+내용</Select>
+              <Select value='nickname'>작성자</Select>
+              <Select value='comment'>댓글</Select>
             </Select>
             <Input.Search
               allowClear
               style={{
-                width: '120px',
+                width: '160px',
+                borderStartEndRadius: '0px',
               }}
               maxLength={20}
               size='middle'
@@ -161,22 +163,13 @@ function BoardList() {
               >
                 👍/🤢
               </td>
-              <td
-                className='boardlist-box-head title'
-                style={{ flex: 16, textAlign: 'center' }}
-              >
+              <td className='boardlist-box-head title' style={{ flex: 16, textAlign: 'center' }}>
                 제목
               </td>
-              <td
-                className='boardlist-box-head writer'
-                style={{ flex: 2, minWidth: '70px' }}
-              >
+              <td className='boardlist-box-head writer' style={{ flex: 2, minWidth: '70px' }}>
                 글쓴이
               </td>
-              <td
-                className='boardlist-box-head date'
-                style={{ flex: 2, minWidth: '70px' }}
-              >
+              <td className='boardlist-box-head date' style={{ flex: 2, minWidth: '70px' }}>
                 날짜
               </td>
             </tr>
@@ -189,7 +182,9 @@ function BoardList() {
                   <td className='ip-post-title'>
                     <Link
                       className='link'
-                      to={`/${topcategory}/${category}/post/${anc.postnum}`}
+                      to={`/${topcategory}/${search ? 'search' : category}/post/${anc.postnum}?page=${page}&soption=${
+                        searchOption ?? 'title'
+                      }&search=${search ?? null}`}
                     >
                       {anc.title}
                     </Link>
@@ -197,13 +192,20 @@ function BoardList() {
                 </tr>
               );
             })}
-
+            {lists?.length === 0 ? (
+              <h4
+                style={{
+                  justifyContent: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                }}
+              >
+                찾으시는 데이터가 없습니다.
+              </h4>
+            ) : null}
             {lists
-              .filter((list) =>
-                category === 'all' || category === 'search'
-                  ? list
-                  : list.category === category
-              )
+              ?.filter((list) => (category === 'all' || category === 'search' ? list : list.category === category))
               .map((list) => (
                 <tr className='boardlist-table' key={list._id}>
                   <td
@@ -233,19 +235,13 @@ function BoardList() {
                     <div className='boardlist-table-title'>
                       <Link
                         className='link'
-                        to={`/${topcategory}/${
-                          search ? 'search' : category
-                        }/post/${list.postnum}?page=${page}&search=${
-                          search ?? null
-                        }`}
+                        to={`/${topcategory}/${search ? 'search' : category}/post/${
+                          list.postnum
+                        }?page=${page}&soption=${searchOption ?? 'title'}&search=${search ?? null}`}
                       >
                         {list.title}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
-                          {
-                            comments.filter(
-                              (comment) => comment.postnum === list.postnum
-                            ).length
-                          }
+                          {comments.filter((comment) => comment.postnum === list.postnum).length}
                         </span>
                       </Link>
                     </div>
