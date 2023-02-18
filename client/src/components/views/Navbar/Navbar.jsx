@@ -5,7 +5,7 @@ import { Button, Dropdown, Space, Avatar } from 'antd';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, MenuOutlined } from '@ant-design/icons';
 import Listmodal from './Listmodal';
 
 /////////////////네브바
@@ -132,6 +132,15 @@ function Navbar(props) {
         setListModal={setListModal}
       />
       <div className='leftbox'>
+        <span className='leftbox-modal'>
+          <MenuOutlined
+            style={{ fontSize: '30px' }}
+            onClick={() => {
+              setListModal(!listModal);
+            }}
+          />
+        </span>
+
         <div className='logo'>
           <Link to={'/'} className='link'>
             <img src='/logo/logo1.png' className='leftbox-logimg' alt='' />{' '}
@@ -143,13 +152,6 @@ function Navbar(props) {
       </div>
       <div className='rightbox'>
         <div className='iconbox'>
-          <button
-            onClick={() => {
-              setListModal(!listModal);
-            }}
-          >
-            모달
-          </button>
           {props.isAuth ? (
             <Link to={`/list/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>

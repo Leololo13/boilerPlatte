@@ -28,3 +28,11 @@
   font-size: 0.8rem;
   border-bottom: 0.5px solid lightgrey;
 }
+@media screen and (max-width: 550px) {
+  .mainbox {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}

@@ -35,12 +35,14 @@ const contentStyle = {
   padding: '0px',
   paddingBottom: '20px',
   fontSize: '1.1rem',
+  zIndex: '100000',
 };
 
 const overlayStyle = {
   position: 'fixed',
   backgroundColor: 'rgba(110, 110, 110, 0.4)',
   transition: 'all 1s',
+  zIndex: '500',
 };
 
 function getItem(label, key, icon, children, type) {
@@ -183,13 +185,11 @@ const Listmodal = (props) => {
     }, 500);
   }
 
-  const [openKeys, setOpenKeys] = useState([
-    cat ? 'list' : userAction ? 'user' : 'comu',
-  ]);
-
+  const [openKeys, setOpenKeys] = useState([location?.pathname.split('/')[1]]);
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+      console.log(keys);
       setOpenKeys(keys);
     } else {
       setOpenKeys(latestOpenKey ? [latestOpenKey] : []);

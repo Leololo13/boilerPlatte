@@ -14,6 +14,9 @@
   text-align: center;
   width: 100%;
   background-color: bisque;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 .landingpage-main {
   flex: 20;

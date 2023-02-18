@@ -30,8 +30,8 @@ const contentStyle = {
   overflow: 'auto',
   WebkitOverflowScrolling: 'touch',
   outline: 'none',
-  height: '880px',
-  width: '560px',
+  height: '80vh',
+  width: '69vw',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
@@ -83,21 +83,6 @@ function Register() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
-  const timerid = async (value) => {
-    let id = { id: value };
-    try {
-      await axios.post('/api/user/checkID', id).then((res) => {
-        console.log(res);
-        if (!res.data.CheckID) {
-          setCheckID(false);
-        } else {
-          setCheckID(true);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const onChange = (e) => {
     console.log('checked = ', e.target.checked);
@@ -123,8 +108,35 @@ function Register() {
       }
     });
   };
+  const checkEmail = async () => {
+    if (
+      form.getFieldError('email').length === 0 &&
+      form.getFieldValue('email')
+    ) {
+      let email = { email: form.getFieldValue('email') };
+      console.log(email);
+      try {
+        await axios.post('/api/user/checkID', email).then((res) => {
+          console.log(res);
+          if (!res.data.CheckID) {
+            form.setFields([
+              {
+                name: 'email',
+                errors: ['사용중인 이메일 입니다'],
+              },
+            ]);
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
   const checIdFetch = async () => {
-    if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
+    if (
+      form.getFieldError('nickname').length === 0 &&
+      form.getFieldValue('nickname')
+    ) {
       let id = { id: form.getFieldValue('nickname') };
       console.log(id);
       try {
@@ -137,13 +149,6 @@ function Register() {
                 errors: ['사용중인 닉네임 입니다'],
               },
             ]);
-          } else {
-            form.setFields([
-              {
-                name: 'nickname',
-                message: ['사용가능한 ID입니다'],
-              },
-            ]);
           }
         });
       } catch (error) {
@@ -151,10 +156,10 @@ function Register() {
       }
     }
   };
-  console.log(checkID);
+  console.log(checked, 'checheijdd');
   useEffect(() => {
     console.log('useeffect');
-  }, [checkID]);
+  }, [checked, checkID, modal]);
   return (
     <div className='registerbox'>
       <Modal
@@ -169,7 +174,11 @@ function Register() {
         }}
       >
         <Agreement />
-        <Checkbox className='agreement-checkbox' defaultChecked={checked} onChange={onChange}>
+        <Checkbox
+          className='agreement-checkbox'
+          defaultChecked={checked}
+          onChange={onChange}
+        >
           위의 내용을 모두 읽었으며
           <span
             className='agrement-check'
@@ -287,7 +296,11 @@ function Register() {
             },
           ]}
         >
-          <Input className='regi-form-input' style={{ width: '240px' }} />
+          <Input
+            onBlur={checkEmail}
+            className='regi-form-input'
+            style={{ width: '240px' }}
+          />
         </Form.Item>
         <Form.Item
           className='regi-form-item'
@@ -300,12 +313,17 @@ function Register() {
             },
             {
               validator(_, value) {
-                let condition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+                let condition =
+                  /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
 
                 if (condition.test(value)) {
                   return Promise.resolve();
                 }
-                return Promise.reject(new Error('영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'));
+                return Promise.reject(
+                  new Error(
+                    '영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'
+                  )
+                );
               },
             },
           ]}
@@ -330,7 +348,9 @@ function Register() {
                 if (!value || getFieldValue('password') === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(new Error('비밀번호가 일치하지 않습니다'));
+                return Promise.reject(
+                  new Error('비밀번호가 일치하지 않습니다')
+                );
               },
             }),
           ]}
@@ -347,7 +367,8 @@ function Register() {
           rules={[
             {
               required: true,
-              message: '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
+              message:
+                '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
             },
             {
               min: 3,
@@ -365,7 +386,9 @@ function Register() {
                 if (condition.test(value)) {
                   return Promise.resolve();
                 } else {
-                  return Promise.reject(new Error('특수문자를 제외한 아이디로 입력해주십시오'));
+                  return Promise.reject(
+                    new Error('특수문자를 제외한 아이디로 입력해주십시오')
+                  );
                 }
               },
             },
@@ -391,13 +414,16 @@ function Register() {
             }}
           />
         </Form.Item> */}
-        <div
-          className='agrement-check'
-          onClick={() => {
-            setModal(true);
-          }}
-        >
-          약관 사항 읽어보기
+        <div>
+          <span
+            className='agrement-check'
+            onClick={() => {
+              setModal(true);
+            }}
+          >
+            {' '}
+            약관 사항 읽어보기
+          </span>
         </div>{' '}
         <Form.Item
           name='agreement'
@@ -406,13 +432,18 @@ function Register() {
           rules={[
             {
               validator: (_, value) =>
-                value ? Promise.resolve() : Promise.reject(new Error('관련 약관을 읽어보신 후 동의하셔야합니다')),
+                value
+                  ? Promise.resolve()
+                  : Promise.reject(
+                      new Error('관련 약관을 읽어보신 후 동의하셔야합니다')
+                    ),
             },
           ]}
         >
           <Checkbox
             className='agreement-checkbox'
             checked={checked}
+            defaultChecked={checked}
             onChange={onChange}
             style={{ width: '240px', fontSize: '0.8rem' }}
           >
