@@ -6,6 +6,7 @@ import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
+import { LinkOutlined } from '@ant-design/icons';
 
 const overlayStyle = {
   position: 'fixed',
@@ -198,7 +199,7 @@ function Post(props) {
           </div>
           <div className='postlink'>
             <div>
-              link Icon
+              <LinkOutlined />
               <img src='' alt='' />
             </div>
             <a href={location.pathname}>

@@ -9,19 +9,36 @@
   margin-top: 35px;
 }
 .boardlist-header {
-  flex: 1;
+  height: 80px;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 0px 10px;
 }
-.boardlist-header h4 {
-  width: 120px;
+.boardlist-header-left {
+  display: flex;
+  align-items: center;
+  width: 50%;
+  gap: 5px;
+  justify-content: flex-start;
+}
+.boardlist-header-title {
+  display: flex;
+  font-weight: bold;
+  font-size: 1.1rem;
+  align-items: center;
+  max-width: 80px;
+  min-width: 40px;
+}
+.boardlist-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  height: 100%;
 }
 .boardlist-header-section {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
 }
 .boardlist-main {
   flex: 15;

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useFetch from './useFetch';
+import { LoadingOutlined } from '@ant-design/icons';
 
 const GooglSignin = () => {
   const { handleGoogle, loading, error } = useFetch('/api/user/googlesignin');
@@ -37,7 +38,7 @@ const GooglSignin = () => {
         }}
       >
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        {loading ? <div>Loading....</div> : <div id='loginDiv'></div>}
+        {loading ? <LoadingOutlined /> : <div id='loginDiv'></div>}
       </main>
       <footer></footer>
     </>
