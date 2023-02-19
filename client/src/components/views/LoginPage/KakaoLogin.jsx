@@ -2,12 +2,17 @@ import React from 'react';
 
 const KakaoLogin = () => {
   function kakaoLoginHnadler() {
+    console.log('클릭');
     if (!window.Kakao.isInitialized()) {
       console.log('카카오로그인 준비');
       window.Kakao.init('b18ca2d74f4a17d6908f33d9c4958961');
 
       window.Kakao.Auth.authorize({
-        redirectUri: `http://localhost:3000/kakao/oauth`,
+        redirectUri: `http://localhost:3000/user/kakao/oauth`,
+      });
+    } else {
+      window.Kakao.Auth.authorize({
+        redirectUri: `http://localhost:3000/user/kakao/oauth`,
       });
     }
   }
@@ -38,17 +43,8 @@ const KakaoLogin = () => {
 
   return (
     <div>
-      <span
-        id='kakao-login-btn'
-        style={{ cursor: 'pointer' }}
-        onClick={kakaoLoginHnadler}
-      >
-        <img
-          src='/logo/kakaologin.png'
-          alt='카카오 로그인 버튼'
-          width={40}
-          height={40}
-        />
+      <span id='kakao-login-btn' style={{ cursor: 'pointer' }} onClick={kakaoLoginHnadler}>
+        <img src='/logo/kakaologin.png' alt='카카오 로그인 버튼' width={40} height={40} />
       </span>
     </div>
   );

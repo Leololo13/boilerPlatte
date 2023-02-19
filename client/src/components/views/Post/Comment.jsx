@@ -43,6 +43,7 @@ function Comment(props) {
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
+  console.log(props);
   const navigate = useNavigate();
   const { id } = useParams();
   let initialState = {
@@ -296,7 +297,7 @@ function Comment(props) {
           </>
         ) : null}
 
-        {user?.id ? (
+        {props?.isAuth ? (
           <div className='comment-write'>
             <div className='comment-write-main'>
               <div className='comment-write-img'>

@@ -134,7 +134,6 @@ function Navbar(props) {
       <div className='leftbox'>
         <span className='leftbox-modal'>
           <MenuOutlined
-            style={{ fontSize: '30px' }}
             onClick={() => {
               setListModal(!listModal);
             }}
@@ -175,7 +174,7 @@ function Navbar(props) {
                   fontSize: '60px',
                   fontWeight: 'bold',
                 }}
-                placement='topRight'
+                placement='bottomLeft'
               >
                 <Button
                   style={{

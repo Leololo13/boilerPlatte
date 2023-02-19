@@ -18,13 +18,12 @@
   align-items: center;
   color: grey;
 }
-.leftbox-modal:not(:hover) {
+.leftbox-modal {
   font-size: 30px;
   transition: all 1s;
 }
-.leftbox-modal :hover {
+.leftbox-modal:hover {
   font-size: 40px;
-  transition: all 1s;
 }
 .leftbox-logimg {
   width: 50px;

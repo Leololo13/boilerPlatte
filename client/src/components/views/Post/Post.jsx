@@ -6,6 +6,7 @@ import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
+import { LinkOutlined } from '@ant-design/icons';
 
 const overlayStyle = {
   position: 'fixed',
@@ -78,9 +79,7 @@ function Post(props) {
     try {
       await axios.post(`/api/post/delete/${id}`).then((res) => {
         console.log(res.data);
-        !res.data.DeleteSuccess
-          ? alert(res.data.message)
-          : navigate('/list/all');
+        !res.data.DeleteSuccess ? alert(res.data.message) : navigate('/list/all');
       });
     } catch (error) {
       alert(error);
@@ -197,13 +196,11 @@ function Post(props) {
             <p className='views'>{post.views}</p>
           </div>
           <div className='postlink'>
+            {' '}
             <div>
-              link Icon
-              <img src='' alt='' />
+              <LinkOutlined />
             </div>
-            <a href={location.pathname}>
-              http://localhost:3000{location.pathname}
-            </a>
+            <a href={location.pathname}>http://localhost:3000{location.pathname}</a>
           </div>
         </div>
       </header>
@@ -215,12 +212,7 @@ function Post(props) {
             dangerouslySetInnerHTML={{
               __html: Dompurify.sanitize(content, {
                 ADD_TAGS: ['iframe'],
-                ADD_ATTR: [
-                  'allow',
-                  'allowfullscreen',
-                  'frameborder',
-                  'scrolling',
-                ],
+                ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
               }),
             }}
           ></div>
@@ -263,10 +255,7 @@ function Post(props) {
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
                 <button className='footer-editbox-edit'>edit</button>{' '}
               </Link>
-              <button
-                className='footer-editbox-delete'
-                onClick={deleteModalHandler}
-              >
+              <button className='footer-editbox-delete' onClick={deleteModalHandler}>
                 delete
               </button>
             </div>

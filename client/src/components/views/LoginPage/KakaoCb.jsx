@@ -54,22 +54,12 @@ const KakaoCb = () => {
 
     setLoading(true);
     try {
-      await axios
-        .get(`/api/user/kakao/${condition}?code=${code}`)
-        .then((res) => {
-          console.log(res.data);
-
-          setUserinfo({
-            id: res.data.data.properties?.nickname,
-            nickname: res.data.data.properties?.nickname,
-            image: res.data.data.properties?.profile_image,
-            email: res.data.data.properties?.email,
-            date: res.data.data.connected_at,
-          });
-
-          setLoading(false);
-          throw new Error(res?.data.message || res.data);
-        });
+      await axios.get(`/api/user/kakao/${condition}?code=${code}`).then((res) => {
+        console.log(res.data);
+        setLoading(false);
+        navigate('/');
+        throw new Error(res?.data.message || res.data);
+      });
     } catch (error) {
       console.log(error);
       setErr(error?.message);
@@ -83,7 +73,7 @@ const KakaoCb = () => {
   }, [code]);
   console.log(userInfo);
   return (
-    <div>
+    <div style={{ height: '360px', display: 'flex', alignItems: 'center' }}>
       {/* <button onClick={datahandler}> 프론트에서오케이</button> */}
       {loading ? (
         <div>loading......</div>

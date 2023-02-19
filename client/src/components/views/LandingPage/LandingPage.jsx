@@ -31,11 +31,9 @@ function LandingPage(props) {
           // }}
         >
           <aside>
-            <div>asaide "</div>
+            <div>asaide</div>
           </aside>
-          <article className='landingpage-main-content'>
-            {outlet ? <Outlet /> : <Main />}
-          </article>
+          <article className='landingpage-main-content'>{outlet ? <Outlet /> : <Main />}</article>
           <aside>
             <div>aside</div>
           </aside>
