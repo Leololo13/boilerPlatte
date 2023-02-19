@@ -405,7 +405,7 @@ app.get('/api/user/kakao/:cond', async (req, res) => {
 //   // 유저 인포 저장.
 //   //그리고 로그인페이지로 보내주기.
 // });
-let reduri = encodeURI('http://localhost:3000/naver/oauth');
+let reduri = encodeURI('http://localhost:3000/user/naver/oauth');
 ////네이버 로그인//////////////
 app.get('/api/user/naver/login', (req, res) => {
   console.log('qwodkqowkdqwodknaveeeeeeeeeeeeeeeeeeer');
@@ -415,7 +415,7 @@ app.get('/api/user/naver/login', (req, res) => {
     'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' +
     process.env.NAVER_CLIENT_ID +
     '&redirect_uri=' +
-    'http://localhost:3000/naver/oauth' +
+    reduri +
     '&state=' +
     Math.random().toString(36).substr(3, 14);
 
@@ -423,10 +423,11 @@ app.get('/api/user/naver/login', (req, res) => {
   res.end(api_url);
 });
 
-app.get('/api/user/naver/callback', function (req, res) {
+app.get('/api/user/naver/callback', async function (req, res) {
   console.log(req.query);
   code = req.query.code;
   state = req.query.state;
+  console.log(code, state);
   api_url =
     'https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=' +
     process.env.NAVER_CLIENT_ID +
@@ -438,20 +439,63 @@ app.get('/api/user/naver/callback', function (req, res) {
     code +
     '&state=' +
     state;
-  var request = require('request');
-  var options = {
-    url: api_url,
-    headers: { 'X-Naver-Client-Id': client_id, 'X-Naver-Client-Secret': client_secret },
-  };
-  request.get(options, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      res.writeHead(200, { 'Content-Type': 'text/json;charset=utf-8' });
-      res.end(body);
-    } else {
-      res.status(response.statusCode).end();
-      console.log('error = ' + response.statusCode);
-    }
-  });
+
+  try {
+    await axios
+      .get(api_url, {
+        headers: {
+          'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID,
+          'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECRET,
+        },
+      })
+      .then((response) => {
+        let token = JSON.stringify(response.data.access_token);
+        try {
+          axios
+            .get('https://openapi.naver.com/v1/nid/me', { headers: { Authorization: 'Bearer ' + token } })
+            .then((data) => {
+              let userInfo = {
+                id: data.data.response.nickname,
+                nickname: data.data.response.nickname,
+                image: data.data.response.profile_image,
+                email: data.data.response.email,
+              };
+              console.log(data, userInfo);
+              let user = new User(userInfo);
+              User.findOneAndUpdate({ email: userInfo.email }, { date: new Date() }, (err, docs) => {
+                if (err) return res.json({ LoginSuccess: false, message: err });
+                if (!docs) {
+                  return res.json({ LoginSuccess: false, message: '가입하신 메일이 없습니다. 가입하시겠습니까?' });
+                } else {
+                  data.genToken((err, userData) => {
+                    if (err) return res.status(400).send(err);
+                    res
+                      .cookie('accessToken', userData.access_token, {
+                        httpOnly: true,
+                        secure: true,
+                      })
+                      .cookie('refreshToken', userData.refresh_token, {
+                        httpOnly: true,
+                        secure: true,
+                      })
+                      .status(200)
+                      .json({
+                        message: '로그인 성공',
+                        LoginSuccess: true,
+                        userID: userData.id,
+                        email: userData.email,
+                      });
+                  });
+                }
+              });
+            });
+        } catch (errors) {
+          console.log(errors, 'wqeeooeoeoeodkaozc');
+        }
+      });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 ///인증하기

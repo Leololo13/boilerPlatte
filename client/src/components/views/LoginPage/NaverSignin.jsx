@@ -1,31 +1,47 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NaverSignin = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
   const [btn, setBtn] = useState('');
 
-  useEffect(() => {
-    const naverLoginhandler = async () => {
-      try {
-        await axios.get('/api/user/naver/login').then((res) => {
-          setBtn(res.data);
-          console.log(res.data);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    naverLoginhandler();
-  }, []);
+  const naverLoginhandler = async () => {
+    try {
+      await axios.get('/api/user/naver/login').then((res) => {
+        setBtn(res.data);
+        window.location.replace(res.data);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
-      <a href={btn}>
-        <img height='50' src='http://static.nid.naver.com/oauth/small_g_in.PNG' />
-      </a>
+      {loading ? (
+        <div>...loading</div>
+      ) : (
+        <span
+          onClick={naverLoginhandler}
+          style={{
+            cursor: 'pointer',
+            //   color: 'white',
+            //   display: 'flex',
+            width: '100%',
+            height: '100%',
+            //   justifyContent: 'center',
+            //   alignItems: 'center',
+            //   fontSize: '30px',
+            //   fontWeight: 'bold',
+            //   borderRadius: '5px',
+            //   backgroundColor: 'rgb(30,200,0)',
+          }}
+        >
+          <img src='/logo/naverbtn.png' width={40} alt='' />
+        </span>
+      )}
     </div>
   );
 };

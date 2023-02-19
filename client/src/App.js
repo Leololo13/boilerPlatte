@@ -10,7 +10,7 @@ import Auth from './hoc/auth';
 import Editor from './components/views/Write/Editor';
 import Mypage from './components/views/Mypage/Mypage';
 import KakaoCb from './components/views/LoginPage/KakaoCb';
-import NaverSignin from './components/views/LoginPage/NaverSignin';
+import NaverCb from './components/views/LoginPage/NaverCb';
 ////////////  A || B는 a가 트루면 a, false면 b
 ////////////// A && B a가 트루면 b, false면 a
 ////////////// A ?? B a가 falsy하면 즉null,undeficned.0,등등 이상한것들 이면 b, 있으면 a
@@ -51,7 +51,7 @@ function App() {
                 <Route path='scrap' element={Auth(Mypage, true)} />
               </Route>
               {/* <Route path='kakao/:condition' element={<KakaoCb />}></Route> */}
-              <Route path='naver/oauth' element={<NaverSignin />}></Route>
+              {/* <Route path='naver/oauth' element={<NaverSignin />}></Route> */}
             </Route>
 
             <Route
@@ -70,6 +70,7 @@ function App() {
                   <Route path='register' element={Auth(Register, false)} />
                   <Route path='login' element={Auth(LoginPage, null)} />
                   <Route path='kakao/:condition' element={<KakaoCb />}></Route>
+                  <Route path='naver/oauth' element={<NaverCb />}></Route>
                 </Route>
               </Route>
             </Routes>
