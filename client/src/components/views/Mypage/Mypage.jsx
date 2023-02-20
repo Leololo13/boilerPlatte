@@ -49,7 +49,7 @@ function Mypage() {
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const offset = (page - 1) * limit;
-  const [total, setTotal] = useState('');
+  const [total, setTotal] = useState(0);
 
   const logoutHandler = async () => {
     try {
@@ -361,7 +361,8 @@ function Mypage() {
         </Link>
       </header>
       <h3>
-        <span ref={userId}>{userId.current} 님의 회원정보입니다</span>
+        {console.log(userId.current)}
+        <span>{userId.current ?? ''} 님의 회원정보입니다</span>
       </h3>
       <main className='mypage-main'>
         {switchPage()}
