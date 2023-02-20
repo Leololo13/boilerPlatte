@@ -74,7 +74,7 @@ const userSchema = mongoose.Schema({
     default: Date.now,
   },
 });
-
+///좀되라 하아.. 빢치네
 userSchema.pre('save', function (next) {
   let user = this;
   console.log('세이브할떄마다 이게되는것인가?');
