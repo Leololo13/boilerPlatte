@@ -4,7 +4,7 @@ const KakaoSignup = () => {
   function kakaoSignupHnadler() {
     if (!window.Kakao.isInitialized()) {
       console.log('카카오로그인 준비');
-      window.Kakao.init('b18ca2d74f4a17d6908f33d9c4958961');
+      window.Kakao.init(process.env.REACT_APP_KAKAO_JSKEY);
 
       window.Kakao.Auth.authorize({
         redirectUri: `http://localhost:3000/user/kakao/signup`,

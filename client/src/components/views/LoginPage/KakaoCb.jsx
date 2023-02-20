@@ -3,6 +3,7 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
+import { LoadingOutlined } from '@ant-design/icons';
 
 const KakaoCb = () => {
   const location = useLocation();
@@ -76,12 +77,15 @@ const KakaoCb = () => {
     <div style={{ height: '360px', display: 'flex', alignItems: 'center' }}>
       {/* <button onClick={datahandler}> 프론트에서오케이</button> */}
       {loading ? (
-        <div>loading......</div>
+        <div>
+          {' '}
+          <LoadingOutlined />
+        </div>
       ) : (
         <>
           <h2>{userInfo.id}</h2>
           <h2>{userInfo.nickname}</h2>
-          <img width={240} src={userInfo.image}></img>
+          <img alt='' width={240} src={userInfo.image}></img>
         </>
       )}
     </div>

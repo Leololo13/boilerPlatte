@@ -1,13 +1,13 @@
+import React from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 
-const NaverSignin = () => {
+const NaverSignup = () => {
   const [loading, setLoading] = useState(false);
 
   const naverLoginhandler = async () => {
     try {
-      await axios.get('/api/user/naver/signin').then((res) => {
+      await axios.get('/api/user/naver/signup').then((res) => {
         window.location.replace(res.data);
       });
     } catch (error) {
@@ -43,4 +43,4 @@ const NaverSignin = () => {
   );
 };
 
-export default NaverSignin;
+export default NaverSignup;

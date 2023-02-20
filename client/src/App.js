@@ -70,7 +70,7 @@ function App() {
                   <Route path='register' element={Auth(Register, false)} />
                   <Route path='login' element={Auth(LoginPage, null)} />
                   <Route path='kakao/:condition' element={<KakaoCb />}></Route>
-                  <Route path='naver/oauth' element={<NaverCb />}></Route>
+                  <Route path='naver/:act' element={<NaverCb />}></Route>
                 </Route>
               </Route>
             </Routes>

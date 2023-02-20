@@ -32,9 +32,7 @@ function LandingPage(props) {
           // }}
         >
           <aside>
-            <div>
-              asaide <NaverSignin />
-            </div>
+            <div>aasaide</div>
           </aside>
           <article className='landingpage-main-content'>{outlet ? <Outlet /> : <Main />}</article>
           <aside>

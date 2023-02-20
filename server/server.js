@@ -405,12 +405,12 @@ app.get('/api/user/kakao/:cond', async (req, res) => {
 //   // 유저 인포 저장.
 //   //그리고 로그인페이지로 보내주기.
 // });
-let reduri = encodeURI('http://localhost:3000/user/naver/oauth');
-////네이버 로그인//////////////
-app.get('/api/user/naver/login', (req, res) => {
-  console.log('qwodkqowkdqwodknaveeeeeeeeeeeeeeeeeeer');
 
-  let state;
+////네이버 로그인//////////////
+app.get('/api/user/naver/:act', (req, res) => {
+  let act = req.params.act;
+  let reduri = encodeURI(`http://localhost:3000/user/naver/${act}`);
+  //////네이버 로그인 인증 시작점. 여기서 얻은 code를 cb로 보내야함
   let api_url =
     'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' +
     process.env.NAVER_CLIENT_ID +
@@ -418,16 +418,16 @@ app.get('/api/user/naver/login', (req, res) => {
     reduri +
     '&state=' +
     Math.random().toString(36).substr(3, 14);
-
   res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8' });
   res.end(api_url);
 });
 
-app.get('/api/user/naver/callback', async function (req, res) {
-  console.log(req.query);
+app.get('/api/user/naverCB/:act', async function (req, res) {
+  act = req.params.act;
   code = req.query.code;
   state = req.query.state;
-  console.log(code, state);
+
+  let reduri = encodeURI(`http://localhost:3000/user/naver/${act}`);
   api_url =
     'https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=' +
     process.env.NAVER_CLIENT_ID +
@@ -450,6 +450,7 @@ app.get('/api/user/naver/callback', async function (req, res) {
       })
       .then((response) => {
         let token = JSON.stringify(response.data.access_token);
+        console.log(act);
         try {
           axios
             .get('https://openapi.naver.com/v1/nid/me', { headers: { Authorization: 'Bearer ' + token } })
@@ -460,41 +461,53 @@ app.get('/api/user/naver/callback', async function (req, res) {
                 image: data.data.response.profile_image,
                 email: data.data.response.email,
               };
-              console.log(data, userInfo);
               let user = new User(userInfo);
-              User.findOneAndUpdate({ email: userInfo.email }, { date: new Date() }, (err, docs) => {
-                if (err) return res.json({ LoginSuccess: false, message: err });
-                if (!docs) {
-                  return res.json({ LoginSuccess: false, message: '가입하신 메일이 없습니다. 가입하시겠습니까?' });
-                } else {
-                  data.genToken((err, userData) => {
-                    if (err) return res.status(400).send(err);
-                    res
-                      .cookie('accessToken', userData.access_token, {
-                        httpOnly: true,
-                        secure: true,
-                      })
-                      .cookie('refreshToken', userData.refresh_token, {
-                        httpOnly: true,
-                        secure: true,
-                      })
-                      .status(200)
-                      .json({
-                        message: '로그인 성공',
-                        LoginSuccess: true,
-                        userID: userData.id,
-                        email: userData.email,
-                      });
-                  });
-                }
-              });
+              if (act === 'signin') {
+                User.findOneAndUpdate({ email: userInfo.email }, { date: new Date() }, (err, docs) => {
+                  if (err) return res.json({ LoginSuccess: false, message: err });
+                  if (!docs) {
+                    return res.json({ LoginSuccess: false, message: '가입하신 메일이 없습니다. 가입하시겠습니까?' });
+                  } else {
+                    docs.genToken((err, userData) => {
+                      if (err) return res.status(400).send(err);
+                      res
+                        .cookie('accessToken', userData.access_token, {
+                          httpOnly: true,
+                          secure: true,
+                        })
+                        .cookie('refreshToken', userData.refresh_token, {
+                          httpOnly: true,
+                          secure: true,
+                        })
+                        .status(200)
+                        .json({
+                          message: '로그인 성공',
+                          LoginSuccess: true,
+                          userID: userData.id,
+                          email: userData.email,
+                        });
+                    });
+                  }
+                });
+              } else {
+                User.findOne({ email: userInfo.email }, (err, docs) => {
+                  if (!docs) {
+                    user.save((er, userdata) => {
+                      if (er) return res.json({ RegisterSuccess: false, message: er });
+                      return res.status(200).json({ RegisterSuccess: true, message: '가입에 성공하셨습니다.' });
+                    });
+                  } else {
+                    return res.json({ RegisterSuccess: false, message: '이미 가입하신 Email이 있습니다.' });
+                  }
+                });
+              }
             });
         } catch (errors) {
-          console.log(errors, 'wqeeooeoeoeodkaozc');
+          return res.json({ errors, message: '네이버 인증과정에서 문제가 생겼습니다.' });
         }
       });
   } catch (error) {
-    console.log(error);
+    return res.json({ error, message: '토큰 발행요청에 문제가 생겼습니다.' });
   }
 });
 
