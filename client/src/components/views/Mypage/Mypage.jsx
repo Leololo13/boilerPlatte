@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Mypage.css';
@@ -42,6 +42,7 @@ function Mypage() {
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
   const [modal, setModal] = useState(false);
+  const userId = useRef(null);
 
   ///page
   const [limit, setLimit] = useState(10);
@@ -52,8 +53,7 @@ function Mypage() {
 
   const logoutHandler = async () => {
     try {
-      await axios.get('/api/user/logout');
-      console.log('logout');
+      await axios.get('/api/user/logout').then(alert('로그아웃 성공'));
       navigate('/');
     } catch (error) {
       window.location.reload();
@@ -107,17 +107,11 @@ function Mypage() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/user/mypage');
-        const {
-          password,
-          refresh_token,
-          access_token,
-          role,
-          posts,
-          comments,
-          ...others
-        } = res.data;
+        const { password, refresh_token, access_token, role, posts, comments, ...others } = res.data;
         setUserdata(others);
+        userId.current = others?.nickname;
         setComments(comments.reverse());
+
         setPosts(posts.reverse());
         setTotal(act === 'post' ? posts.length : comments.length);
         console.log(comments);
@@ -137,16 +131,14 @@ function Mypage() {
           <div>
             <div className='mypage-userInfo'>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>아이디 :{' '}
-                {userdata.id}
+                <span style={{ color: 'red' }}>*{'  '}</span>아이디 : {userdata.id}
               </p>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                {userdata.nickname}
+                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 : {userdata.nickname}
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
-                {userdata.email}
+                {userdata.email ?? '카카오 연동으로 가입시 이메일이 없습니다'}
               </p>
               <p>가입일 : {userdata.signupDate}</p>
               <p>마지막 접속 일시 : {userdata.date}</p>
@@ -159,18 +151,10 @@ function Mypage() {
               >
                 로그아웃
               </button>
-              <Link
-                className='link'
-                to={'/userpage?act=userInfoChange'}
-                onClick={userInfoHandler}
-              >
+              <Link className='link' to={'/userpage?act=userInfoChange'} onClick={userInfoHandler}>
                 <button>회원정보 변경하기</button>
               </Link>{' '}
-              <Link
-                className='link'
-                to={'/userpage?act=userPWChange'}
-                onClick={userPWHandler}
-              >
+              <Link className='link' to={'/userpage?act=userPWChange'} onClick={userPWHandler}>
                 <button>비밀번호 변경하기</button>
               </Link>{' '}
               <button> 회원 탈퇴</button>
@@ -188,15 +172,11 @@ function Mypage() {
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                <input
-                  type='text'
-                  value={userdata.nickname}
-                  onChange={userInfoHandler}
-                />{' '}
+                <input type='text' value={userdata.nickname} onChange={userInfoHandler} />{' '}
                 {IDcondition.test(userdata.nickname)
                   ? '사용가능한 닉네임입니다'
                   : '특수문자를 제외한 3~10글자로 입력해주십시오'}
-                {console.log(IDcondition.test(userdata.nickname))}
+                {/* {console.log(IDcondition.test(userdata.nickname))} */}
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
@@ -242,10 +222,7 @@ function Mypage() {
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link
-                            className='link'
-                            to={`/list/${post.category}/post/${post.postnum}`}
-                          >
+                          <Link className='link' to={`/list/${post.category}/post/${post.postnum}`}>
                             {post.title}
                           </Link>
                         </td>
@@ -293,27 +270,22 @@ function Mypage() {
                 </tr>
               </thead>
               <tbody>
-                {comments
-                  .slice(offset < 0 ? 0 : offset, offset + limit)
-                  .map((cmt, idx) => {
-                    return (
-                      <tr key={idx + offset + 1} className='mypage-post-each'>
-                        <td>{idx + offset + 1}</td>
-                        <td>
-                          <Link
-                            className='link'
-                            to={`/${cmt.topcategory}/all/post/${cmt.postnum}`}
-                          >
-                            {cmt.content}
-                          </Link>
-                        </td>
-                        <td>{elapsedTime(cmt.date)}</td>
-                        <td>
-                          {cmt.like.length}/{cmt.hate.length}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                {comments.slice(offset < 0 ? 0 : offset, offset + limit).map((cmt, idx) => {
+                  return (
+                    <tr key={idx + offset + 1} className='mypage-post-each'>
+                      <td>{idx + offset + 1}</td>
+                      <td>
+                        <Link className='link' to={`/${cmt.topcategory}/all/post/${cmt.postnum}`}>
+                          {cmt.content}
+                        </Link>
+                      </td>
+                      <td>{elapsedTime(cmt.date)}</td>
+                      <td>
+                        {cmt.like.length}/{cmt.hate.length}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <Pagination
@@ -388,7 +360,9 @@ function Mypage() {
           회원정보보기
         </Link>
       </header>
-      <h3>{userdata.email} 님의 회원정보입니다</h3>
+      <h3>
+        <span ref={userId}>{userId.current} 님의 회원정보입니다</span>
+      </h3>
       <main className='mypage-main'>
         {switchPage()}
         {/* {act === 'userInfo' ? (

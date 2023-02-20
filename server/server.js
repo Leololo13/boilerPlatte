@@ -873,13 +873,32 @@ app.get('/api/comment', (req, res) => {
 ///////////post 불러오기 개별항목 불러오기===================post관련======
 app.get('/api/list/post/:id', (req, res) => {
   let id = req.params.id;
+  let expires = new Date();
+  expires.setDate(expires.getDate() + 1);
+  let cookie_name = 'vexpires_' + id;
+  let exist_cookie = req.cookies[cookie_name];
 
-  List.findOne({ postnum: id })
-    .populate('writer', { nickname: 1, _id: 2 })
-    .then((err, data) => {
-      if (err) return res.json(err);
-      return res.json({ data });
+  console.log(req.cookies[cookie_name], expires, 'cookiesss');
+  if (exist_cookie) {
+    console.log('쿠키가있으니 view를 하나 추가XXXXX');
+    List.findOne({ postnum: id })
+      .populate('writer', { nickname: 1, _id: 2 })
+      .then((err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data });
+      });
+  } else {
+    res.cookie(cookie_name, true, {
+      expires: expires,
     });
+    console.log('쿠키가없으니 view를 하나 추가');
+    List.findOneAndUpdate({ postnum: id }, { $inc: { views: 1 } })
+      .populate('writer', { nickname: 1, _id: 2 })
+      .then((err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data });
+      });
+  }
 });
 
 ////post에 like하기 hate하기 가자아아아아

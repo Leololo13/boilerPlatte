@@ -96,38 +96,44 @@ function BoardList() {
   return (
     <div className='boardlist'>
       <header className='boardlist-header'>
-        <h4>
-          {topcategory === 'list'
-            ? '힐링시간'
-            : topcategory === 'comu'
-            ? '커뮤니티'
-            : topcategory === 'blind'
-            ? '블라인드'
-            : ''}
-        </h4>
-        <section className='boardlist-header-section'> {valTotitle[category] ?? ''}</section>
-        <div>
-          <Input.Group compact style={{ width: '280px' }}>
-            <Select defaultValue={searchOption ?? 'title'} onChange={optionHandler} style={{ width: '120px' }}>
-              <Select value='title'>제목</Select>
-              <Select value='title,content'>제목+내용</Select>
-              <Select value='nickname'>작성자</Select>
-              <Select value='comment'>댓글</Select>
-            </Select>
-            <Input.Search
-              allowClear
-              style={{
-                width: '160px',
-                borderStartEndRadius: '0px',
-              }}
-              maxLength={20}
-              size='middle'
-              defaultValue=''
-              onChange={searchHandler}
-              onSearch={searchSubmit}
-              value={search}
-            />{' '}
-          </Input.Group>
+        <div className='boardlist-header-left'>
+          {' '}
+          <h4>
+            {topcategory === 'list'
+              ? '힐링시간'
+              : topcategory === 'comu'
+              ? '커뮤니티'
+              : topcategory === 'blind'
+              ? '블라인드'
+              : ''}
+          </h4>
+          <section className='boardlist-header-section'> {valTotitle[category] ?? 'ALL'}</section>
+        </div>
+        <div className='boardlist-header-right'>
+          {' '}
+          <div>
+            <Input.Group compact style={{ width: '280px' }}>
+              <Select defaultValue={searchOption ?? 'title'} onChange={optionHandler} style={{ width: '100px' }}>
+                <Select value='title'>제목</Select>
+                <Select value='title,content'>제목+내용</Select>
+                <Select value='nickname'>작성자</Select>
+                <Select value='comment'>댓글</Select>
+              </Select>
+              <Input.Search
+                allowClear
+                style={{
+                  width: '160px',
+                  borderStartEndRadius: '0px',
+                }}
+                maxLength={20}
+                size='middle'
+                defaultValue=''
+                onChange={searchHandler}
+                onSearch={searchSubmit}
+                value={search}
+              />{' '}
+            </Input.Group>
+          </div>
         </div>
       </header>
       <main className='boardlist-main'>

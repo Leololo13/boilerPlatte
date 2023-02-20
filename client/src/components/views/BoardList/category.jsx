@@ -1,5 +1,5 @@
 export const topCategories = ['list', 'comu', 'blind'];
-export const listCategories = ['healing', 'humor', 'info', 'hotdeal', 'enter'];
+export const listCategories = ['healing', 'humor', 'info', 'enter', 'hotdeal'];
 export const comuCategories = ['lunch', 'AI', 'recommend', 'anycomu'];
 export const blindCategories = ['any', 'politic'];
 export const valTotitle = {

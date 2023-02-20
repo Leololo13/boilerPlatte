@@ -7,6 +7,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
 import { Select, Checkbox, Space } from 'antd';
+import { listCategories, comuCategories, blindCategories, valTotitle } from '../BoardList/category';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
@@ -14,33 +15,17 @@ const Link = Quill.import('formats/link');
 let imgurll = '';
 function getVideoUrl(url) {
   let match =
-    url.match(
-      /^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtube\.com\/watch.*v=([a-zA-Z0-9_-]+)/
-    ) ||
-    url.match(
-      /^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtu\.be\/([a-zA-Z0-9_-]+)/
-    ) ||
+    url.match(/^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtube\.com\/watch.*v=([a-zA-Z0-9_-]+)/) ||
+    url.match(/^(?:(https?):\/\/)?(?:(?:www|m)\.)?youtu\.be\/([a-zA-Z0-9_-]+)/) ||
     url.match(/^.*(youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/);
   // console.log(match[2]);
   if (match && match[2].length === 11) {
     imgurll = ` https://img.youtube.com/vi/${match[2]}/mqdefault.jpg`;
-    return (
-      'https' +
-      '://www.youtube.com/embed/' +
-      match[2] +
-      '?showinfo=0' +
-      '?autoplay=1'
-    );
+    return 'https' + '://www.youtube.com/embed/' + match[2] + '?showinfo=0' + '?autoplay=1';
   }
   if ((match = url.match(/^(?:(https?):\/\/)?(?:www\.)?vimeo\.com\/(\d+)/))) {
     // eslint-disable-line no-cond-assign
-    return (
-      (match[1] || 'https') +
-      '://player.vimeo.com/video/' +
-      match[2] +
-      '/' +
-      '?autoplay=1'
-    );
+    return (match[1] || 'https') + '://player.vimeo.com/video/' + match[2] + '/' + '?autoplay=1';
   }
   return url;
 }
@@ -113,53 +98,26 @@ const topCategories = [
   },
 ];
 const cateData = {
-  list: [
-    {
-      value: 'healing',
-      label: '힐링',
-    },
-    {
-      value: 'humor',
-      label: '유머',
-    },
-    {
-      value: 'info',
-      label: '정보글',
-    },
-    {
-      value: 'enter',
-      label: '연예인',
-    },
-  ],
-  comu: [
-    {
-      value: 'lunch',
-      label: '점심 자랑',
-    },
-    {
-      value: 'AI',
-      label: 'AI 대유쾌 마운틴',
-    },
-    {
-      value: 'recommend',
-      label: '아무거나 추천',
-    },
-    {
-      value: 'anycomu',
-      label: '아무글이나',
-    },
-  ],
-  blind: [
-    {
-      value: 'any',
-      label: '익명 - 아무말',
-    },
-    {
-      value: 'politic',
-      label: '익명 - 정치',
-    },
-  ],
+  list: listCategories.map((c) => {
+    return {
+      value: c,
+      label: valTotitle[c],
+    };
+  }),
+  comu: comuCategories.map((c) => {
+    return {
+      value: c,
+      label: valTotitle[c],
+    };
+  }),
+  blind: blindCategories.map((c) => {
+    return {
+      value: c,
+      label: valTotitle[c],
+    };
+  }),
 };
+console.log(cateData);
 /////////////////////////////////////////////////////////////////////////////
 const Editor = (props) => {
   const { id } = useParams();
@@ -263,9 +221,7 @@ const Editor = (props) => {
           navigate('/user/login');
         }
         if (response.payload.Writesuccess === true) {
-          navigate(
-            `/${writtenData.topcategory}/${writtenData.category}/post/${response.payload.postnum}`
-          );
+          navigate(`/${writtenData.topcategory}/${writtenData.category}/post/${response.payload.postnum}`);
         } else {
           console.log(response.payload);
           alert(response.payload.err.message);
@@ -312,11 +268,7 @@ const Editor = (props) => {
         const range = editor.getSelection();
 
         for (let i = 0; i < FILES.length; i++) {
-          editor.insertEmbed(
-            range,
-            FILES[i].mimetype === 'video/mp4' ? 'video' : 'image',
-            IMG_URL[i]
-          );
+          editor.insertEmbed(range, FILES[i].mimetype === 'video/mp4' ? 'video' : 'image', IMG_URL[i]);
         }
       } catch (error) {
         console.log(error);
@@ -340,17 +292,7 @@ const Editor = (props) => {
     };
   }, []);
   // 위에서 설정한 모듈들 foramts을 설정한다
-  const formats = [
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'blockquote',
-    'image',
-    'video',
-    'link',
-  ];
+  const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'image', 'video', 'link'];
   useEffect(() => {
     const FetchEdit = async () => {
       if (editOn) {
@@ -399,18 +341,10 @@ const Editor = (props) => {
               value: cat.value,
             }))}
           />
-          {user?.isAdmin ? (
-            <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox>
-          ) : null}
+          {user?.isAdmin ? <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox> : null}
         </div>
 
-        <input
-          type='text'
-          name='title'
-          value={writtenData.title}
-          onChange={dataHandler}
-          placeholder='Title'
-        />
+        <input type='text' name='title' value={writtenData.title} onChange={dataHandler} placeholder='Title' />
         <ReactQuill
           style={{ width: '100%', height: '480px', paddingBottom: '40px' }}
           ref={quillRef}

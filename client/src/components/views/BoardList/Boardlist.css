@@ -13,15 +13,31 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0px 10px;
 }
 .boardlist-header h4 {
-  width: 120px;
+  max-width: 80px;
+  min-width: 40px;
 }
 .boardlist-header-section {
+  min-width: 32px;
+}
+.boardlist-header-left {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
+  padding-left: 5px;
+  align-items: center;
+  gap: 10px;
+  width: 50%;
+  justify-content: flex-start;
+}
+.boardlist-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.boardlist-header-section {
+  display: flex;
 }
 .boardlist-main {
   flex: 15;

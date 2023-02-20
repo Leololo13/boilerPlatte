@@ -6,7 +6,7 @@ import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
-import { LinkOutlined } from '@ant-design/icons';
+import { LinkOutlined, EyeOutlined } from '@ant-design/icons';
 
 const overlayStyle = {
   position: 'fixed',
@@ -134,6 +134,7 @@ function Post(props) {
     const fetchPost = async () => {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
+        console.log(res.data);
         setPost(res.data);
       } catch (err) {
         console.log(err);
@@ -183,17 +184,22 @@ function Post(props) {
         </div>
       </Modal>
       <header className='postHead'>
-        <h4 className='post-title'>
+        <h3 className='post-title'>
           <Link className='link' to={location.pathname + location.search}>
             {post.title}
           </Link>
-        </h4>
+        </h3>
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}
             <p className='id'>{post.id}</p>
             <p className='date'>{elapsedTime(post.date)}</p>
-            <p className='views'>{post.views}</p>
+            <p className='views'>
+              {' '}
+              <EyeOutlined />
+              {'  '}
+              {post.views}
+            </p>
           </div>
           <div className='postlink'>
             {' '}
