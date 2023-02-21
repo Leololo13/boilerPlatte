@@ -42,7 +42,7 @@ const userSchema = mongoose.Schema({
   },
   role: {
     type: Number,
-    default: 1, ///1은 일반인, 0은 관리자, 3은.. 블록?된사람?
+    default: 1, ///1은 일반인, 0은 관리자,2는 외부로 가입한사람,.. 3은.. 블록?된사람?
   },
   image: {
     type: String,

@@ -8,6 +8,15 @@
   background-color: whitesmoke;
   text-decoration: underline;
 }
+.mypage-userpwchange {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mypage-userpwchange input {
+  height: 1.5rem;
+  width: 12rem;
+}
 
 .mypage-main {
   width: 100%;

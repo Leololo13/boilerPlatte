@@ -117,7 +117,7 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[0]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 5}`
+          `${i + loginUser.children.length + 1}`
         );
       })
     ),
@@ -132,7 +132,7 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[1]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 9}`
+          `${i + loginUser.children.length + 1 + listCategories.length}`
         );
       })
     ),
@@ -147,12 +147,12 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[2]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 13}`
+          `${i + loginUser.children.length + 1 + listCategories.length + comuCategories.length}`
         );
       })
     ),
   ];
-
+  console.log(items);
   function timedelay(now) {
     setModal(now);
     setCntStyle((prev) => ({

@@ -184,8 +184,9 @@ app.post('/api/user/googlesignup', async (req, res) => {
       const profile = verifyRes?.payload;
 
       console.log(profile, 'google profile');
+      let userinfo = { ...profile, role: 2 };
       ///프로파일 겟함.. 이걸로 가입하자
-      const user = new User(profile);
+      const user = new User(userinfo);
       User.findOne({ email: profile.email }, (err, data) => {
         console.log('오긴한겁니까');
         if (err) return res.json({ RegisterSuccess: false, message: err });
@@ -301,6 +302,7 @@ app.get('/api/user/kakao/:cond', async (req, res) => {
                   image: data.data.properties.profile_image,
                   email: data.data.properties.email,
                   date: date,
+                  role: 2,
                 };
                 let user = new User(userInfo);
                 if (cond === 'oauth') {
@@ -460,6 +462,7 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
                 nickname: data.data.response.nickname,
                 image: data.data.response.profile_image,
                 email: data.data.response.email,
+                role: 2,
               };
               let user = new User(userInfo);
               if (act === 'signin') {
@@ -470,7 +473,7 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
                   } else {
                     docs.genToken((err, userData) => {
                       if (err) return res.status(400).send(err);
-                      res
+                      return res
                         .cookie('accessToken', userData.access_token, {
                           httpOnly: true,
                           secure: true,
@@ -494,7 +497,26 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
                   if (!docs) {
                     user.save((er, userdata) => {
                       if (er) return res.json({ RegisterSuccess: false, message: er });
-                      return res.status(200).json({ RegisterSuccess: true, message: '가입에 성공하셨습니다.' });
+                      userdata.genToken((err, userData) => {
+                        if (err) return res.status(400).send(err);
+                        return res
+                          .cookie('accessToken', userData.access_token, {
+                            httpOnly: true,
+                            secure: true,
+                          })
+                          .cookie('refreshToken', userData.refresh_token, {
+                            httpOnly: true,
+                            secure: true,
+                          })
+                          .status(200)
+                          .json({
+                            RegisterSuccess: true,
+                            LoginSuccess: true,
+                            userID: userData.id,
+                            email: userData.email,
+                            message: '가입에 성공하셨습니다.',
+                          });
+                      });
                     });
                   } else {
                     return res.json({ RegisterSuccess: false, message: '이미 가입하신 Email이 있습니다.' });
@@ -532,6 +554,29 @@ app.get('/api/user/auth', auth, (req, res) => {
       nickname: req.user.nickname,
     });
 });
+app.post('/api/user/pwcheck', (req, res) => {
+  console.log(req.body);
+  User.findOneAndUpdate({ email: req.body.email }, { date: new Date() }, (err, userData) => {
+    /////db에 이메일이 있는지?
+
+    if (!userData) return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
+    ///db에 이메일이 있으면 비번비교해서 통과시키키
+    userData.comparePassword(req.body.password, (error, isMatch) => {
+      if (!isMatch)
+        return res.json({
+          PWCheck: false,
+          message: '비밀번호가 일치하지 않습니다.',
+        });
+      else {
+        return res.json({
+          PWCheck: true,
+          message: '비밀번호가 일치합니다',
+        });
+      }
+    });
+  });
+});
+
 ///유저정보 변경하기
 app.post('/api/user/modify/Userinfo', auth, (req, res) => {
   const modifiedInfo = req.body;

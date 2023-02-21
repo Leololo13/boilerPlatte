@@ -50,6 +50,7 @@ function Mypage() {
   const navigate = useNavigate();
   const offset = (page - 1) * limit;
   const [total, setTotal] = useState(0);
+  const [checkpw, setCheckpw] = useState({ bfpw: '', afpw: '', cfpw: '', message: '' });
 
   const logoutHandler = async () => {
     try {
@@ -60,9 +61,23 @@ function Mypage() {
       console.log(error);
     }
   };
-  const userPWHandler = async () => {};
+  const userPWHandler = async (e) => {
+    console.log({ ...checkpw, [e.target.name]: e.target.value });
+    setCheckpw((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+  const checkPwHandler = async (e) => {
+    console.log(checkpw);
+    let body = { ...userdata, password: checkpw.bfpw };
+    try {
+      await axios.post('/api/user/pwcheck', body).then((res) => {
+        setCheckpw((prev) => ({ ...prev, message: res.data.message }));
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const userInfoHandler = async (e) => {
-    setUserdata((prev) => ({ ...prev, nickname: e.target.value }));
+    setUserdata((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
   const datasubmitHandler = async () => {
     try {
@@ -107,7 +122,7 @@ function Mypage() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/user/mypage');
-        const { password, refresh_token, access_token, role, posts, comments, ...others } = res.data;
+        const { password, refresh_token, access_token, posts, comments, ...others } = res.data;
         setUserdata(others);
         userId.current = others?.nickname;
         setComments(comments.reverse());
@@ -123,7 +138,7 @@ function Mypage() {
 
     fetchUser();
   }, []);
-
+  console.log(userdata);
   function switchPage() {
     switch (act) {
       case 'userInfo':
@@ -154,9 +169,11 @@ function Mypage() {
               <Link className='link' to={'/userpage?act=userInfoChange'} onClick={userInfoHandler}>
                 <button>회원정보 변경하기</button>
               </Link>{' '}
-              <Link className='link' to={'/userpage?act=userPWChange'} onClick={userPWHandler}>
-                <button>비밀번호 변경하기</button>
-              </Link>{' '}
+              {userdata.role === 2 ? null : (
+                <Link className='link' to={'/userpage?act=userPWChange'}>
+                  <button>비밀번호 변경하기</button>
+                </Link>
+              )}
               <button> 회원 탈퇴</button>
             </div>
           </div>
@@ -172,7 +189,7 @@ function Mypage() {
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                <input type='text' value={userdata.nickname} onChange={userInfoHandler} />{' '}
+                <input type='text' name='nickname' value={userdata.nickname} onChange={userInfoHandler} />{' '}
                 {IDcondition.test(userdata.nickname)
                   ? '사용가능한 닉네임입니다'
                   : '특수문자를 제외한 3~10글자로 입력해주십시오'}
@@ -190,6 +207,49 @@ function Mypage() {
                 <button>취소</button>
               </Link>{' '}
               <button onClick={datasubmitHandler}>변경하기</button>
+            </div>
+          </div>
+        );
+      case 'userPWChange':
+        let pwcondition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+
+        return (
+          <div>
+            <div className='mypage-userpwchange'>
+              <div>
+                <input type='text' disabled={true} placeholder={userdata.id} />
+              </div>
+              <div>
+                <input type='email' disabled={true} placeholder={userdata.email} />
+              </div>
+              <div>
+                <h4>네이버,카카오,구글을 이용해 가입하신 경우 변경하실수 없습니다</h4>
+                <input
+                  type='password'
+                  name='bfpw'
+                  onChange={userPWHandler}
+                  onBlur={checkPwHandler}
+                  placeholder='현재 비밀번호'
+                />
+                {checkpw.message}
+              </div>{' '}
+              <div>
+                <input type='text' name='afpw' placeholder='새 비밀번호' onChange={userPWHandler} />
+                <span style={{ fontSize: '0.8rem' }}>
+                  {pwcondition.test(checkpw.afpw)
+                    ? '    사용 가능한 비밀번호입니다'
+                    : '    영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'}
+                </span>
+              </div>{' '}
+              <div>
+                <input type='text' name='cfpw' onChange={userPWHandler} placeholder='새 비밀번호 확인' />
+              </div>
+              <div className='mypage-userAction'>
+                <Link className='link' to={'/userpage?act=userInfo'}>
+                  <button>취소</button>
+                </Link>{' '}
+                <button onClick={datasubmitHandler}>변경하기</button>
+              </div>
             </div>
           </div>
         );
