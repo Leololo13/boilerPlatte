@@ -8,6 +8,7 @@
   background-color: whitesmoke;
   text-decoration: underline;
 }
+
 .mypage-userpwchange {
   display: flex;
   flex-direction: column;
@@ -23,6 +24,25 @@
   height: fit-content;
   padding: 10px;
 }
+.mypage-main button {
+  border: none;
+  padding: 5px 5px;
+  border-radius: 5px;
+  color: black;
+  cursor: pointer;
+  margin: 0px 5px;
+  background-color: burlywood;
+}
+.modal-button {
+  border: none;
+  width: 60px;
+  padding: 5px 5px;
+  border-radius: 5px;
+  color: black;
+  cursor: pointer;
+  margin: 0px 5px;
+  background-color: burlywood;
+}
 .mypage-posts {
   width: 100%;
   gap: 10px;
@@ -34,7 +54,6 @@
   display: flex;
 }
 .mypage-post-table {
-  padding: 10px;
   width: 100%;
   border-spacing: 0;
   margin: 0;

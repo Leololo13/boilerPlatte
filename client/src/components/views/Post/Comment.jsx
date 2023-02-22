@@ -104,6 +104,7 @@ function Comment(props) {
       writer: user._id,
       nickname: user.nickname,
       image: user.image ?? '',
+      post: props.p_id,
     }));
   }
 

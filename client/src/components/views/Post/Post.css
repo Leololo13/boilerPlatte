@@ -21,6 +21,11 @@
 .post-title:hover {
   text-decoration: underline;
 }
+.footer-share {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
 .postInfo {
   display: flex;
   flex-direction: column;

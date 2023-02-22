@@ -6,7 +6,7 @@ import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
-import { LinkOutlined, EyeOutlined } from '@ant-design/icons';
+import { LinkOutlined, EyeOutlined, FlagOutlined } from '@ant-design/icons';
 
 const overlayStyle = {
   position: 'fixed',
@@ -72,6 +72,13 @@ function Post(props) {
       ],
     });
   }
+  const scrapHandler = async () => {
+    console.log(id, post._id);
+    await axios.get(`/api/post/scrap?num=${id}&obid=${post._id}`).then((res) => {
+      console.log(res.data);
+      alert(res.data.message);
+    });
+  };
   const deleteModalHandler = () => {
     setDeleteModal(true);
   };
@@ -173,6 +180,7 @@ function Post(props) {
         <p>이 글을 삭제 하시겠습니까?</p>
         <div>
           <button
+            className='modal-button'
             onClick={() => {
               postDeletehandler();
               navigate(-2);
@@ -180,7 +188,9 @@ function Post(props) {
           >
             예
           </button>
-          <button onClick={() => setDeleteModal(false)}>아니오</button>
+          <button className='modal-button' onClick={() => setDeleteModal(false)}>
+            아니오
+          </button>
         </div>
       </Modal>
       <header className='postHead'>
@@ -254,20 +264,20 @@ function Post(props) {
                 height='100%'
               />
             </p>
+            <FlagOutlined onClick={scrapHandler} style={{ paddingLeft: '5px', fontSize: '30px', cursor: 'pointer' }} />
           </div>
           {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
-              {' '}
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
-                <button className='footer-editbox-edit'>edit</button>{' '}
+                <button className='footer-editbox-edit'>수정</button>{' '}
               </Link>
               <button className='footer-editbox-delete' onClick={deleteModalHandler}>
-                delete
+                삭제
               </button>
             </div>
           ) : null}
         </div>
-        <Comment writer={post.nickname} isAuth={props.isAuth} />
+        <Comment p_id={post._id} writer={post.nickname} isAuth={props.isAuth} />
       </footer>
     </div>
   );

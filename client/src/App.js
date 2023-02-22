@@ -47,8 +47,8 @@ function App() {
                 <Route path='post/:id/edit' element={Auth(Editor, true)} />
               </Route>
               <Route path='userpage' element={Auth(Mypage, true)}>
-                <Route path='userinfo' element={Auth(Mypage, true)} />
-                <Route path='scrap' element={Auth(Mypage, true)} />
+                {/* <Route path='userinfo' element={Auth(Mypage, true)} />
+                <Route path='scrap' element={Auth(Mypage, true)} /> */}
               </Route>
               {/* <Route path='kakao/:condition' element={<KakaoCb />}></Route> */}
               {/* <Route path='naver/oauth' element={<NaverSignin />}></Route> */}

@@ -103,6 +103,7 @@ app.post('/api/user/register', (req, res) => {
 // });
 //유저 정보 변경하기
 app.post('/api/user/infochange', (req, res) => {
+  console.log(req.query);
   User.findOne({ nickname: req.body.nickname }, (err, data) => {
     if (data) {
       return res.json({
@@ -212,6 +213,7 @@ app.post('/api/user/googlesignup', async (req, res) => {
 ///구글로긴
 app.post('/api/user/googlesignin', async (req, res) => {
   const date = new Date();
+
   try {
     console.log({ verified: verifyGoogleToken(req.body.credential) });
     if (req.body.credential) {
@@ -605,24 +607,29 @@ app.get('/api/user/logout', auth, (req, res) => {
 ///////////////////////write==============================
 
 app.post('/api/list/write', auth, (req, res) => {
-  Postnum.findOneAndUpdate({ name: 'totalpost' }, { $inc: { totalpost: 1 } }).then((data) => {
-    req.body.postnum = data.totalpost + 1;
+  console.log(req.user._id);
+  if (req.user) {
+    Postnum.findOneAndUpdate({ name: 'totalpost' }, { $inc: { totalpost: 1 } }).then((dat) => {
+      req.body.postnum = dat.totalpost + 1;
 
-    const list = new List(req.body);
-    list.save((err, data) => {
-      console.log(data);
-      console.log(data?._id, req.user._id, '세이브전에정보확인');
-      if (err) return res.json({ Writesuccess: false, err });
-      User.findByIdAndUpdate(req.user._id, { $addToSet: { posts: data._id } }, (err, data) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(data, '유저정보에 posts_Id입력함');
-        }
+      const list = new List(req.body);
+      list.save((err, data) => {
+        console.log(data?._id, req.user._id, '세이브전에정보확인');
+        if (err) return res.json({ Writesuccess: false, err });
+        ////유저정보에 post넣어주기
+        User.findByIdAndUpdate(req.user._id, { $addToSet: { posts: data._id } }, (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data, '유저정보에 posts_Id입력함');
+          }
+        });
+        return res.status(200).json({ Writesuccess: true, postnum: req.body.postnum });
       });
-      return res.status(200).json({ Writesuccess: true, postnum: req.body.postnum });
     });
-  });
+  } else {
+    return res.json({ Writesuccess: false, message: '로그인 해 주십시오' });
+  }
 });
 ////delete=============
 app.post('/api/post/delete/:id', auth, (req, res) => {
@@ -656,16 +663,31 @@ app.post('/api/post/:id/edit', auth, (req, res) => {
     return res.json({ EditSuccess: true });
   });
 });
+////스크랩하기 scrap
+app.get('/api/post/scrap', auth, (req, res) => {
+  let { num, obid } = req.query;
+  console.log(num, obid);
+  if (req.user) {
+    User.findByIdAndUpdate(req.user._id, { $addToSet: { scrap: obid } }, (err, data) => {
+      if (err) throw err;
+      return res.status(200).json({ message: '스크랩 완료되었습니다' });
+    });
+  } else {
+    res.json({ message: '로그인 후 사용가능한 기능입니다.' });
+  }
+});
 
 ////comment달기======================comment===============================
 ////comment달기======================comment===============================
 app.post('/api/post/comment', auth, (req, res) => {
-  console.log(req.body);
   Commentnum.findOneAndUpdate({ name: 'totalcomment' }, { $inc: { totalcomment: 1 } }).then((data) => {
     req.body.commentnum = data.totalcomment + 1;
+
     const comment = new Comment(req.body);
+    console.log(comment, 'qwodkqwodkqowkdoqwkdoqwkdoqwkodkqwodkoqwd');
     comment.save((err, data) => {
       if (err) return res.json({ CommentSuccess: false, err });
+      console.log(data);
       User.findByIdAndUpdate(req.user._id, { $addToSet: { comments: data._id } }, (err, data) => {
         if (err) throw err;
       });
@@ -799,6 +821,7 @@ app.get('/api/list', (req, res) => {
         return data
           .filter((cat) => cat.category === cats)
           .slice(-15)
+          .reverse()
           .map((data) => {
             return {
               title: data.title,
@@ -807,42 +830,7 @@ app.get('/api/list', (req, res) => {
               _id: data._id,
             };
           });
-        // console.log(abb);
       });
-      // let humor = data
-      //   .filter((cat) => cat.category === 'humor')
-      //   .slice(-15)
-      //   .map((data) => {
-      //     return {
-      //       title: data.title,
-      //       postnum: data.postnum,
-      //       category: data.category,
-      //       _id: data._id,
-      //     };
-      //   });
-      // let politic = data
-      //   .filter((cat) => cat.category === 'politic')
-      //   .slice(-15)
-      //   .map((data) => {
-      //     return {
-      //       title: data.title,
-      //       postnum: data.postnum,
-      //       category: data.category,
-      //       _id: data._id,
-      //     };
-      //   });
-      // let healing = data
-      //   .filter((cat) => cat.category === 'healing')
-      //   .slice(-15)
-      //   .map((data) => {
-      //     return {
-      //       title: data.title,
-      //       postnum: data.postnum,
-      //       category: data.category,
-      //       _id: data._id,
-      //     };
-      //   });
-
       return res.json(lists);
     });
   } else if (Category === 'all') {
@@ -1018,7 +1006,8 @@ app.get('/api/user/mypage', auth, (req, res) => {
       hate: 5,
       category: 6,
     })
-    .populate('comments')
+    .populate({ path: 'comments', populate: { path: 'post', select: 'title' } })
+    .populate('scrap', { title: 1, postnum: 2, date: 3, like: 4, hate: 5, category: 6 })
     .then((err, data) => {
       if (err) return res.json(err);
       return res.json({ data });

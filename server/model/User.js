@@ -73,6 +73,10 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  exp: {
+    type: Number,
+    default: 0,
+  },
 });
 ///좀되라 하아.. 빢치네
 userSchema.pre('save', function (next) {
