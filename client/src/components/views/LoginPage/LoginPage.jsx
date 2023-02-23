@@ -6,6 +6,7 @@ import { loginUser } from '../../../_actions/user_action';
 import './Login.css';
 import GooglSignin from './GooglSignin';
 import KakaoLogin from './KakaoLogin';
+import NaverSignin from './NaverSignin';
 
 function LoginPage() {
   const location = useLocation();
@@ -54,25 +55,15 @@ function LoginPage() {
         className='login-form'
       >
         <label htmlFor=''>E-mail</label>
-        <input
-          type='email'
-          value={email}
-          onChange={onEmailHandler}
-          placeholder='abc123@leo.com'
-        />
+        <input type='email' value={email} onChange={onEmailHandler} placeholder='abc123@leo.com' />
         <label htmlFor=''>Password</label>
-        <input
-          type='password'
-          value={pw}
-          placeholder='abc!23'
-          onChange={onPwHandler}
-        />
+        <input type='password' value={pw} placeholder='abc!23' onChange={onPwHandler} />
         <br />
         <button>Login</button>
       </form>
       <div className='register-config'>
         <span style={{ display: 'flex', gap: '5px' }}>
-          <GooglSignin /> <KakaoLogin />
+          <GooglSignin /> <KakaoLogin /> <NaverSignin />
         </span>
         아직 회원이 아니신가요?
         <button>

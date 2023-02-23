@@ -6,7 +6,11 @@ import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
+<<<<<<< HEAD
 import { LinkOutlined } from '@ant-design/icons';
+=======
+import { LinkOutlined, EyeOutlined, FlagOutlined } from '@ant-design/icons';
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
 
 const overlayStyle = {
   position: 'fixed',
@@ -72,6 +76,13 @@ function Post(props) {
       ],
     });
   }
+  const scrapHandler = async () => {
+    console.log(id, post._id);
+    await axios.get(`/api/post/scrap?num=${id}&obid=${post._id}`).then((res) => {
+      console.log(res.data);
+      alert(res.data.message);
+    });
+  };
   const deleteModalHandler = () => {
     setDeleteModal(true);
   };
@@ -79,9 +90,7 @@ function Post(props) {
     try {
       await axios.post(`/api/post/delete/${id}`).then((res) => {
         console.log(res.data);
-        !res.data.DeleteSuccess
-          ? alert(res.data.message)
-          : navigate('/list/all');
+        !res.data.DeleteSuccess ? alert(res.data.message) : navigate('/list/all');
       });
     } catch (error) {
       alert(error);
@@ -136,6 +145,7 @@ function Post(props) {
     const fetchPost = async () => {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
+        console.log(res.data);
         setPost(res.data);
       } catch (err) {
         console.log(err);
@@ -174,6 +184,7 @@ function Post(props) {
         <p>이 글을 삭제 하시겠습니까?</p>
         <div>
           <button
+            className='modal-button'
             onClick={() => {
               postDeletehandler();
               navigate(-2);
@@ -181,30 +192,39 @@ function Post(props) {
           >
             예
           </button>
-          <button onClick={() => setDeleteModal(false)}>아니오</button>
+          <button className='modal-button' onClick={() => setDeleteModal(false)}>
+            아니오
+          </button>
         </div>
       </Modal>
       <header className='postHead'>
-        <h4 className='post-title'>
+        <h3 className='post-title'>
           <Link className='link' to={location.pathname + location.search}>
             {post.title}
           </Link>
-        </h4>
+        </h3>
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}
             <p className='id'>{post.id}</p>
             <p className='date'>{elapsedTime(post.date)}</p>
-            <p className='views'>{post.views}</p>
+            <p className='views'>
+              {' '}
+              <EyeOutlined />
+              {'  '}
+              {post.views}
+            </p>
           </div>
           <div className='postlink'>
+            {' '}
             <div>
               <LinkOutlined />
+<<<<<<< HEAD
               <img src='' alt='' />
+=======
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
             </div>
-            <a href={location.pathname}>
-              http://localhost:3000{location.pathname}
-            </a>
+            <a href={location.pathname}>http://localhost:3000{location.pathname}</a>
           </div>
         </div>
       </header>
@@ -216,12 +236,7 @@ function Post(props) {
             dangerouslySetInnerHTML={{
               __html: Dompurify.sanitize(content, {
                 ADD_TAGS: ['iframe'],
-                ADD_ATTR: [
-                  'allow',
-                  'allowfullscreen',
-                  'frameborder',
-                  'scrolling',
-                ],
+                ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
               }),
             }}
           ></div>
@@ -257,23 +272,20 @@ function Post(props) {
                 height='100%'
               />
             </p>
+            <FlagOutlined onClick={scrapHandler} style={{ paddingLeft: '5px', fontSize: '30px', cursor: 'pointer' }} />
           </div>
           {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
-              {' '}
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
-                <button className='footer-editbox-edit'>edit</button>{' '}
+                <button className='footer-editbox-edit'>수정</button>{' '}
               </Link>
-              <button
-                className='footer-editbox-delete'
-                onClick={deleteModalHandler}
-              >
-                delete
+              <button className='footer-editbox-delete' onClick={deleteModalHandler}>
+                삭제
               </button>
             </div>
           ) : null}
         </div>
-        <Comment writer={post.nickname} isAuth={props.isAuth} />
+        <Comment p_id={post._id} writer={post.nickname} isAuth={props.isAuth} />
       </footer>
     </div>
   );

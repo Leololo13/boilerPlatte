@@ -21,7 +21,7 @@ function Main() {
     const fetchAllLists = async () => {
       try {
         const res = await axios.get('/api/list');
-        console.log(res);
+        console.log(res.data, 'qwopkdqwokdd');
         setLists(res.data.map((dt) => dt));
       } catch (err) {
         alert(err);
@@ -43,14 +43,10 @@ function Main() {
                 </Link>
               </h3>
               {lists.map((list) =>
-                list.reverse().map((lst) => {
+                list.map((lst) => {
                   return lst.category === cat ? (
                     <div key={lst._id} className='mainCategory-post'>
-                      {' '}
-                      <Link
-                        to={`/list/${cat}/post/${lst.postnum}`}
-                        className='link'
-                      >
+                      <Link to={`/list/${cat}/post/${lst.postnum}`} className='link'>
                         {lst.title}
                       </Link>
                     </div>
@@ -62,7 +58,6 @@ function Main() {
         })}
       </div>
       <div className='mainbox-divider'>
-        {' '}
         {categorycomu.map((cat, idx) => {
           return (
             <div key={idx} className='mainCategory'>
@@ -72,14 +67,11 @@ function Main() {
                 </Link>
               </h4>
               {lists.map((list) =>
-                list.reverse().map((lst) => {
+                list.map((lst) => {
                   return lst.category === cat ? (
                     <div key={lst._id} className='mainCategory-post'>
                       {' '}
-                      <Link
-                        to={`/comu/${cat}/post/${lst.postnum}`}
-                        className='link'
-                      >
+                      <Link to={`/comu/${cat}/post/${lst.postnum}`} className='link'>
                         {lst.title}
                       </Link>
                     </div>

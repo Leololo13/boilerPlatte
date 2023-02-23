@@ -21,6 +21,11 @@
 .post-title:hover {
   text-decoration: underline;
 }
+.footer-share {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
 .postInfo {
   display: flex;
   flex-direction: column;
@@ -47,6 +52,7 @@
   margin: 0;
   width: fit-content;
 }
+
 .postlink a:hover {
   text-decoration: underline;
 }
@@ -216,8 +222,8 @@
   justify-content: center;
 }
 .comment-writer-img img {
-  border-radius: 5px;
   width: 56px;
+  height: 56px;
 }
 .comment-info {
   display: flex;
@@ -277,6 +283,9 @@
   background-color: burlywood;
 }
 .comment-write-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 56px;
   height: 56px;
   padding: 0;
@@ -284,6 +293,8 @@
 }
 .comment-write-img img {
   border-radius: 5px;
+  width: 56px;
+  height: 56px;
 }
 .comment-write-main {
   height: 120px;

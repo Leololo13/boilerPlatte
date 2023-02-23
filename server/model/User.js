@@ -2,69 +2,88 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const userSchema = mongoose.Schema({
   id: {
     type: String,
     maxlength: 50,
-    required: true,
-    trim: 1,
     unique: 1,
+    trim: 1,
   },
   password: {
     type: String,
-    required: true,
-    minlength: 5,
+    minlength: 7,
+  },
+  nickname: {
+    type: String,
+    maxlength: 50,
+    unique: 1,
+    trim: 1,
   },
   name: {
     type: String,
     maxlength: 50,
-    required: true,
   },
   lastname: {
     type: String,
     maxlength: 50,
-    required: true,
-  },
-  nickname: {
-    type: String,
-    trim: 1,
-    unique: 1,
-    required: true,
-    maxlength: 50,
   },
   email: {
     type: String,
-    trim: 1,
     unique: 1,
-    required: true,
-    minlength: 8,
+    trim: 1,
   },
-  token: {
+  access_token: {
     type: String,
   },
-  tokenExp: {
-    type: Number,
-  },
-  signupDate: {
-    type: Date,
-    default: new Date(),
+  refresh_token: {
+    type: String,
   },
   role: {
     type: Number,
-    default: 1, // 1은 기본, admin은 0
+    default: 1, ///1은 일반인, 0은 관리자,2는 외부로 가입한사람,.. 3은.. 블록?된사람?
   },
   image: {
     type: String,
   },
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'List',
+    },
+  ],
+  scrap: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'List',
+    },
+  ],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+    },
+  ],
+  signupDate: {
+    type: Date,
+    default: Date.now,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  exp: {
+    type: Number,
+    default: 0,
+  },
 });
-
-///pre는 user스키마가 뭔가를 하기전에 실행됨. 'save'를 하기전에 실행되는 함수!
+///되나
 userSchema.pre('save', function (next) {
   let user = this;
+  console.log('세이브할떄마다 이게되는것인가?');
   if (user.isModified('password')) {
-    bcrypt.genSalt(saltRounds, function (err, salt) {
-      if (err) return next(err);
+    bcrypt.genSalt(saltRounds, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) => {
         if (err) return next(err);
         user.password = hash;
@@ -76,44 +95,113 @@ userSchema.pre('save', function (next) {
   }
 });
 
-//userdata.comparePassword(req.body.password,(err,ismatch) 여기서 가져왓기때문에, 비번,콜백함수를 넣어야맞다!
 userSchema.methods.comparePassword = function (plainPassword, cb) {
-  //plainPassword 는 지금 입력한 바로 그값임. 암호화되기전의 pw! 따라서 db의 암호화된 pw랑 비교하려면 같이 암호화해야함.
   bcrypt.compare(plainPassword, this.password, (err, isMatch) => {
     if (err) return cb(err);
     cb(null, isMatch);
   });
 };
 
-////jwt를 이용해서 토큰생성해버리기~~~~~~~~~=============================
 userSchema.methods.genToken = function (cb) {
   let user = this;
-  //jwt이용하기
-  let token = jwt.sign(user._id.toHexString(), 'ddosun');
-  user.token = token;
+  let token1 = jwt.sign(
+    {
+      _id: user._id,
+      username: user.nickname,
+      email: user.email,
+    },
+    process.env.ACCESS_TOKEN,
+    {
+      expiresIn: '10m',
+      issuer: 'About Tech',
+      algorithm: 'HS256',
+    }
+  );
+  let token2 = jwt.sign(
+    {
+      _id: user._id,
+      username: user.nickname,
+      email: user.email,
+    },
+    process.env.REFRESH_TOKEN,
+    {
+      expiresIn: '24h',
+      algorithm: 'HS256',
+      issuer: 'About Tech',
+    }
+  );
+
+  user.access_token = token1;
+  user.refresh_token = token2;
   user.save((err, user) => {
+    console.log('젠토큰 후 저장');
     if (err) return cb(err);
     cb(null, user);
   });
 };
 
-//토큰을 찾아서 비교하기
 userSchema.statics.findByToken = function (token, cb) {
   let user = this;
-  //사용자가 쿠키에 가지고있는 token을 받는다
-  //token을 decode한다
-  jwt.verify(token, 'ddosun', (err, decode) => {
-    //token으로 db에서 사용자 token을 찾아서 비교한다.
+  //token decode==token에 어떤것을 넣었는지에 따라 decoded에서 뽑아내야함
 
-    user.findOne({ _id: decode, token: token }, (err, user) => {
-      //틀리면 no
-      if (err) return cb(err);
-      //맞으면 ok
-      cb(null, user);
-    });
+  ////일단 acc_token으로 확인해봄
+
+  jwt.verify(token.acc_token, process.env.ACCESS_TOKEN, (err, data) => {
+    if (data) {
+      user.findOne(
+        { _id: data._id, access_token: token.acc_token },
+        (error, user) => {
+          if (err) {
+            return cb(err);
+          }
+          return cb(null, user);
+        }
+      );
+    } else {
+      if (err.message === 'jwt expired') {
+        console.log('jwt expireddddddddd');
+        jwt.verify(token.ref_token, process.env.REFRESH_TOKEN, (err, data) => {
+          if (data) {
+            user.findOne(
+              { _id: data._id, refresh_token: token.ref_token },
+              (error, user) => {
+                if (err) {
+                  return cb(err);
+                } else {
+                  user.access_token = jwt.sign(
+                    {
+                      _id: user._id,
+                      username: user.name,
+                      email: user.email,
+                    },
+                    process.env.ACCESS_TOKEN,
+                    {
+                      expiresIn: '10m',
+                      issuer: 'About Tech',
+                    }
+                  );
+                  console.log('jwt expired and renew acctoken');
+                  user.save((err, user) => {
+                    if (err) return cb(err);
+                    cb(null, user);
+                  });
+                }
+              }
+            );
+          } else {
+            console.log('refresh토큰 expired or 삭제, 재로그인 필요');
+            return cb(err);
+          }
+        });
+      } else {
+        console.log('not expired==notlogin maybe');
+
+        return cb(err);
+      }
+    }
   });
 };
-
+//a
 const User = mongoose.model('User', userSchema);
 
 module.exports = { User };

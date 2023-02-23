@@ -1,22 +1,11 @@
-import {
-  MailOutlined,
-  AppstoreOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { AppstoreOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Menu, Avatar } from 'antd';
 import { useState } from 'react';
 import React from 'react';
 import Modal from 'react-modal';
 import { useEffect } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import {
-  topCategories,
-  listCategories,
-  comuCategories,
-  blindCategories,
-  valTotitle,
-} from '../BoardList/category';
+import { topCategories, listCategories, comuCategories, blindCategories, valTotitle } from '../BoardList/category';
 
 const contentStyle = {
   display: 'flex',
@@ -56,13 +45,11 @@ function getItem(label, key, icon, children, type) {
 }
 
 // submenu keys of first level
-const rootSubmenuKeys = ['user', 'list', 'comu'];
+const rootSubmenuKeys = ['user', ...topCategories];
 
 const Listmodal = (props) => {
   const cat = useParams().category;
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const userAction = searchParams.get('act');
 
   const [ovstyle, setOvstyle] = useState(overlayStyle);
   const [cntStyle, setCntStyle] = useState(contentStyle);
@@ -130,7 +117,7 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[0]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 5}`
+          `${i + loginUser.children.length + 1}`
         );
       })
     ),
@@ -145,7 +132,7 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[1]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 9}`
+          `${i + loginUser.children.length + 1 + listCategories.length}`
         );
       })
     ),
@@ -160,12 +147,12 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[2]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 13}`
+          `${i + loginUser.children.length + 1 + listCategories.length + comuCategories.length}`
         );
       })
     ),
   ];
-
+  console.log(items);
   function timedelay(now) {
     setModal(now);
     setCntStyle((prev) => ({
@@ -230,12 +217,7 @@ const Listmodal = (props) => {
           content: cntStyle,
         }}
       >
-        <Menu
-          mode='inline'
-          openKeys={openKeys}
-          onOpenChange={onOpenChange}
-          items={items}
-        />{' '}
+        <Menu mode='inline' openKeys={openKeys} onOpenChange={onOpenChange} items={items} />{' '}
       </Modal>
     </>
   );

@@ -9,9 +9,9 @@ import Modal from 'react-modal';
 import Agreement from './Agreement';
 import GoogleSingup from '../LoginPage/GoogleSingup';
 import KakaoSignup from '../LoginPage/KakaoSignup';
-import useSubmitFetch from '../Post/useSubmitFetch';
 import axios from 'axios';
 import { useEffect } from 'react';
+import NaverSignup from '../LoginPage/NaverSignup';
 
 const overlayStyle = {
   position: 'fixed',
@@ -109,10 +109,7 @@ function Register() {
     });
   };
   const checkEmail = async () => {
-    if (
-      form.getFieldError('email').length === 0 &&
-      form.getFieldValue('email')
-    ) {
+    if (form.getFieldError('email').length === 0 && form.getFieldValue('email')) {
       let email = { email: form.getFieldValue('email') };
       console.log(email);
       try {
@@ -133,10 +130,7 @@ function Register() {
     }
   };
   const checIdFetch = async () => {
-    if (
-      form.getFieldError('nickname').length === 0 &&
-      form.getFieldValue('nickname')
-    ) {
+    if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
       let id = { id: form.getFieldValue('nickname') };
       console.log(id);
       try {
@@ -174,11 +168,7 @@ function Register() {
         }}
       >
         <Agreement />
-        <Checkbox
-          className='agreement-checkbox'
-          defaultChecked={checked}
-          onChange={onChange}
-        >
+        <Checkbox className='agreement-checkbox' defaultChecked={checked} onChange={onChange}>
           위의 내용을 모두 읽었으며
           <span
             className='agrement-check'
@@ -296,11 +286,7 @@ function Register() {
             },
           ]}
         >
-          <Input
-            onBlur={checkEmail}
-            className='regi-form-input'
-            style={{ width: '240px' }}
-          />
+          <Input onBlur={checkEmail} className='regi-form-input' style={{ width: '240px' }} />
         </Form.Item>
         <Form.Item
           className='regi-form-item'
@@ -313,17 +299,12 @@ function Register() {
             },
             {
               validator(_, value) {
-                let condition =
-                  /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+                let condition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
 
                 if (condition.test(value)) {
                   return Promise.resolve();
                 }
-                return Promise.reject(
-                  new Error(
-                    '영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'
-                  )
-                );
+                return Promise.reject(new Error('영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오'));
               },
             },
           ]}
@@ -348,9 +329,7 @@ function Register() {
                 if (!value || getFieldValue('password') === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(
-                  new Error('비밀번호가 일치하지 않습니다')
-                );
+                return Promise.reject(new Error('비밀번호가 일치하지 않습니다'));
               },
             }),
           ]}
@@ -367,8 +346,7 @@ function Register() {
           rules={[
             {
               required: true,
-              message:
-                '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
+              message: '3글자이상 10글자 이하의 특수문자를 제외한 영어,한글,숫자로 입력해주십시오',
             },
             {
               min: 3,
@@ -386,9 +364,7 @@ function Register() {
                 if (condition.test(value)) {
                   return Promise.resolve();
                 } else {
-                  return Promise.reject(
-                    new Error('특수문자를 제외한 아이디로 입력해주십시오')
-                  );
+                  return Promise.reject(new Error('특수문자를 제외한 아이디로 입력해주십시오'));
                 }
               },
             },
@@ -432,11 +408,7 @@ function Register() {
           rules={[
             {
               validator: (_, value) =>
-                value
-                  ? Promise.resolve()
-                  : Promise.reject(
-                      new Error('관련 약관을 읽어보신 후 동의하셔야합니다')
-                    ),
+                value ? Promise.resolve() : Promise.reject(new Error('관련 약관을 읽어보신 후 동의하셔야합니다')),
             },
           ]}
         >
@@ -476,6 +448,7 @@ function Register() {
           <GoogleSingup />
 
           <KakaoSignup />
+          <NaverSignup />
         </span>
       </footer>
     </div>

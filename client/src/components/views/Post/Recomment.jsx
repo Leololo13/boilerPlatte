@@ -78,7 +78,6 @@ function Recomment(props) {
       setRecomment(initialState);
       onCloseHandler();
     }
-    console.log(recomment, 'recomment useeffect');
   }, [props.editon]);
 
   return (

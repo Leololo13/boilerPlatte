@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Mypage.css';
-import { Pagination } from 'antd';
+import { message, Pagination } from 'antd';
 import Modal from 'react-modal';
+import { CheckOutlined } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 
 const overlayStyle = {
   position: 'fixed',
@@ -34,6 +36,18 @@ const contentStyle = {
   fontSize: '1.1rem',
 };
 
+function Timechanger(time) {
+  const curr = new Date(time);
+  let year = curr.getFullYear();
+  let month = curr.getMonth() + 1;
+  let date = curr.getDate();
+  let h = curr.getHours();
+  let m = curr.getMinutes();
+
+  const timenow = year + '년 ' + month + '월 ' + date + '일 ' + h + '시 ' + m + '분';
+  return timenow;
+}
+
 function Mypage() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -41,41 +55,94 @@ function Mypage() {
   const [userdata, setUserdata] = useState({});
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
+  const [scraps, setScraps] = useState([]);
   const [modal, setModal] = useState(false);
+  const userId = useRef(null);
+  const IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
 
   ///page
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const offset = (page - 1) * limit;
-  const [total, setTotal] = useState('');
+  const [total, setTotal] = useState(0);
+  const [checkpw, setCheckpw] = useState({ bfpw: '', afpw: '', cfpw: '', message: '', check: false });
 
   const logoutHandler = async () => {
     try {
-      await axios.get('/api/user/logout');
-      console.log('logout');
+      await axios.get('/api/user/logout').then(alert('로그아웃 성공'));
       navigate('/');
     } catch (error) {
       window.location.reload();
       console.log(error);
     }
   };
-  const userPWHandler = async () => {};
-  const userInfoHandler = async (e) => {
-    setUserdata((prev) => ({ ...prev, nickname: e.target.value }));
+  const userPWHandler = async (e) => {
+    console.log({ ...checkpw, [e.target.name]: e.target.value });
+    setCheckpw((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-  const datasubmitHandler = async () => {
+  const checkPwHandler = async (e) => {
+    console.log(checkpw);
+    let body = { email: userdata.email, password: checkpw.bfpw };
     try {
-      await axios.post('/api/user/infochange', userdata).then((res) => {
-        if (res.data.infoChangeSuccess) {
-          alert('닉네임변경에 성공했습니다');
-          navigate('/userpage?act=userInfo');
+      await axios.post('/api/user/pwcheck', body).then((res) => {
+        if (res.data.PWCheck) {
+          setCheckpw((prev) => ({ ...prev, check: true, message: res.data.message }));
         } else {
-          console.log(res.data, 'false');
+          setCheckpw((prev) => ({ ...prev, check: false, message: res.data.message }));
         }
       });
     } catch (error) {
       console.log(error);
+    }
+  };
+  const userInfoHandler = async (e) => {
+    setUserdata((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+  console.log(userdata);
+  const datasubmitHandler = async (e) => {
+    let action = e.target.dataset.action;
+    console.log(e.target.dataset.action);
+    if (action === 'changeinfo') {
+      if (IDcondition.test(userdata.nickname)) {
+        try {
+          await axios.post(`/api/user/infochange?act=info`, userdata).then((res) => {
+            if (res.data.infoChangeSuccess) {
+              alert('닉네임변경에 성공했습니다');
+              navigate('/userpage?act=userInfo');
+            } else {
+              alert(res.data.message);
+              console.log(res.data, 'false');
+            }
+          });
+        } catch (error) {
+          alert(message);
+          console.log(error);
+        }
+      } else {
+        alert('닉네임 양식이 잘못되었습니다. 특수문자를 제외하고 3~10 글자로 입력해 주십시오');
+      }
+    } else if (action === 'changepw') {
+      if (!checkpw.check) {
+        alert('현재 비밀번호가 일치하지 않습니다');
+      } else if (checkpw.afpw !== checkpw.cfpw) {
+        alert('새 비밀번호가 일치하지 않습니다');
+      } else {
+        try {
+          await axios.post('/api/user/infochange?act=pw', checkpw.cfpw).then((res) => {
+            if (res.data.infoChangeSuccess) {
+              alert('닉네임변경에 성공했습니다');
+              navigate('/userpage?act=userInfo');
+            } else {
+              alert(res.data.message);
+              console.log(res.data, 'false');
+            }
+          });
+        } catch (error) {
+          alert(message);
+          console.log(error);
+        }
+      }
     }
   };
 
@@ -107,20 +174,13 @@ function Mypage() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/user/mypage');
-        const {
-          password,
-          refresh_token,
-          access_token,
-          role,
-          posts,
-          comments,
-          ...others
-        } = res.data;
+        const { password, refresh_token, access_token, scrap, posts, comments, ...others } = res.data;
         setUserdata(others);
+        userId.current = others?.nickname;
         setComments(comments.reverse());
+        setScraps(scrap.reverse());
         setPosts(posts.reverse());
         setTotal(act === 'post' ? posts.length : comments.length);
-        console.log(comments);
       } catch (error) {
         alert(error);
         console.log(error.message);
@@ -129,7 +189,6 @@ function Mypage() {
 
     fetchUser();
   }, []);
-
   function switchPage() {
     switch (act) {
       case 'userInfo':
@@ -137,48 +196,40 @@ function Mypage() {
           <div>
             <div className='mypage-userInfo'>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>아이디 :{' '}
-                {userdata.id}
+                <span style={{ color: 'red' }}>*{'  '}</span>아이디 : {userdata.id}
               </p>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                {userdata.nickname}
+                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 : {userdata.nickname}
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
-                {userdata.email}
+                {userdata.email ?? '카카오 연동으로 가입시 이메일이 없습니다'}
               </p>
-              <p>가입일 : {userdata.signupDate}</p>
-              <p>마지막 접속 일시 : {userdata.date}</p>
+              <p>가입일 : {Timechanger(userdata.signupDate)}</p>
+              <p>마지막 접속 일시 : {Timechanger(userdata?.date)}</p>
             </div>
             <div className='mypage-userAction'>
               <button
+                className='mypage-button'
                 onClick={() => {
                   setModal(true);
                 }}
               >
                 로그아웃
               </button>
-              <Link
-                className='link'
-                to={'/userpage?act=userInfoChange'}
-                onClick={userInfoHandler}
-              >
-                <button>회원정보 변경하기</button>
+              <Link className='link' to={'/userpage?act=userInfoChange'} onClick={userInfoHandler}>
+                <button className='mypage-button'>회원정보 변경하기</button>
               </Link>{' '}
-              <Link
-                className='link'
-                to={'/userpage?act=userPWChange'}
-                onClick={userPWHandler}
-              >
-                <button>비밀번호 변경하기</button>
-              </Link>{' '}
-              <button> 회원 탈퇴</button>
+              {userdata.role === 2 ? null : (
+                <Link className='link' to={'/userpage?act=userPWChange'}>
+                  <button className='mypage-button'>비밀번호 변경하기</button>
+                </Link>
+              )}
+              <button className='mypage-button'> 회원 탈퇴</button>
             </div>
           </div>
         );
       case 'userInfoChange':
-        let IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
         return (
           <div>
             <div className='mypage-userInfo'>
@@ -186,30 +237,105 @@ function Mypage() {
                 <span style={{ color: 'red' }}>*{'  '}</span>아이디 :{' '}
                 <input type='text' disabled={true} value={userdata.id} />
               </p>
+
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                <input
-                  type='text'
-                  value={userdata.nickname}
-                  onChange={userInfoHandler}
-                />{' '}
-                {IDcondition.test(userdata.nickname)
-                  ? '사용가능한 닉네임입니다'
-                  : '특수문자를 제외한 3~10글자로 입력해주십시오'}
-                {console.log(IDcondition.test(userdata.nickname))}
+                <input type='text' name='nickname' value={userdata.nickname} onChange={userInfoHandler} />
+                {IDcondition.test(userdata.nickname) ? (
+                  <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                ) : (
+                  <span style={{ fontSize: '0.8rem' }}>
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} /> 특수문자를 제외한 3~10글자로
+                    입력해주십시오
+                  </span>
+                )}
+                {/* {console.log(IDcondition.test(userdata.nickname))} */}
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
                 <input type='text' disabled={true} value={userdata.email} />
               </p>
-              <p>가입일 : {userdata.signupDate}</p>
-              <p>마지막 접속 일시 : {userdata.date}</p>
+              <p>가입일 : {Timechanger(userdata.signupDate)}</p>
+              <p>마지막 접속 일시 : {Timechanger(userdata.date)}</p>
             </div>
             <div className='mypage-userAction'>
               <Link className='link' to={'/userpage?act=userInfo'}>
                 <button>취소</button>
               </Link>{' '}
-              <button onClick={datasubmitHandler}>변경하기</button>
+              <button data-action='changeinfo' onClick={datasubmitHandler}>
+                변경하기
+              </button>
+            </div>
+          </div>
+        );
+      case 'userPWChange':
+        let pwcondition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+
+        return (
+          <div>
+            <div className='mypage-userpwchange'>
+              <div>
+                <input type='text' disabled={true} placeholder={userdata.id} />
+              </div>
+              <div>
+                <input type='email' disabled={true} placeholder={userdata.email} />
+              </div>
+              <div>
+                <h4>네이버,카카오,구글을 이용해 가입하신 경우 변경하실수 없습니다</h4>
+                <input
+                  type='password'
+                  name='bfpw'
+                  onChange={userPWHandler}
+                  onBlur={checkPwHandler}
+                  placeholder='현재 비밀번호'
+                />
+                {checkpw.check ? (
+                  <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                ) : (
+                  <>
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
+                    <p style={{ fontSize: '0.75rem' }}> 비밀번호가 일치하지 않습니다</p>
+                  </>
+                )}
+              </div>{' '}
+              <div>
+                <input type='password' name='afpw' placeholder='새 비밀번호' onChange={userPWHandler} />
+                <span style={{ fontSize: '0.8rem' }}>
+                  {pwcondition.test(checkpw.afpw) ? (
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                  ) : (
+                    <>
+                      {' '}
+                      <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
+                      <p style={{ fontSize: '0.75rem' }}>
+                        {' '}
+                        영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오
+                      </p>
+                    </>
+                  )}
+                </span>
+              </div>{' '}
+              <div>
+                <input type='password' name='cfpw' onChange={userPWHandler} placeholder='새 비밀번호 확인' />
+                <span style={{ fontSize: '0.8rem' }}>
+                  {checkpw.afpw === checkpw.cfpw ? (
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                  ) : (
+                    <>
+                      <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
+                      <p style={{ fontSize: '0.75rem' }}> 새 비밀번호가 일치하지 않습니다</p>
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className='mypage-userAction'>
+                <Link className='link' to={'/userpage?act=userInfo'}>
+                  <button>취소</button>
+                </Link>{' '}
+                <button data-action='changepw' onClick={datasubmitHandler}>
+                  변경하기
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -242,10 +368,7 @@ function Mypage() {
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link
-                            className='link'
-                            to={`/list/${post.category}/post/${post.postnum}`}
-                          >
+                          <Link className='link' to={`/list/${post.category}/post/${post.postnum}`}>
                             {post.title}
                           </Link>
                         </td>
@@ -276,7 +399,7 @@ function Mypage() {
       case 'comment':
         return (
           <div className='mypage-posts'>
-            <h3 style={{ padding: '0px', margin: '10px 0px' }}>작성글 보기</h3>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>작성댓글 보기</h3>
             <div className='mypage-postsInfo'>
               <span>총 댓글 수: {total} </span>
               <span>
@@ -293,23 +416,75 @@ function Mypage() {
                 </tr>
               </thead>
               <tbody>
-                {comments
+                {comments.slice(offset < 0 ? 0 : offset, offset + limit).map((cmt, idx) => {
+                  return (
+                    <tr key={idx + offset + 1} className='mypage-post-each'>
+                      <td>{idx + offset + 1}</td>
+                      <td>
+                        <Link className='link' to={`/${cmt.topcategory}/all/post/${cmt.postnum}`}>
+                          <Tooltip color='gold' title={cmt.post?.title}>
+                            <span>{cmt.content}</span>
+                          </Tooltip>
+                        </Link>
+                      </td>
+                      <td>{elapsedTime(cmt.date)}</td>
+                      <td>
+                        {cmt.like.length}/{cmt.hate.length}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <Pagination
+              defaultPageSize={limit}
+              size={'small'}
+              defaultCurrent={1}
+              showSizeChanger={false}
+              total={total}
+              current={page}
+              onChange={(page) => {
+                setPage(page);
+              }}
+            />
+          </div>
+        );
+      case 'scrap':
+        return (
+          <div className='mypage-posts'>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>스크랩글 보기</h3>
+            <div className='mypage-postsInfo'>
+              <span>총 게시글 수: {total} </span>
+              <span>
+                Page {page}/{Math.ceil(total / limit)}
+              </span>
+            </div>
+            <table className='mypage-post-table'>
+              <thead>
+                <tr>
+                  <th>번호</th>
+                  <th>제목</th>
+                  <th>작성일</th>
+                  <th>추천수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scraps
+
                   .slice(offset < 0 ? 0 : offset, offset + limit)
-                  .map((cmt, idx) => {
+
+                  .map((post, idx) => {
                     return (
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link
-                            className='link'
-                            to={`/${cmt.topcategory}/all/post/${cmt.postnum}`}
-                          >
-                            {cmt.content}
+                          <Link className='link' to={`/list/${post.category}/post/${post.postnum}`}>
+                            {post.title}
                           </Link>
                         </td>
-                        <td>{elapsedTime(cmt.date)}</td>
+                        <td>{elapsedTime(post.date)}</td>
                         <td>
-                          {cmt.like.length}/{cmt.hate.length}
+                          {post.like.length}/{post.hate.length}
                         </td>
                       </tr>
                     );
@@ -317,6 +492,8 @@ function Mypage() {
               </tbody>
             </table>
             <Pagination
+              showQuickJumper
+              showTotal={(total) => `총 ${total} 게시물`}
               defaultPageSize={limit}
               size={'small'}
               defaultCurrent={1}
@@ -347,7 +524,7 @@ function Mypage() {
   }
 
   return (
-    <div>
+    <div style={{ width: '95%' }}>
       <Modal
         isOpen={modal}
         ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
@@ -362,13 +539,16 @@ function Mypage() {
         <p>로그아웃 하시겠습니까?</p>
         <div>
           <button
+            className='modal-button'
             onClick={() => {
               logoutHandler();
             }}
           >
             예
           </button>
-          <button onClick={() => setModal(false)}>아니오</button>
+          <button className='modal-button' onClick={() => setModal(false)}>
+            아니오
+          </button>
         </div>
       </Modal>
       <header className='mypage-headerbox'>
@@ -388,7 +568,9 @@ function Mypage() {
           회원정보보기
         </Link>
       </header>
-      <h3>{userdata.email} 님의 회원정보입니다</h3>
+      <h3>
+        <span>{userId.current ?? ''} 님의 회원정보입니다</span>
+      </h3>
       <main className='mypage-main'>
         {switchPage()}
         {/* {act === 'userInfo' ? (

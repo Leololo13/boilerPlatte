@@ -176,7 +176,10 @@ function Navbar(props) {
                   fontWeight: 'bold',
                 }}
                 placement='bottomLeft'
+<<<<<<< HEAD
                 trigger={['click', 'hover']}
+=======
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
               >
                 <Button
                   style={{

@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect } from 'react';
 import useFetch from './useFetch';
 import { useState } from 'react';
+import { LoadingOutlined } from '@ant-design/icons';
 
 const GoogleSingup = () => {
   const { handleGoogle, loading, error } = useFetch('/api/user/googlesignup');
@@ -15,16 +16,13 @@ const GoogleSingup = () => {
         callback: handleGoogle,
       });
 
-      window.google.accounts.id.renderButton(
-        document.getElementById('signUpDiv'),
-        {
-          type: 'icon',
-          theme: 'filled_blue',
-          //size: 'small',
-          text: 'continue_with',
-          shape: 'pill',
-        }
-      );
+      window.google.accounts.id.renderButton(document.getElementById('signUpDiv'), {
+        type: 'icon',
+        theme: 'filled_blue',
+        //size: 'small',
+        text: 'continue_with',
+        shape: 'pill',
+      });
       // window.google.accounts.id.prompt();
     }
   }, [handleGoogle]);
@@ -47,7 +45,9 @@ const GoogleSingup = () => {
       >
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {loading ? (
-          <div>Loading....</div>
+          <div>
+            <LoadingOutlined />
+          </div>
         ) : (
           <div id='signUpDiv' data-text='구글로 가입하기'></div>
         )}

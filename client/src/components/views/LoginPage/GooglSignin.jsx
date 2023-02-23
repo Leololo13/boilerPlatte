@@ -38,7 +38,18 @@ const GooglSignin = () => {
         }}
       >
         {error && <p style={{ color: 'red' }}>{error}</p>}
+<<<<<<< HEAD
         {loading ? <LoadingOutlined /> : <div id='loginDiv'></div>}
+=======
+        {loading ? (
+          <div>
+            {' '}
+            <LoadingOutlined />
+          </div>
+        ) : (
+          <div id='loginDiv'></div>
+        )}
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
       </main>
       <footer></footer>
     </>

@@ -24,7 +24,10 @@
 }
 .leftbox-modal:hover {
   font-size: 40px;
+<<<<<<< HEAD
   color: lightgrey;
+=======
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
 }
 .leftbox-logimg {
   width: 50px;

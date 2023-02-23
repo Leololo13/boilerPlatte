@@ -99,7 +99,12 @@ function BoardList() {
     <div className='boardlist'>
       <header className='boardlist-header'>
         <div className='boardlist-header-left'>
+<<<<<<< HEAD
           <div className='boardlist-header-title'>
+=======
+          {' '}
+          <h4>
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
             {topcategory === 'list'
               ? '힐링시간'
               : topcategory === 'comu'
@@ -107,21 +112,30 @@ function BoardList() {
               : topcategory === 'blind'
               ? '블라인드'
               : ''}
+<<<<<<< HEAD
           </div>
           <section className='boardlist-header-section'>
             {' '}
             {valTotitle[category] ?? ''}
           </section>
+=======
+          </h4>
+          <section className='boardlist-header-section'> {valTotitle[category] ?? 'ALL'}</section>
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
         </div>
         <div className='boardlist-header-right'>
           {' '}
           <div>
             <Input.Group compact style={{ width: '280px' }}>
+<<<<<<< HEAD
               <Select
                 defaultValue={searchOption ?? 'title'}
                 onChange={optionHandler}
                 style={{ width: '120px' }}
               >
+=======
+              <Select defaultValue={searchOption ?? 'title'} onChange={optionHandler} style={{ width: '100px' }}>
+>>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
                 <Select value='title'>제목</Select>
                 <Select value='title,content'>제목+내용</Select>
                 <Select value='nickname'>작성자</Select>
