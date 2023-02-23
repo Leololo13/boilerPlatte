@@ -7,14 +7,13 @@ import { BrowserRouter } from 'react-router-dom';
 import { store } from './_reducers/store.js';
 import { Provider } from 'react-redux';
 import { CookiesProvider } from 'react-cookie';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-
+import Toptoscroll from './Toptoscroll';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <CookiesProvider>
     <Provider store={store}>
       <BrowserRouter>
-        {' '}
+        <Toptoscroll />
         <App />
       </BrowserRouter>
     </Provider>

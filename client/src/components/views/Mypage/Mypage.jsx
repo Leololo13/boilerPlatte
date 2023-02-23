@@ -44,7 +44,8 @@ function Timechanger(time) {
   let h = curr.getHours();
   let m = curr.getMinutes();
 
-  const timenow = year + '년 ' + month + '월 ' + date + '일 ' + h + '시 ' + m + '분';
+  const timenow =
+    year + '년 ' + month + '월 ' + date + '일 ' + h + '시 ' + m + '분';
   return timenow;
 }
 
@@ -66,7 +67,13 @@ function Mypage() {
   const navigate = useNavigate();
   const offset = (page - 1) * limit;
   const [total, setTotal] = useState(0);
-  const [checkpw, setCheckpw] = useState({ bfpw: '', afpw: '', cfpw: '', message: '', check: false });
+  const [checkpw, setCheckpw] = useState({
+    bfpw: '',
+    afpw: '',
+    cfpw: '',
+    message: '',
+    check: false,
+  });
 
   const logoutHandler = async () => {
     try {
@@ -87,9 +94,17 @@ function Mypage() {
     try {
       await axios.post('/api/user/pwcheck', body).then((res) => {
         if (res.data.PWCheck) {
-          setCheckpw((prev) => ({ ...prev, check: true, message: res.data.message }));
+          setCheckpw((prev) => ({
+            ...prev,
+            check: true,
+            message: res.data.message,
+          }));
         } else {
-          setCheckpw((prev) => ({ ...prev, check: false, message: res.data.message }));
+          setCheckpw((prev) => ({
+            ...prev,
+            check: false,
+            message: res.data.message,
+          }));
         }
       });
     } catch (error) {
@@ -106,21 +121,25 @@ function Mypage() {
     if (action === 'changeinfo') {
       if (IDcondition.test(userdata.nickname)) {
         try {
-          await axios.post(`/api/user/infochange?act=info`, userdata).then((res) => {
-            if (res.data.infoChangeSuccess) {
-              alert('닉네임변경에 성공했습니다');
-              navigate('/userpage?act=userInfo');
-            } else {
-              alert(res.data.message);
-              console.log(res.data, 'false');
-            }
-          });
+          await axios
+            .post(`/api/user/infochange?act=info`, userdata)
+            .then((res) => {
+              if (res.data.infoChangeSuccess) {
+                alert('닉네임변경에 성공했습니다');
+                navigate('/userpage?act=userInfo');
+              } else {
+                alert(res.data.message);
+                console.log(res.data, 'false');
+              }
+            });
         } catch (error) {
           alert(message);
           console.log(error);
         }
       } else {
-        alert('닉네임 양식이 잘못되었습니다. 특수문자를 제외하고 3~10 글자로 입력해 주십시오');
+        alert(
+          '닉네임 양식이 잘못되었습니다. 특수문자를 제외하고 3~10 글자로 입력해 주십시오'
+        );
       }
     } else if (action === 'changepw') {
       if (!checkpw.check) {
@@ -129,15 +148,18 @@ function Mypage() {
         alert('새 비밀번호가 일치하지 않습니다');
       } else {
         try {
-          await axios.post('/api/user/infochange?act=pw', checkpw.cfpw).then((res) => {
-            if (res.data.infoChangeSuccess) {
-              alert('닉네임변경에 성공했습니다');
-              navigate('/userpage?act=userInfo');
-            } else {
-              alert(res.data.message);
-              console.log(res.data, 'false');
-            }
-          });
+          await axios
+            .post('/api/user/infochange?act=pw', { pw: checkpw.cfpw })
+            .then((res) => {
+              if (res.data.infoChangeSuccess) {
+                console.log(res.data.message);
+                alert('비밀번호 변경에 성공했습니다');
+                navigate('/userpage?act=userInfo');
+              } else {
+                alert(res.data.message);
+                console.log(res.data, 'false');
+              }
+            });
         } catch (error) {
           alert(message);
           console.log(error);
@@ -174,13 +196,28 @@ function Mypage() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/user/mypage');
-        const { password, refresh_token, access_token, scrap, posts, comments, ...others } = res.data;
+        const {
+          password,
+          refresh_token,
+          access_token,
+          scrap,
+          posts,
+          comments,
+          ...others
+        } = res.data;
         setUserdata(others);
+        console.log(scrap);
         userId.current = others?.nickname;
         setComments(comments.reverse());
         setScraps(scrap.reverse());
         setPosts(posts.reverse());
-        setTotal(act === 'post' ? posts.length : comments.length);
+        setTotal(
+          act === 'post'
+            ? posts.length
+            : act === 'comments'
+            ? comments.length
+            : scrap.length
+        );
       } catch (error) {
         alert(error);
         console.log(error.message);
@@ -196,10 +233,12 @@ function Mypage() {
           <div>
             <div className='mypage-userInfo'>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>아이디 : {userdata.id}
+                <span style={{ color: 'red' }}>*{'  '}</span>아이디 :{' '}
+                {userdata.id}
               </p>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 : {userdata.nickname}
+                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
+                {userdata.nickname}
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
@@ -217,7 +256,11 @@ function Mypage() {
               >
                 로그아웃
               </button>
-              <Link className='link' to={'/userpage?act=userInfoChange'} onClick={userInfoHandler}>
+              <Link
+                className='link'
+                to={'/userpage?act=userInfoChange'}
+                onClick={userInfoHandler}
+              >
                 <button className='mypage-button'>회원정보 변경하기</button>
               </Link>{' '}
               {userdata.role === 2 ? null : (
@@ -240,13 +283,22 @@ function Mypage() {
 
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                <input type='text' name='nickname' value={userdata.nickname} onChange={userInfoHandler} />
+                <input
+                  type='text'
+                  name='nickname'
+                  value={userdata.nickname}
+                  onChange={userInfoHandler}
+                />
                 {IDcondition.test(userdata.nickname) ? (
-                  <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                  <CheckOutlined
+                    style={{ padding: '0px 5px', color: 'green' }}
+                  />
                 ) : (
                   <span style={{ fontSize: '0.8rem' }}>
-                    <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} /> 특수문자를 제외한 3~10글자로
-                    입력해주십시오
+                    <CheckOutlined
+                      style={{ padding: '0px 5px', color: 'red' }}
+                    />{' '}
+                    특수문자를 제외한 3~10글자로 입력해주십시오
                   </span>
                 )}
                 {/* {console.log(IDcondition.test(userdata.nickname))} */}
@@ -269,7 +321,8 @@ function Mypage() {
           </div>
         );
       case 'userPWChange':
-        let pwcondition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+        let pwcondition =
+          /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
 
         return (
           <div>
@@ -278,10 +331,16 @@ function Mypage() {
                 <input type='text' disabled={true} placeholder={userdata.id} />
               </div>
               <div>
-                <input type='email' disabled={true} placeholder={userdata.email} />
+                <input
+                  type='email'
+                  disabled={true}
+                  placeholder={userdata.email}
+                />
               </div>
               <div>
-                <h4>네이버,카카오,구글을 이용해 가입하신 경우 변경하실수 없습니다</h4>
+                <h4>
+                  네이버,카카오,구글을 이용해 가입하신 경우 변경하실수 없습니다
+                </h4>
                 <input
                   type='password'
                   name='bfpw'
@@ -290,40 +349,69 @@ function Mypage() {
                   placeholder='현재 비밀번호'
                 />
                 {checkpw.check ? (
-                  <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                  <CheckOutlined
+                    style={{ padding: '0px 5px', color: 'green' }}
+                  />
                 ) : (
                   <>
-                    <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
-                    <p style={{ fontSize: '0.75rem' }}> 비밀번호가 일치하지 않습니다</p>
+                    <CheckOutlined
+                      style={{ padding: '0px 5px', color: 'red' }}
+                    />{' '}
+                    <p style={{ fontSize: '0.75rem' }}>
+                      {' '}
+                      비밀번호가 일치하지 않습니다
+                    </p>
                   </>
                 )}
               </div>{' '}
               <div>
-                <input type='password' name='afpw' placeholder='새 비밀번호' onChange={userPWHandler} />
+                <input
+                  type='password'
+                  name='afpw'
+                  placeholder='새 비밀번호'
+                  onChange={userPWHandler}
+                />
                 <span style={{ fontSize: '0.8rem' }}>
                   {pwcondition.test(checkpw.afpw) ? (
-                    <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                    <CheckOutlined
+                      style={{ padding: '0px 5px', color: 'green' }}
+                    />
                   ) : (
                     <>
                       {' '}
-                      <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
+                      <CheckOutlined
+                        style={{ padding: '0px 5px', color: 'red' }}
+                      />{' '}
                       <p style={{ fontSize: '0.75rem' }}>
                         {' '}
-                        영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오
+                        영어,숫자,특수문자를 이용한 8~16자리 비밀번호를
+                        입력하십시오
                       </p>
                     </>
                   )}
                 </span>
               </div>{' '}
               <div>
-                <input type='password' name='cfpw' onChange={userPWHandler} placeholder='새 비밀번호 확인' />
+                <input
+                  type='password'
+                  name='cfpw'
+                  onChange={userPWHandler}
+                  placeholder='새 비밀번호 확인'
+                />
                 <span style={{ fontSize: '0.8rem' }}>
                   {checkpw.afpw === checkpw.cfpw ? (
-                    <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
+                    <CheckOutlined
+                      style={{ padding: '0px 5px', color: 'green' }}
+                    />
                   ) : (
                     <>
-                      <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
-                      <p style={{ fontSize: '0.75rem' }}> 새 비밀번호가 일치하지 않습니다</p>
+                      <CheckOutlined
+                        style={{ padding: '0px 5px', color: 'red' }}
+                      />{' '}
+                      <p style={{ fontSize: '0.75rem' }}>
+                        {' '}
+                        새 비밀번호가 일치하지 않습니다
+                      </p>
                     </>
                   )}
                 </span>
@@ -368,7 +456,10 @@ function Mypage() {
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link className='link' to={`/list/${post.category}/post/${post.postnum}`}>
+                          <Link
+                            className='link'
+                            to={`/${post.topcategory}/${post.category}/post/${post.postnum}`}
+                          >
                             {post.title}
                           </Link>
                         </td>
@@ -399,7 +490,9 @@ function Mypage() {
       case 'comment':
         return (
           <div className='mypage-posts'>
-            <h3 style={{ padding: '0px', margin: '10px 0px' }}>작성댓글 보기</h3>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>
+              작성댓글 보기
+            </h3>
             <div className='mypage-postsInfo'>
               <span>총 댓글 수: {total} </span>
               <span>
@@ -416,24 +509,32 @@ function Mypage() {
                 </tr>
               </thead>
               <tbody>
-                {comments.slice(offset < 0 ? 0 : offset, offset + limit).map((cmt, idx) => {
-                  return (
-                    <tr key={idx + offset + 1} className='mypage-post-each'>
-                      <td>{idx + offset + 1}</td>
-                      <td>
-                        <Link className='link' to={`/${cmt.topcategory}/all/post/${cmt.postnum}`}>
-                          <Tooltip color='gold' title={cmt.post?.title}>
-                            <span>{cmt.content}</span>
-                          </Tooltip>
-                        </Link>
-                      </td>
-                      <td>{elapsedTime(cmt.date)}</td>
-                      <td>
-                        {cmt.like.length}/{cmt.hate.length}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {comments
+                  .slice(offset < 0 ? 0 : offset, offset + limit)
+                  .map((cmt, idx) => {
+                    return (
+                      <tr key={idx + offset + 1} className='mypage-post-each'>
+                        <td>{idx + offset + 1}</td>
+                        <td>
+                          <Link
+                            className='link'
+                            to={`/${cmt.post?.topcategory}/${cmt.post?.category}/post/${cmt.postnum}`}
+                          >
+                            <Tooltip
+                              color='gold'
+                              title={cmt.post?.title ?? '삭제된 게시글입니다'}
+                            >
+                              <span>{cmt.content}</span>
+                            </Tooltip>
+                          </Link>
+                        </td>
+                        <td>{elapsedTime(cmt.date)}</td>
+                        <td>
+                          {cmt.like.length}/{cmt.hate.length}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
             <Pagination
@@ -452,9 +553,11 @@ function Mypage() {
       case 'scrap':
         return (
           <div className='mypage-posts'>
-            <h3 style={{ padding: '0px', margin: '10px 0px' }}>스크랩글 보기</h3>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>
+              스크랩글 보기
+            </h3>
             <div className='mypage-postsInfo'>
-              <span>총 게시글 수: {total} </span>
+              <span>총 스크랩 수: {total} </span>
               <span>
                 Page {page}/{Math.ceil(total / limit)}
               </span>
@@ -473,18 +576,21 @@ function Mypage() {
 
                   .slice(offset < 0 ? 0 : offset, offset + limit)
 
-                  .map((post, idx) => {
+                  .map((scrap, idx) => {
                     return (
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link className='link' to={`/list/${post.category}/post/${post.postnum}`}>
-                            {post.title}
+                          <Link
+                            className='link'
+                            to={`/${scrap.topcategory}/${scrap.category}/post/${scrap.postnum}`}
+                          >
+                            {scrap.title}
                           </Link>
                         </td>
-                        <td>{elapsedTime(post.date)}</td>
+                        <td>{elapsedTime(scrap.date)}</td>
                         <td>
-                          {post.like.length}/{post.hate.length}
+                          {scrap.like.length}/{scrap.hate.length}
                         </td>
                       </tr>
                     );

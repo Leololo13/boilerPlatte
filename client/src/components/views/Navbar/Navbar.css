@@ -24,10 +24,6 @@
 }
 .leftbox-modal:hover {
   font-size: 40px;
-<<<<<<< HEAD
-  color: lightgrey;
-=======
->>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
 }
 .leftbox-logimg {
   width: 50px;
@@ -94,6 +90,7 @@
   .navbar-box {
     flex-direction: column;
     justify-content: center;
+    min-width: 380px;
     gap: 10px;
     padding: 10px;
     margin: 0;

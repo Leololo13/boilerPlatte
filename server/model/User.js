@@ -83,6 +83,7 @@ userSchema.pre('save', function (next) {
   let user = this;
   console.log('세이브할떄마다 이게되는것인가?');
   if (user.isModified('password')) {
+    console.log('여기로 와야하는데');
     bcrypt.genSalt(saltRounds, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) => {
         if (err) return next(err);
@@ -91,12 +92,25 @@ userSchema.pre('save', function (next) {
       });
     });
   } else {
+    console.log('비번안바꾸면여기로옴');
     next();
   }
 });
+userSchema.methods.chagePassword = function (newPW, cb) {
+  let user = this;
+  console.log('비번변경은 여기로', user.password, newPW);
+  user.password = newPW;
+  user.save((err, user) => {
+    console.log('비번 변경후 저장');
+    if (err) return cb(err);
+    cb(null, user);
+  });
+};
 
 userSchema.methods.comparePassword = function (plainPassword, cb) {
+  console.log(plainPassword, this.password);
   bcrypt.compare(plainPassword, this.password, (err, isMatch) => {
+    console.log(isMatch);
     if (err) return cb(err);
     cb(null, isMatch);
   });

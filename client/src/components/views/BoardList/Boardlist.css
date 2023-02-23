@@ -14,33 +14,10 @@
   align-items: center;
   gap: 10px;
 }
-<<<<<<< HEAD
-.boardlist-header-left {
-  display: flex;
-  align-items: center;
-  width: 50%;
-  gap: 5px;
-  justify-content: flex-start;
-}
-.boardlist-header-title {
-  display: flex;
-  font-weight: bold;
-  font-size: 1.1rem;
-  align-items: center;
-  max-width: 80px;
-  min-width: 40px;
-}
-.boardlist-header-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  height: 100%;
-=======
 .boardlist-header h4 {
+  padding-left: 5px;
   max-width: 80px;
   min-width: 40px;
->>>>>>> 98de40885b02b486c3b3984f822fe08d3c175aaf
 }
 .boardlist-header-section {
   min-width: 32px;
