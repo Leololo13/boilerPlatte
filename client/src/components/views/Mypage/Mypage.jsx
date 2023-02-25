@@ -44,8 +44,7 @@ function Timechanger(time) {
   let h = curr.getHours();
   let m = curr.getMinutes();
 
-  const timenow =
-    year + '년 ' + month + '월 ' + date + '일 ' + h + '시 ' + m + '분';
+  const timenow = year + '년 ' + month + '월 ' + date + '일 ' + h + '시 ' + m + '분';
   return timenow;
 }
 
@@ -121,25 +120,21 @@ function Mypage() {
     if (action === 'changeinfo') {
       if (IDcondition.test(userdata.nickname)) {
         try {
-          await axios
-            .post(`/api/user/infochange?act=info`, userdata)
-            .then((res) => {
-              if (res.data.infoChangeSuccess) {
-                alert('닉네임변경에 성공했습니다');
-                navigate('/userpage?act=userInfo');
-              } else {
-                alert(res.data.message);
-                console.log(res.data, 'false');
-              }
-            });
+          await axios.post(`/api/user/infochange?act=info`, userdata).then((res) => {
+            if (res.data.infoChangeSuccess) {
+              alert('닉네임변경에 성공했습니다');
+              navigate('/userpage?act=userInfo');
+            } else {
+              alert(res.data.message);
+              console.log(res.data, 'false');
+            }
+          });
         } catch (error) {
           alert(message);
           console.log(error);
         }
       } else {
-        alert(
-          '닉네임 양식이 잘못되었습니다. 특수문자를 제외하고 3~10 글자로 입력해 주십시오'
-        );
+        alert('닉네임 양식이 잘못되었습니다. 특수문자를 제외하고 3~10 글자로 입력해 주십시오');
       }
     } else if (action === 'changepw') {
       if (!checkpw.check) {
@@ -148,18 +143,16 @@ function Mypage() {
         alert('새 비밀번호가 일치하지 않습니다');
       } else {
         try {
-          await axios
-            .post('/api/user/infochange?act=pw', { pw: checkpw.cfpw })
-            .then((res) => {
-              if (res.data.infoChangeSuccess) {
-                console.log(res.data.message);
-                alert('비밀번호 변경에 성공했습니다');
-                navigate('/userpage?act=userInfo');
-              } else {
-                alert(res.data.message);
-                console.log(res.data, 'false');
-              }
-            });
+          await axios.post('/api/user/infochange?act=pw', { pw: checkpw.cfpw }).then((res) => {
+            if (res.data.infoChangeSuccess) {
+              console.log(res.data.message);
+              alert('비밀번호 변경에 성공했습니다');
+              navigate('/userpage?act=userInfo');
+            } else {
+              alert(res.data.message);
+              console.log(res.data, 'false');
+            }
+          });
         } catch (error) {
           alert(message);
           console.log(error);
@@ -196,28 +189,14 @@ function Mypage() {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/user/mypage');
-        const {
-          password,
-          refresh_token,
-          access_token,
-          scrap,
-          posts,
-          comments,
-          ...others
-        } = res.data;
+        const { password, refresh_token, access_token, scrap, posts, comments, ...others } = res.data;
         setUserdata(others);
         console.log(scrap);
         userId.current = others?.nickname;
         setComments(comments.reverse());
         setScraps(scrap.reverse());
         setPosts(posts.reverse());
-        setTotal(
-          act === 'post'
-            ? posts.length
-            : act === 'comments'
-            ? comments.length
-            : scrap.length
-        );
+        setTotal(act === 'post' ? posts.length : act === 'comments' ? comments.length : scrap.length);
       } catch (error) {
         alert(error);
         console.log(error.message);
@@ -226,6 +205,40 @@ function Mypage() {
 
     fetchUser();
   }, []);
+  const [time, setTime] = useState(0);
+  const [timeron, setTimeron] = useState(false);
+  const count = useRef(null);
+  const interval = useRef(null);
+  useEffect(() => {
+    console.log('된긴함?');
+    if (time >= 0) {
+      console.log('들어옴');
+      interval.current = setInterval(() => {
+        count.current -= 1;
+        setTime(count.current);
+      }, 1000);
+    }
+  }, [timeron]);
+
+  useEffect(() => {
+    if (count.current <= 0) {
+      clearInterval(interval.current);
+    }
+  }, [time]);
+
+  const sendMail = async (email) => {
+    console.log('클릭', email);
+    try {
+      await axios.post('/api/user/sendVmail', { email }).then((res) => {
+        console.log(res.data);
+        setTime(res.data.validtime);
+        count.current = res.data.validtime;
+        setTimeron(true);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   function switchPage() {
     switch (act) {
       case 'userInfo':
@@ -233,12 +246,10 @@ function Mypage() {
           <div>
             <div className='mypage-userInfo'>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>아이디 :{' '}
-                {userdata.id}
+                <span style={{ color: 'red' }}>*{'  '}</span>아이디 : {userdata.id}
               </p>
               <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                {userdata.nickname}
+                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 : {userdata.nickname}
               </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
@@ -256,11 +267,7 @@ function Mypage() {
               >
                 로그아웃
               </button>
-              <Link
-                className='link'
-                to={'/userpage?act=userInfoChange'}
-                onClick={userInfoHandler}
-              >
+              <Link className='link' to={'/userpage?act=userInfoChange'} onClick={userInfoHandler}>
                 <button className='mypage-button'>회원정보 변경하기</button>
               </Link>{' '}
               {userdata.role === 2 ? null : (
@@ -283,22 +290,13 @@ function Mypage() {
 
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>닉네임 :{' '}
-                <input
-                  type='text'
-                  name='nickname'
-                  value={userdata.nickname}
-                  onChange={userInfoHandler}
-                />
+                <input type='text' name='nickname' value={userdata.nickname} onChange={userInfoHandler} />
                 {IDcondition.test(userdata.nickname) ? (
-                  <CheckOutlined
-                    style={{ padding: '0px 5px', color: 'green' }}
-                  />
+                  <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
                 ) : (
                   <span style={{ fontSize: '0.8rem' }}>
-                    <CheckOutlined
-                      style={{ padding: '0px 5px', color: 'red' }}
-                    />{' '}
-                    특수문자를 제외한 3~10글자로 입력해주십시오
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} /> 특수문자를 제외한 3~10글자로
+                    입력해주십시오
                   </span>
                 )}
                 {/* {console.log(IDcondition.test(userdata.nickname))} */}
@@ -321,8 +319,7 @@ function Mypage() {
           </div>
         );
       case 'userPWChange':
-        let pwcondition =
-          /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
+        let pwcondition = /^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/;
 
         return (
           <div>
@@ -331,16 +328,10 @@ function Mypage() {
                 <input type='text' disabled={true} placeholder={userdata.id} />
               </div>
               <div>
-                <input
-                  type='email'
-                  disabled={true}
-                  placeholder={userdata.email}
-                />
+                <input type='email' disabled={true} placeholder={userdata.email} />
               </div>
               <div>
-                <h4>
-                  네이버,카카오,구글을 이용해 가입하신 경우 변경하실수 없습니다
-                </h4>
+                <h4>네이버,카카오,구글을 이용해 가입하신 경우 변경하실수 없습니다</h4>
                 <input
                   type='password'
                   name='bfpw'
@@ -349,69 +340,40 @@ function Mypage() {
                   placeholder='현재 비밀번호'
                 />
                 {checkpw.check ? (
-                  <CheckOutlined
-                    style={{ padding: '0px 5px', color: 'green' }}
-                  />
+                  <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
                 ) : (
                   <>
-                    <CheckOutlined
-                      style={{ padding: '0px 5px', color: 'red' }}
-                    />{' '}
-                    <p style={{ fontSize: '0.75rem' }}>
-                      {' '}
-                      비밀번호가 일치하지 않습니다
-                    </p>
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
+                    <p style={{ fontSize: '0.75rem' }}> 비밀번호가 일치하지 않습니다</p>
                   </>
                 )}
               </div>{' '}
               <div>
-                <input
-                  type='password'
-                  name='afpw'
-                  placeholder='새 비밀번호'
-                  onChange={userPWHandler}
-                />
+                <input type='password' name='afpw' placeholder='새 비밀번호' onChange={userPWHandler} />
                 <span style={{ fontSize: '0.8rem' }}>
                   {pwcondition.test(checkpw.afpw) ? (
-                    <CheckOutlined
-                      style={{ padding: '0px 5px', color: 'green' }}
-                    />
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
                   ) : (
                     <>
                       {' '}
-                      <CheckOutlined
-                        style={{ padding: '0px 5px', color: 'red' }}
-                      />{' '}
+                      <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
                       <p style={{ fontSize: '0.75rem' }}>
                         {' '}
-                        영어,숫자,특수문자를 이용한 8~16자리 비밀번호를
-                        입력하십시오
+                        영어,숫자,특수문자를 이용한 8~16자리 비밀번호를 입력하십시오
                       </p>
                     </>
                   )}
                 </span>
               </div>{' '}
               <div>
-                <input
-                  type='password'
-                  name='cfpw'
-                  onChange={userPWHandler}
-                  placeholder='새 비밀번호 확인'
-                />
+                <input type='password' name='cfpw' onChange={userPWHandler} placeholder='새 비밀번호 확인' />
                 <span style={{ fontSize: '0.8rem' }}>
                   {checkpw.afpw === checkpw.cfpw ? (
-                    <CheckOutlined
-                      style={{ padding: '0px 5px', color: 'green' }}
-                    />
+                    <CheckOutlined style={{ padding: '0px 5px', color: 'green' }} />
                   ) : (
                     <>
-                      <CheckOutlined
-                        style={{ padding: '0px 5px', color: 'red' }}
-                      />{' '}
-                      <p style={{ fontSize: '0.75rem' }}>
-                        {' '}
-                        새 비밀번호가 일치하지 않습니다
-                      </p>
+                      <CheckOutlined style={{ padding: '0px 5px', color: 'red' }} />{' '}
+                      <p style={{ fontSize: '0.75rem' }}> 새 비밀번호가 일치하지 않습니다</p>
                     </>
                   )}
                 </span>
@@ -456,10 +418,7 @@ function Mypage() {
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link
-                            className='link'
-                            to={`/${post.topcategory}/${post.category}/post/${post.postnum}`}
-                          >
+                          <Link className='link' to={`/${post.topcategory}/${post.category}/post/${post.postnum}`}>
                             {post.title}
                           </Link>
                         </td>
@@ -490,9 +449,7 @@ function Mypage() {
       case 'comment':
         return (
           <div className='mypage-posts'>
-            <h3 style={{ padding: '0px', margin: '10px 0px' }}>
-              작성댓글 보기
-            </h3>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>작성댓글 보기</h3>
             <div className='mypage-postsInfo'>
               <span>총 댓글 수: {total} </span>
               <span>
@@ -509,32 +466,27 @@ function Mypage() {
                 </tr>
               </thead>
               <tbody>
-                {comments
-                  .slice(offset < 0 ? 0 : offset, offset + limit)
-                  .map((cmt, idx) => {
-                    return (
-                      <tr key={idx + offset + 1} className='mypage-post-each'>
-                        <td>{idx + offset + 1}</td>
-                        <td>
-                          <Link
-                            className='link'
-                            to={`/${cmt.post?.topcategory}/${cmt.post?.category}/post/${cmt.postnum}`}
-                          >
-                            <Tooltip
-                              color='gold'
-                              title={cmt.post?.title ?? '삭제된 게시글입니다'}
-                            >
-                              <span>{cmt.content}</span>
-                            </Tooltip>
-                          </Link>
-                        </td>
-                        <td>{elapsedTime(cmt.date)}</td>
-                        <td>
-                          {cmt.like.length}/{cmt.hate.length}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                {comments.slice(offset < 0 ? 0 : offset, offset + limit).map((cmt, idx) => {
+                  return (
+                    <tr key={idx + offset + 1} className='mypage-post-each'>
+                      <td>{idx + offset + 1}</td>
+                      <td>
+                        <Link
+                          className='link'
+                          to={`/${cmt.post?.topcategory}/${cmt.post?.category}/post/${cmt.postnum}`}
+                        >
+                          <Tooltip color='gold' title={cmt.post?.title ?? '삭제된 게시글입니다'}>
+                            <span>{cmt.content}</span>
+                          </Tooltip>
+                        </Link>
+                      </td>
+                      <td>{elapsedTime(cmt.date)}</td>
+                      <td>
+                        {cmt.like.length}/{cmt.hate.length}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <Pagination
@@ -553,9 +505,7 @@ function Mypage() {
       case 'scrap':
         return (
           <div className='mypage-posts'>
-            <h3 style={{ padding: '0px', margin: '10px 0px' }}>
-              스크랩글 보기
-            </h3>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>스크랩글 보기</h3>
             <div className='mypage-postsInfo'>
               <span>총 스크랩 수: {total} </span>
               <span>
@@ -581,10 +531,7 @@ function Mypage() {
                       <tr key={idx + offset + 1} className='mypage-post-each'>
                         <td>{idx + offset + 1}</td>
                         <td>
-                          <Link
-                            className='link'
-                            to={`/${scrap.topcategory}/${scrap.category}/post/${scrap.postnum}`}
-                          >
+                          <Link className='link' to={`/${scrap.topcategory}/${scrap.category}/post/${scrap.postnum}`}>
                             {scrap.title}
                           </Link>
                         </td>
@@ -670,12 +617,18 @@ function Mypage() {
         <Link to={'/userpage?act=comment'} className='link'>
           작성 댓글 보기
         </Link>
-        <Link to={'/userpage?act=userInfo'} className='link'>
-          회원정보보기
-        </Link>
       </header>
       <h3>
         <span>{userId.current ?? ''} 님의 회원정보입니다</span>
+        <button
+          onClick={() => {
+            sendMail(userdata?.email);
+          }}
+        >
+          {' '}
+          인증 메일 발송 테스트용
+        </button>
+        <p> {time}</p>
       </h3>
       <main className='mypage-main'>
         {switchPage()}

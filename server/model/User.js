@@ -73,14 +73,26 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  logintry: {
+    type: Number,
+    default: 0,
+  },
   exp: {
     type: Number,
     default: 0,
+  },
+  out: {
+    type: Boolean,
+    default: false,
+  },
+  expiresday: {
+    typeof: Date,
   },
 });
 ///되나
 userSchema.pre('save', function (next) {
   let user = this;
+  user.logintry = 0;
   console.log('세이브할떄마다 이게되는것인가?');
   if (user.isModified('password')) {
     console.log('여기로 와야하는데');
@@ -162,46 +174,40 @@ userSchema.statics.findByToken = function (token, cb) {
 
   jwt.verify(token.acc_token, process.env.ACCESS_TOKEN, (err, data) => {
     if (data) {
-      user.findOne(
-        { _id: data._id, access_token: token.acc_token },
-        (error, user) => {
-          if (err) {
-            return cb(err);
-          }
-          return cb(null, user);
+      user.findOne({ _id: data._id, access_token: token.acc_token }, (error, user) => {
+        if (err) {
+          return cb(err);
         }
-      );
+        return cb(null, user);
+      });
     } else {
       if (err.message === 'jwt expired') {
         console.log('jwt expireddddddddd');
         jwt.verify(token.ref_token, process.env.REFRESH_TOKEN, (err, data) => {
           if (data) {
-            user.findOne(
-              { _id: data._id, refresh_token: token.ref_token },
-              (error, user) => {
-                if (err) {
-                  return cb(err);
-                } else {
-                  user.access_token = jwt.sign(
-                    {
-                      _id: user._id,
-                      username: user.name,
-                      email: user.email,
-                    },
-                    process.env.ACCESS_TOKEN,
-                    {
-                      expiresIn: '10m',
-                      issuer: 'About Tech',
-                    }
-                  );
-                  console.log('jwt expired and renew acctoken');
-                  user.save((err, user) => {
-                    if (err) return cb(err);
-                    cb(null, user);
-                  });
-                }
+            user.findOne({ _id: data._id, refresh_token: token.ref_token }, (error, user) => {
+              if (err) {
+                return cb(err);
+              } else {
+                user.access_token = jwt.sign(
+                  {
+                    _id: user._id,
+                    username: user.name,
+                    email: user.email,
+                  },
+                  process.env.ACCESS_TOKEN,
+                  {
+                    expiresIn: '10m',
+                    issuer: 'About Tech',
+                  }
+                );
+                console.log('jwt expired and renew acctoken');
+                user.save((err, user) => {
+                  if (err) return cb(err);
+                  cb(null, user);
+                });
               }
-            );
+            });
           } else {
             console.log('refresh토큰 expired or 삭제, 재로그인 필요');
             return cb(err);

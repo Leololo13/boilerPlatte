@@ -6,8 +6,6 @@ import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import Recomment from './Recomment';
 import {
-  DislikeFilled,
-  LikeFilled,
   UserOutlined,
   EditOutlined,
   DeleteOutlined,
@@ -16,7 +14,6 @@ import {
   DislikeOutlined,
 } from '@ant-design/icons';
 import Modal from 'react-modal';
-
 import { Avatar, Pagination } from 'antd';
 import useSubmitFetch from './useSubmitFetch';
 
@@ -104,7 +101,34 @@ function Comment(props) {
   /////
 
   //////
-
+  async function likeHandler(_id, like) {
+    console.log(_id);
+    console.log(like, typeof like);
+    try {
+      await axios.post('/api/comment/like', { _id, like: like }).then((res) => {
+        console.log(res.data);
+        if (res.data.cmtlikeSuccess) {
+          console.log(res.data);
+          alert(res.data.message);
+          navigate(0);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function dislikeHandler(_id, dislike) {
+    try {
+      await axios.post('/api/comment/dislike', { _id, dislike: dislike }).then((res) => {
+        if (res.data.cmtdislikeSuccess) {
+          alert(res.data.message);
+          window.location.reload();
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
   function dataHandler(e) {
     e.preventDefault();
     setWrittenComment((prev) => ({
@@ -181,11 +205,7 @@ function Comment(props) {
           >
             예
           </button>
-          <button
-            onClick={() => setDeleteModal((prev) => ({ ...prev, open: false }))}
-          >
-            아니오
-          </button>
+          <button onClick={() => setDeleteModal((prev) => ({ ...prev, open: false }))}>아니오</button>
         </div>
       </Modal>
       <div className='footer-comment'>
@@ -196,140 +216,127 @@ function Comment(props) {
         </div>
         {commentOpen ? (
           <>
-            {comments
-              .slice(offset < 0 ? 0 : offset, offset + limit)
-              .map((comment) => {
-                return (
-                  <div
-                    className={
-                      comment.parentcommentnum === 0
-                        ? 'comment-main'
-                        : 'comment-main-depth'
-                    }
-                    key={comment._id}
-                  >
-                    <div className='post-comment'>
-                      <div className='comment-writer-img'>
-                        {comment.image ? (
-                          <img
-                            src={comment.image}
-                            alt=''
-                            style={{ borderRadius: '50%' }}
-                          />
-                        ) : (
-                          <Avatar size={56} icon={<UserOutlined />} />
-                        )}
-                      </div>
-                      <div className='comment-main-main'>
-                        <div className='comment-info'>
-                          <div className='comment-writer'>
-                            {' '}
-                            {props.writer === comment.writer ? (
-                              <span>
-                                {comment.nickname}
-                                <CheckOutlined
-                                  style={{
-                                    color: 'green',
+            {comments.slice(offset < 0 ? 0 : offset, offset + limit).map((comment) => {
+              return (
+                <div
+                  className={comment.parentcommentnum === 0 ? 'comment-main' : 'comment-main-depth'}
+                  key={comment._id}
+                >
+                  <div className='post-comment'>
+                    <div className='comment-writer-img'>
+                      {comment.image ? (
+                        <img src={comment.image} alt='' style={{ borderRadius: '50%' }} />
+                      ) : (
+                        <Avatar size={56} icon={<UserOutlined />} />
+                      )}
+                    </div>
+                    <div className='comment-main-main'>
+                      <div className='comment-info'>
+                        <div className='comment-writer'>
+                          {' '}
+                          {props.writer === comment.writer ? (
+                            <span>
+                              {comment.nickname}
+                              <CheckOutlined
+                                style={{
+                                  color: 'green',
+                                }}
+                              />
+                            </span>
+                          ) : (
+                            comment.nickname
+                          )}
+                          <div className='comment-time'>{elapsedTime(comment.date)}</div>
+                        </div>
+
+                        <div className='comment-action'>
+                          <div className='comment-likehate'>
+                            <span
+                              onClick={() => {
+                                likeHandler(comment._id, comment.like);
+                              }}
+                            >
+                              <LikeOutlined /> {comment.like.length}
+                            </span>
+                            /
+                            <span
+                              onClick={() => {
+                                dislikeHandler(comment._id, comment.hate);
+                              }}
+                            >
+                              <DislikeOutlined /> {comment.hate.length}
+                            </span>
+                          </div>
+                          <div
+                            onClick={() => {
+                              setEditOn(false);
+                              console.log('닶댓글가즈아', editOn);
+                              modalVisibleId ? setModalVisibleId('') : recommentModalHandler(comment._id);
+                            }}
+                            style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                            className='comment-recomment'
+                            data-id={comment._id}
+                          >
+                            답댓글달기
+                          </div>
+
+                          {(comment.writer === user?._id && comment.role === 1) || user?.isAdmin ? (
+                            <>
+                              <div
+                                className='comment-edit'
+                                onClick={() => {
+                                  recommentModalHandler(comment._id);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                                data-id={comment.content}
+                              >
+                                <EditOutlined
+                                  style={{ fontSize: '1.2rem' }}
+                                  onClick={() => {
+                                    setEditOn(!editOn);
+                                    console.log(editOn, 'edit클릭');
                                   }}
                                 />
-                              </span>
-                            ) : (
-                              comment.nickname
-                            )}
-                            <div className='comment-time'>
-                              {elapsedTime(comment.date)}
-                            </div>
-                          </div>
-
-                          <div className='comment-action'>
-                            <div className='comment-likehate'>
-                              <LikeOutlined /> {comment.like.length}/{' '}
-                              <DislikeOutlined /> {comment.hate.length}
-                            </div>
-                            <div
-                              onClick={() => {
-                                setEditOn(false);
-                                console.log('닶댓글가즈아', editOn);
-                                modalVisibleId
-                                  ? setModalVisibleId('')
-                                  : recommentModalHandler(comment._id);
-                              }}
-                              style={{ cursor: 'pointer', fontWeight: 'bold' }}
-                              className='comment-recomment'
-                              data-id={comment._id}
-                            >
-                              답댓글달기
-                            </div>
-
-                            {(comment.writer === user?._id &&
-                              comment.role === 1) ||
-                            user?.isAdmin ? (
-                              <>
-                                <div
-                                  className='comment-edit'
-                                  onClick={() => {
-                                    recommentModalHandler(comment._id);
-                                  }}
-                                  style={{ cursor: 'pointer' }}
-                                  data-id={comment.content}
-                                >
-                                  <EditOutlined
-                                    style={{ fontSize: '1.2rem' }}
-                                    onClick={() => {
-                                      setEditOn(!editOn);
-                                      console.log(editOn, 'edit클릭');
-                                    }}
-                                  />
-                                </div>
-                                <div
-                                  className='comment-delete'
-                                  onClick={() => {
-                                    setDeleteModal({
-                                      open: true,
-                                      num: comment.commentnum,
-                                    });
-                                  }}
-                                >
-                                  <DeleteOutlined
-                                    style={{ fontSize: '1.2rem' }}
-                                  />
-                                </div>
-                              </>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className='comment-content'>
-                          {comment.target ? (
-                            <span className='targetID'>
-                              {'@' + comment.target}
-                            </span>
+                              </div>
+                              <div
+                                className='comment-delete'
+                                onClick={() => {
+                                  setDeleteModal({
+                                    open: true,
+                                    num: comment.commentnum,
+                                  });
+                                }}
+                              >
+                                <DeleteOutlined style={{ fontSize: '1.2rem' }} />
+                              </div>
+                            </>
                           ) : null}
-                          {comment.content}
                         </div>
                       </div>
+
+                      <div className='comment-content'>
+                        {comment.target ? <span className='targetID'>{'@' + comment.target}</span> : null}
+                        {comment.content}
+                      </div>
                     </div>
-                    {/* 리코멘트누를떄 modal비슷한걸 하나 만들어서 값을 보내서 이때만 value를 받게하면될듯함 */}
-                    {/* 첫번쨰 댓글이기떄문에 첫번쨰 parentcommentnum=0을따라간다. */}
-                    <Recomment
-                      id={comment._id}
-                      modalVisibleId={modalVisibleId}
-                      setModalVisibleId={setModalVisibleId}
-                      parentcommentnum={
-                        comment.parentcommentnum === 0
-                          ? comment.commentnum
-                          : comment.parentcommentnum
-                      }
-                      commentnum={comment.commentnum}
-                      postnum={comment.postnum}
-                      parentNick={comment.nickname}
-                      value={comment.content}
-                      editon={editOn}
-                    />
-                    {/* recommenttttttttttttttttttttttttttttttt */}
                   </div>
-                );
-              })}
+                  {/* 리코멘트누를떄 modal비슷한걸 하나 만들어서 값을 보내서 이때만 value를 받게하면될듯함 */}
+                  {/* 첫번쨰 댓글이기떄문에 첫번쨰 parentcommentnum=0을따라간다. */}
+                  <Recomment
+                    id={comment._id}
+                    modalVisibleId={modalVisibleId}
+                    setModalVisibleId={setModalVisibleId}
+                    parentcommentnum={comment.parentcommentnum === 0 ? comment.commentnum : comment.parentcommentnum}
+                    commentnum={comment.commentnum}
+                    postnum={comment.postnum}
+                    parentNick={comment.nickname}
+                    value={comment.content}
+                    editon={editOn}
+                  />
+                  {/* recommenttttttttttttttttttttttttttttttt */}
+                </div>
+              );
+            })}
           </>
         ) : null}
 
@@ -338,12 +345,7 @@ function Comment(props) {
             <div className='comment-write-main'>
               <div className='comment-write-img'>
                 {user?.image ? (
-                  <img
-                    src={user?.image}
-                    alt=''
-                    style={{ borderRadius: '50%' }}
-                    width='56px'
-                  />
+                  <img src={user?.image} alt='' style={{ borderRadius: '50%' }} width='56px' />
                 ) : (
                   <Avatar size={56} icon={<UserOutlined />} />
                 )}

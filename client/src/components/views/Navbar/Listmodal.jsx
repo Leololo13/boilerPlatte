@@ -1,5 +1,6 @@
 import {
   AppstoreOutlined,
+  EyeInvisibleOutlined,
   SettingOutlined,
   SmileOutlined,
   UserOutlined,
@@ -10,13 +11,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import { useEffect } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import {
-  topCategories,
-  listCategories,
-  comuCategories,
-  blindCategories,
-  valTotitle,
-} from '../BoardList/category';
+import { topCategories, listCategories, comuCategories, blindCategories, valTotitle } from '../BoardList/category';
 
 const contentStyle = {
   display: 'flex',
@@ -152,19 +147,13 @@ const Listmodal = (props) => {
         블라인드
       </Link>,
       'blind',
-      <SettingOutlined />,
+      <EyeInvisibleOutlined />,
       blindCategories.map((list, i) => {
         return getItem(
           <Link to={`/${topCategories[2]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${
-            i +
-            loginUser.children.length +
-            1 +
-            listCategories.length +
-            comuCategories.length
-          }`
+          `${i + loginUser.children.length + 1 + listCategories.length + comuCategories.length}`
         );
       })
     ),
@@ -234,12 +223,7 @@ const Listmodal = (props) => {
           content: cntStyle,
         }}
       >
-        <Menu
-          mode='inline'
-          openKeys={openKeys}
-          onOpenChange={onOpenChange}
-          items={items}
-        />{' '}
+        <Menu mode='inline' openKeys={openKeys} onOpenChange={onOpenChange} items={items} />{' '}
       </Modal>
     </>
   );
