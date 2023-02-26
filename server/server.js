@@ -104,13 +104,18 @@ app.post('/api/user/register', (req, res) => {
 //         }
 //       });
 // });
+//인증메일을보냄=>메일을받아서 링크를타고 옴. 그러면 verify.js통해서 인증완료하고 그 값을 보냄
+/// 어디로? reagister로 .. 근데 어케보냄?
 
 //=================================가입이메일 보내기
 app.post('/api/user/sendVmail', (req, res) => {
+  let condition = req.query.params;
   let email = req.body.email;
-  let makesecretkey = '1234';
+  let makesecretkey = Math.random.toString(36).substring(2, 10);
+
   let validtime = '300';
   console.log(req.body.email);
+
   const mailGunsend = (email) => {
     const auth = {
       auth: {
@@ -121,7 +126,7 @@ app.post('/api/user/sendVmail', (req, res) => {
     const nodemailerTomailgun = nodemailer.createTransport(mg(auth));
     return nodemailerTomailgun.sendMail(email, (err, info) => {
       if (err) {
-        res.json({ sendMailSuccess: false, message: '에러가 발생했습니다' });
+        res.json({ sendMailSuccess: false, message: '에러가 발생했습니다', err });
       } else {
         res.json({ sendMailSuccess: true, info, validtime, message: '인증메일을 발송했습니다' });
       }
@@ -132,12 +137,29 @@ app.post('/api/user/sendVmail', (req, res) => {
       from: 'ALT_Admin@gmail.com',
       to: adress,
       subject: '로그인 인증 메일',
-      html: `<p>인증번호는 다음과 같습니다</p><p>${secret}</p>`,
+      html: `<p>인증번호는 다음과 같습니다</p><p><a href={http://localhost:3000/user/register/verify?vemail=${adress}&validkey=${secret}&validtimes=${validtime}}>
+      인증하기
+    </a></p>`,
     };
     return mailGunsend(email);
   };
-  sendSecMail(email, makesecretkey);
+
+  if (condition === 'verify') {
+    const vemail = req.query.vemail;
+    const validtimes = req.query.validtime;
+    const validkey = req.query.validkey;
+    console.log(vemail, validtimes, validkey);
+    if (validkey === makesecretkey && validtimes > 0 && vemail === email) {
+      res.json({ verifySuccess: true, verify: true });
+    } else {
+      res.json({ verifySuccess: false, verify: false });
+    }
+  } else {
+    sendSecMail(email, makesecretkey);
+  }
 });
+//////메일와서 링크누르면 인증하기
+app.get('/api/user/verify', (req, res) => {});
 
 /////  탈퇴하기
 app.post('/api/user/out', auth, (req, res) => {

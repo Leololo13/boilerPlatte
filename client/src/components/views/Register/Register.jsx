@@ -12,6 +12,8 @@ import KakaoSignup from '../LoginPage/KakaoSignup';
 import axios from 'axios';
 import { useEffect } from 'react';
 import NaverSignup from '../LoginPage/NaverSignup';
+import { Outlet } from 'react-router-dom';
+import { useRef } from 'react';
 
 const overlayStyle = {
   position: 'fixed',
@@ -64,25 +66,50 @@ const formItemLayout = {
 function Register() {
   const [checked, setChecked] = useState(false);
   const [form] = Form.useForm();
-  const nameValue = Form.useWatch('nickname', form);
-  // 전화번호 앞 국가번호
-  // const prefixSelector = (
-  //   <Form.Item name='prefix' noStyle>
-  //     <Select
-  //       style={{
-  //         width: 70,
-  //       }}
-  //     >
-  //       <Option value='86'>+86</Option>
-  //       <Option value='87'>+87</Option>
-  //     </Select>
-  //   </Form.Item>
-  // );
   const [loading, setLoading] = useState(false);
   const [checkID, setCheckID] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
+
+  //////////인증메일 타이머/////////////////////////
+  const [time, setTime] = useState(0);
+  const [timeron, setTimeron] = useState(false);
+  const count = useRef(null);
+  const interval = useRef(null);
+  const sendMail = async () => {
+    let email = form.getFieldValue('email');
+    console.log('클릭', email);
+    if (checkID) {
+      try {
+        await axios.post('/api/user/sendVmail', { email }).then((res) => {
+          console.log(res.data);
+          setTime(res.data.validtime);
+          count.current = res.data.validtime;
+          setTimeron(true);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+  useEffect(() => {
+    console.log('된긴함?');
+    if (time >= 0) {
+      console.log('들어옴');
+      interval.current = setInterval(() => {
+        count.current -= 1;
+        setTime(count.current);
+      }, 1000);
+    }
+  }, [timeron]);
+
+  useEffect(() => {
+    if (count.current <= 0) {
+      clearInterval(interval.current);
+    }
+  }, [time]);
+  /////////////////////////////////////////////////
 
   const onChange = (e) => {
     console.log('checked = ', e.target.checked);
@@ -122,6 +149,8 @@ function Register() {
                 errors: ['사용중인 이메일 입니다'],
               },
             ]);
+          } else {
+            setCheckID(true);
           }
         });
       } catch (error) {
@@ -288,6 +317,8 @@ function Register() {
         >
           <Input onBlur={checkEmail} className='regi-form-input' style={{ width: '240px' }} />
         </Form.Item>
+        <span> {time}</span> <button onClick={sendMail}> 인증 메일</button>
+        <Outlet />
         <Form.Item
           className='regi-form-item'
           name='password'

@@ -86,7 +86,11 @@ const userSchema = mongoose.Schema({
     default: false,
   },
   expiresday: {
-    typeof: Date,
+    type: Date,
+  },
+  verify: {
+    type: Boolean,
+    default: false,
   },
 });
 ///되나

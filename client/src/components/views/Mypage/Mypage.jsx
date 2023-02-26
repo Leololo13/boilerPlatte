@@ -205,40 +205,7 @@ function Mypage() {
 
     fetchUser();
   }, []);
-  const [time, setTime] = useState(0);
-  const [timeron, setTimeron] = useState(false);
-  const count = useRef(null);
-  const interval = useRef(null);
-  useEffect(() => {
-    console.log('된긴함?');
-    if (time >= 0) {
-      console.log('들어옴');
-      interval.current = setInterval(() => {
-        count.current -= 1;
-        setTime(count.current);
-      }, 1000);
-    }
-  }, [timeron]);
 
-  useEffect(() => {
-    if (count.current <= 0) {
-      clearInterval(interval.current);
-    }
-  }, [time]);
-
-  const sendMail = async (email) => {
-    console.log('클릭', email);
-    try {
-      await axios.post('/api/user/sendVmail', { email }).then((res) => {
-        console.log(res.data);
-        setTime(res.data.validtime);
-        count.current = res.data.validtime;
-        setTimeron(true);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
   function switchPage() {
     switch (act) {
       case 'userInfo':
@@ -620,15 +587,6 @@ function Mypage() {
       </header>
       <h3>
         <span>{userId.current ?? ''} 님의 회원정보입니다</span>
-        <button
-          onClick={() => {
-            sendMail(userdata?.email);
-          }}
-        >
-          {' '}
-          인증 메일 발송 테스트용
-        </button>
-        <p> {time}</p>
       </h3>
       <main className='mypage-main'>
         {switchPage()}
