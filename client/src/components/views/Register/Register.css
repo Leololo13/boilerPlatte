@@ -9,10 +9,19 @@
   padding-left: 10px;
   width: 230px;
 }
+.agreement-checkbox {
+  width: 240px;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
 .agreement-checkbox:hover {
   text-decoration: underline;
 }
-.agrement-check {
+.agreement-checkbox-modal:hover {
+  text-decoration: underline;
+}
+.agreement-check {
   color: black;
   width: 240px;
   font-size: 1rem;
@@ -21,7 +30,7 @@
   cursor: pointer;
   margin-bottom: 10px;
 }
-.agrement-check:hover {
+.agreement-check:hover {
   text-decoration: underline;
 }
 .registerbox {
@@ -73,3 +82,37 @@
     margin: 0px 20px;
   }
 } */
+
+.verify-box {
+  width: 240px;
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.verify-box-left {
+  display: flex;
+  gap: 3px;
+}
+.verify-box-left input {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  width: 80px;
+  height: 30px;
+}
+.verify-box button {
+  cursor: pointer;
+  height: 100%;
+  min-width: 35px;
+  border: none;
+  border-radius: 5px;
+  background-color: bisque;
+  color: darkgray;
+  font-size: 0.7rem;
+}
+.verify-box-left span {
+  width: 100%;
+  font-size: 0.7rem;
+  font-weight: bold;
+  height: 30px;
+  text-align: center;
+}

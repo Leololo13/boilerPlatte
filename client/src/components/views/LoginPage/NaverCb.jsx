@@ -21,7 +21,7 @@ const NaverCb = () => {
           alert(res.data.message);
           if (res.data.message === '가입에 성공하셨습니다.') {
             console.log('??');
-            navigate('/user/naver/signin');
+            navigate('/');
           } else {
             navigate('/');
           }

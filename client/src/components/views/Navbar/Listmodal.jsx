@@ -1,4 +1,10 @@
-import { AppstoreOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  EyeInvisibleOutlined,
+  SettingOutlined,
+  SmileOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Menu, Avatar } from 'antd';
 import { useState } from 'react';
 import React from 'react';
@@ -110,14 +116,14 @@ const Listmodal = (props) => {
         힐링 시간
       </Link>,
       'list',
-      <AppstoreOutlined />,
+      <SmileOutlined />,
 
       listCategories.map((list, i) => {
         return getItem(
           <Link to={`/${topCategories[0]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 5}`
+          `${i + loginUser.children.length + 1}`
         );
       })
     ),
@@ -132,7 +138,7 @@ const Listmodal = (props) => {
           <Link to={`/${topCategories[1]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 9}`
+          `${i + loginUser.children.length + 1 + listCategories.length}`
         );
       })
     ),
@@ -141,18 +147,18 @@ const Listmodal = (props) => {
         블라인드
       </Link>,
       'blind',
-      <SettingOutlined />,
+      <EyeInvisibleOutlined />,
       blindCategories.map((list, i) => {
         return getItem(
           <Link to={`/${topCategories[2]}/${list}`} className='link'>
             {valTotitle[list]}
           </Link>,
-          `${i + 13}`
+          `${i + loginUser.children.length + 1 + listCategories.length + comuCategories.length}`
         );
       })
     ),
   ];
-
+  console.log(items);
   function timedelay(now) {
     setModal(now);
     setCntStyle((prev) => ({

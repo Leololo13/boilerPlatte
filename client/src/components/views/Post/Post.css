@@ -12,6 +12,11 @@
   display: flex;
   flex-direction: column;
 }
+.comment-likehate {
+  cursor: pointer;
+  display: flex;
+  gap: 5px;
+}
 
 .post-title {
   margin: 0;
@@ -20,6 +25,11 @@
 }
 .post-title:hover {
   text-decoration: underline;
+}
+.footer-share {
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 .postInfo {
   display: flex;

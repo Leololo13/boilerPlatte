@@ -75,7 +75,9 @@ function BoardList() {
         const res = await axios.get(
           `/api/list?page=${page}&category=${
             search ? 'search' : category
-          }&limit=${limit}&search=${search}&topc=${topcategory}&soption=${searchOption ?? 'title'}`
+          }&limit=${limit}&search=${search}&topc=${topcategory}&soption=${
+            searchOption ?? 'title'
+          }`
         );
         const res2 = await axios.get('/api/comment');
         const res3 = await axios.get(`/api/announce/${category}`);
@@ -107,13 +109,20 @@ function BoardList() {
               ? '블라인드'
               : ''}
           </h4>
-          <section className='boardlist-header-section'> {valTotitle[category] ?? 'ALL'}</section>
+          <section className='boardlist-header-section'>
+            {' '}
+            {valTotitle[category] ?? 'ALL'}
+          </section>
         </div>
         <div className='boardlist-header-right'>
           {' '}
           <div>
             <Input.Group compact style={{ width: '280px' }}>
-              <Select defaultValue={searchOption ?? 'title'} onChange={optionHandler} style={{ width: '100px' }}>
+              <Select
+                defaultValue={searchOption ?? 'title'}
+                onChange={optionHandler}
+                style={{ width: '100px' }}
+              >
                 <Select value='title'>제목</Select>
                 <Select value='title,content'>제목+내용</Select>
                 <Select value='nickname'>작성자</Select>
@@ -169,13 +178,22 @@ function BoardList() {
               >
                 👍/🤢
               </td>
-              <td className='boardlist-box-head title' style={{ flex: 16, textAlign: 'center' }}>
+              <td
+                className='boardlist-box-head title'
+                style={{ flex: 16, textAlign: 'center' }}
+              >
                 제목
               </td>
-              <td className='boardlist-box-head writer' style={{ flex: 2, minWidth: '70px' }}>
+              <td
+                className='boardlist-box-head writer'
+                style={{ flex: 2, minWidth: '70px' }}
+              >
                 글쓴이
               </td>
-              <td className='boardlist-box-head date' style={{ flex: 2, minWidth: '70px' }}>
+              <td
+                className='boardlist-box-head date'
+                style={{ flex: 2, minWidth: '70px' }}
+              >
                 날짜
               </td>
             </tr>
@@ -188,7 +206,9 @@ function BoardList() {
                   <td className='ip-post-title'>
                     <Link
                       className='link'
-                      to={`/${topcategory}/${search ? 'search' : category}/post/${anc.postnum}?page=${page}&soption=${
+                      to={`/${topcategory}/${
+                        search ? 'search' : category
+                      }/post/${anc.postnum}?page=${page}&soption=${
                         searchOption ?? 'title'
                       }&search=${search ?? null}`}
                     >
@@ -211,7 +231,11 @@ function BoardList() {
               </h4>
             ) : null}
             {lists
-              ?.filter((list) => (category === 'all' || category === 'search' ? list : list.category === category))
+              ?.filter((list) =>
+                category === 'all' || category === 'search'
+                  ? list
+                  : list.category === category
+              )
               .map((list) => (
                 <tr className='boardlist-table' key={list._id}>
                   <td
@@ -241,13 +265,19 @@ function BoardList() {
                     <div className='boardlist-table-title'>
                       <Link
                         className='link'
-                        to={`/${topcategory}/${search ? 'search' : category}/post/${
-                          list.postnum
-                        }?page=${page}&soption=${searchOption ?? 'title'}&search=${search ?? null}`}
+                        to={`/${topcategory}/${
+                          search ? 'search' : category
+                        }/post/${list.postnum}?page=${page}&soption=${
+                          searchOption ?? 'title'
+                        }&search=${search ?? null}`}
                       >
                         {list.title}
                         <span style={{ color: 'burlywood', fontSize: '1rem' }}>
-                          {comments.filter((comment) => comment.postnum === list.postnum).length}
+                          {
+                            comments.filter(
+                              (comment) => comment.postnum === list.postnum
+                            ).length
+                          }
                         </span>
                       </Link>
                     </div>

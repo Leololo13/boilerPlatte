@@ -5,9 +5,15 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import Recomment from './Recomment';
-import { EditOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  LikeOutlined,
+  DislikeOutlined,
+} from '@ant-design/icons';
 import Modal from 'react-modal';
-import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Pagination } from 'antd';
 import useSubmitFetch from './useSubmitFetch';
 
@@ -95,7 +101,34 @@ function Comment(props) {
   /////
 
   //////
-
+  async function likeHandler(_id, like) {
+    console.log(_id);
+    console.log(like, typeof like);
+    try {
+      await axios.post('/api/comment/like', { _id, like: like }).then((res) => {
+        console.log(res.data);
+        if (res.data.cmtlikeSuccess) {
+          console.log(res.data);
+          alert(res.data.message);
+          navigate(0);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function dislikeHandler(_id, dislike) {
+    try {
+      await axios.post('/api/comment/dislike', { _id, dislike: dislike }).then((res) => {
+        if (res.data.cmtdislikeSuccess) {
+          alert(res.data.message);
+          window.location.reload();
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
   function dataHandler(e) {
     e.preventDefault();
     setWrittenComment((prev) => ({
@@ -104,6 +137,7 @@ function Comment(props) {
       writer: user._id,
       nickname: user.nickname,
       image: user.image ?? '',
+      post: props.p_id,
     }));
   }
 
@@ -116,14 +150,12 @@ function Comment(props) {
   }
 
   const deleteHandler = async (commentnum) => {
-    console.log(commentnum);
     if (!user._id) {
       alert('로그인이 필요한 기능입니다');
     } else {
       formsubmitHandler('/api/comment/delete', { commentnum });
       setDeleteModal((prev) => ({ ...prev, open: false }));
       navigate(0);
-      console.log(loading);
     }
   };
   const commentModalHandler = (e) => {
@@ -141,7 +173,6 @@ function Comment(props) {
     const fetchComment = async () => {
       try {
         const res = await axios.get(`/api/post/${id}/comment`);
-        console.log(res.data);
         setComments(res.data.sortedData);
         setTotal(res.data.sortedData.length);
       } catch (error) {
@@ -168,7 +199,6 @@ function Comment(props) {
         <div>
           <button
             onClick={(e) => {
-              console.log(deleteModal.num);
               deleteHandler(deleteModal.num);
             }}
             disabled={loading ? true : false}
@@ -204,7 +234,7 @@ function Comment(props) {
                       <div className='comment-info'>
                         <div className='comment-writer'>
                           {' '}
-                          {props.writer === comment.nickname ? (
+                          {props.writer === comment.writer ? (
                             <span>
                               {comment.nickname}
                               <CheckOutlined
@@ -221,8 +251,21 @@ function Comment(props) {
 
                         <div className='comment-action'>
                           <div className='comment-likehate'>
-                            {' '}
-                            {comment.like.length}/ {comment.hate.length}
+                            <span
+                              onClick={() => {
+                                likeHandler(comment._id, comment.like);
+                              }}
+                            >
+                              <LikeOutlined /> {comment.like.length}
+                            </span>
+                            /
+                            <span
+                              onClick={() => {
+                                dislikeHandler(comment._id, comment.hate);
+                              }}
+                            >
+                              <DislikeOutlined /> {comment.hate.length}
+                            </span>
                           </div>
                           <div
                             onClick={() => {

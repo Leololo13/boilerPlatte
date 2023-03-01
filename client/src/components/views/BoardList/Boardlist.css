@@ -9,12 +9,13 @@
   margin-top: 35px;
 }
 .boardlist-header {
-  flex: 1;
+  height: 80px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 .boardlist-header h4 {
+  padding-left: 5px;
   max-width: 80px;
   min-width: 40px;
 }

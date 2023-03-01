@@ -13,6 +13,7 @@ function Navbar(props) {
   const { category } = useParams();
   const [cookies, setCookie, removeCookies] = useCookies([]);
   const [data, setData] = useState({});
+
   const location = useLocation();
   const navigate = useNavigate();
   const [listModal, setListModal] = useState(false);
@@ -131,6 +132,7 @@ function Navbar(props) {
         listModal={listModal}
         setListModal={setListModal}
       />
+
       <div className='leftbox'>
         <span className='leftbox-modal'>
           <MenuOutlined
@@ -189,7 +191,7 @@ function Navbar(props) {
                     height: '3.5rem',
                   }}
                 >
-                  {data?.isAdmin ? 'Admin' : 'User'}
+                  {props?.isAdmin ? 'Admin' : 'User'}
                 </Button>
               </Dropdown>
             </Space>

@@ -6,7 +6,13 @@ import './Post.css';
 import Comment from './Comment';
 import Dompurify from 'dompurify';
 import Modal from 'react-modal';
-import { LinkOutlined, EyeOutlined } from '@ant-design/icons';
+import {
+  LikeFilled,
+  DislikeFilled,
+  LinkOutlined,
+  EyeOutlined,
+  FlagOutlined,
+} from '@ant-design/icons';
 
 const overlayStyle = {
   position: 'fixed',
@@ -40,6 +46,7 @@ const contentStyle = {
 function Post(props) {
   const navigate = useNavigate();
   const location = useLocation();
+
   console.log(props, 'in post props');
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
@@ -72,6 +79,15 @@ function Post(props) {
       ],
     });
   }
+  const scrapHandler = async () => {
+    console.log(id, post._id);
+    await axios
+      .get(`/api/post/scrap?num=${id}&obid=${post._id}`)
+      .then((res) => {
+        console.log(res.data);
+        alert(res.data.message);
+      });
+  };
   const deleteModalHandler = () => {
     setDeleteModal(true);
   };
@@ -79,7 +95,9 @@ function Post(props) {
     try {
       await axios.post(`/api/post/delete/${id}`).then((res) => {
         console.log(res.data);
-        !res.data.DeleteSuccess ? alert(res.data.message) : navigate('/list/all');
+        !res.data.DeleteSuccess
+          ? alert(res.data.message)
+          : navigate('/list/all');
       });
     } catch (error) {
       alert(error);
@@ -134,7 +152,7 @@ function Post(props) {
     const fetchPost = async () => {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
-        console.log(res.data);
+
         setPost(res.data);
       } catch (err) {
         console.log(err);
@@ -154,9 +172,8 @@ function Post(props) {
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
-  console.log(post);
-  let content = post?.content;
 
+  let content = post?.content;
   return (
     <div className='post'>
       <Modal
@@ -173,6 +190,7 @@ function Post(props) {
         <p>이 글을 삭제 하시겠습니까?</p>
         <div>
           <button
+            className='modal-button'
             onClick={() => {
               postDeletehandler();
               navigate(-2);
@@ -180,7 +198,12 @@ function Post(props) {
           >
             예
           </button>
-          <button onClick={() => setDeleteModal(false)}>아니오</button>
+          <button
+            className='modal-button'
+            onClick={() => setDeleteModal(false)}
+          >
+            아니오
+          </button>
         </div>
       </Modal>
       <header className='postHead'>
@@ -192,7 +215,7 @@ function Post(props) {
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}
-            <p className='id'>{post.id}</p>
+            <p className='id'>{post.nickname}</p>
             <p className='date'>{elapsedTime(post.date)}</p>
             <p className='views'>
               {' '}
@@ -206,7 +229,9 @@ function Post(props) {
             <div>
               <LinkOutlined />
             </div>
-            <a href={location.pathname}>http://localhost:3000{location.pathname}</a>
+            <a href={location.pathname}>
+              http://localhost:3000{location.pathname}
+            </a>
           </div>
         </div>
       </header>
@@ -218,7 +243,12 @@ function Post(props) {
             dangerouslySetInnerHTML={{
               __html: Dompurify.sanitize(content, {
                 ADD_TAGS: ['iframe'],
-                ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+                ADD_ATTR: [
+                  'allow',
+                  'allowfullscreen',
+                  'frameborder',
+                  'scrolling',
+                ],
               }),
             }}
           ></div>
@@ -226,10 +256,13 @@ function Post(props) {
 
         <footer className='postContent-footer'>
           <button className='like' name='like' onClick={likeHandler}>
-            좋아요 👍 {post.like?.length}
+            좋아요 <LikeFilled style={{ color: 'white', fontSize: '15px' }} />
+            {post.like?.length}
           </button>
           <button className='hate' name='hate' onClick={likeHandler}>
-            싫어요 🤢 {post.hate?.length}
+            싫어요{' '}
+            <DislikeFilled style={{ color: 'white', fontSize: '15px' }} />{' '}
+            {post.hate?.length}
           </button>
         </footer>
       </main>
@@ -254,20 +287,34 @@ function Post(props) {
                 height='100%'
               />
             </p>
+            <FlagOutlined
+              onClick={scrapHandler}
+              style={{
+                paddingLeft: '5px',
+                fontSize: '30px',
+                cursor: 'pointer',
+              }}
+            />
           </div>
           {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
-              {' '}
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
-                <button className='footer-editbox-edit'>edit</button>{' '}
+                <button className='footer-editbox-edit'>수정</button>{' '}
               </Link>
-              <button className='footer-editbox-delete' onClick={deleteModalHandler}>
-                delete
+              <button
+                className='footer-editbox-delete'
+                onClick={deleteModalHandler}
+              >
+                삭제
               </button>
             </div>
           ) : null}
         </div>
-        <Comment writer={post.nickname} isAuth={props.isAuth} />
+        <Comment
+          p_id={post._id}
+          writer={post.writer?._id}
+          isAuth={props.isAuth}
+        />
       </footer>
     </div>
   );
