@@ -1,44 +1,102 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const Verfiy = (props) => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const vemail = searchParams.get('vemail');
-  const validkey = searchParams.get('validkey');
-  const validtimes = searchParams.get('validtimes');
-  const [loading, setLoading] = useState(false);
-  const [verify, setVerify] = useState(undefined);
+  //////////인증메일 타이머/////////////////////////
+  const [time, setTime] = useState();
+  const [timeron, setTimeron] = useState(false);
+  const count = useRef(null);
+  const interval = useRef(null);
+  const [value, setValue] = useState('');
+  const [scrkey, setScrkey] = useState('');
+  const [clicked, setClicked] = useState(false);
+
+  function makeTime(time) {
+    if (!time) {
+      return '';
+    }
+    let mm = parseInt(time / 60);
+    let ss = (time % 60).toString().padStart(2, '0');
+    return `${mm}:${ss}`;
+  }
+  console.log(props);
+  const sendMail = async () => {
+    console.log('클릭', props.email);
+    let email = props.email;
+    if (props.checkID) {
+      try {
+        setClicked(true);
+        await axios.post('/api/user/sendVmail', { email }).then((res) => {
+          if (res.data.sendMailSuccess) {
+            alert(res.data.message);
+            setScrkey(res.data.secretkey);
+            setTime(res.data.validtime);
+            count.current = res.data.validtime;
+            setTimeron(true);
+          } else {
+            alert('인증메일 발송 과정에서 에러가 발생했습니다');
+          }
+        });
+      } catch (error) {
+        alert('인증메일 발송 과정에서 에러가 발생했습니다');
+      }
+    } else if (!props.email) {
+      alert('이메일을 입력하십시오');
+    } else {
+      alert('사용중인 이메일입니다');
+    }
+  };
+  useEffect(() => {
+    console.log('된긴함?');
+    if (time >= 0) {
+      interval.current = setInterval(() => {
+        count.current -= 1;
+        setTime(count.current);
+      }, 1000);
+    }
+  }, [timeron]);
 
   useEffect(() => {
-    setLoading(true);
-    const verifyID = async () => {
-      try {
-        await axios
-          .get(`/api/user/sendVmail/?condition=verify?vemail=${vemail}&validkey=${validkey}&validtimes=${validtimes}`)
-          .then((res) => {
-            if (res.data.verify) {
-              setVerify(true);
-            }
-            setLoading(false);
-            console.log(res.data);
-          });
-      } catch (error) {
-        console.log(error.message);
-      }
-    };
-  });
+    if (count.current <= 0) {
+      clearInterval(interval.current);
+      setClicked(false);
+    }
+  }, [time]);
+  /////////////////////////////////////////////////
 
+  const checkHandler = () => {
+    if (time > 0 && value === scrkey) {
+      props.setVeri(true);
+    } else {
+      alert('인증번호가 잘못되었습니다');
+    }
+  };
+  const changeHandler = (e) => {
+    setValue(e.target.value);
+    console.log(e.target.value);
+  };
   return (
-    <div>
+    <>
+      <div className='verify-box'>
+        <div className='verify-box-left'>
+          <input type='text' value={value} onChange={changeHandler} placeholder='인증번호입력' />
+          <button onClick={checkHandler}>인증하기</button>
+          <span>{props.veri ? '인증완료' : !props.veri && time === 0 ? '인증시간 초과' : makeTime(time)}</span>{' '}
+        </div>
+        <div className='verify-box-right'>
+          {' '}
+          <button disabled={clicked} style={{ height: '30px', width: '60px' }} onClick={sendMail}>
+            인증메일 발송
+          </button>
+        </div>
+      </div>
       {/* 로딩끝+인증완료 = 인증끝, 로딩중+인증은모름=>인증기다림, 로딩끝+인증x=인증실패 */}
-      {!loading && verify
+      {/* {!loading && verify
         ? '인증완료되었습니다'
         : loading && verify === undefined
         ? '인증을 기다리고 있습니다'
-        : '인증 실패'}
-    </div>
+        : '인증 실패'} */}
+    </>
   );
 };
 

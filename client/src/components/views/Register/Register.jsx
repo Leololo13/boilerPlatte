@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -12,8 +12,7 @@ import KakaoSignup from '../LoginPage/KakaoSignup';
 import axios from 'axios';
 import { useEffect } from 'react';
 import NaverSignup from '../LoginPage/NaverSignup';
-import { Outlet } from 'react-router-dom';
-import { useRef } from 'react';
+import Verfiy from './Verfiy';
 
 const overlayStyle = {
   position: 'fixed',
@@ -64,76 +63,45 @@ const formItemLayout = {
 };
 
 function Register() {
-  const [checked, setChecked] = useState(false);
+  const [check, setCheck] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [checkID, setCheckID] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
-
-  //////////인증메일 타이머/////////////////////////
-  const [time, setTime] = useState(0);
-  const [timeron, setTimeron] = useState(false);
-  const count = useRef(null);
-  const interval = useRef(null);
-  const sendMail = async () => {
-    let email = form.getFieldValue('email');
-    console.log('클릭', email);
-    if (checkID) {
-      try {
-        await axios.post('/api/user/sendVmail', { email }).then((res) => {
-          console.log(res.data);
-          setTime(res.data.validtime);
-          count.current = res.data.validtime;
-          setTimeron(true);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-  useEffect(() => {
-    console.log('된긴함?');
-    if (time >= 0) {
-      console.log('들어옴');
-      interval.current = setInterval(() => {
-        count.current -= 1;
-        setTime(count.current);
-      }, 1000);
-    }
-  }, [timeron]);
-
-  useEffect(() => {
-    if (count.current <= 0) {
-      clearInterval(interval.current);
-    }
-  }, [time]);
-  /////////////////////////////////////////////////
-
+  const [veri, setVeri] = useState(false);
+  let emails = form.getFieldValue('email');
   const onChange = (e) => {
-    console.log('checked = ', e.target.checked);
-    setChecked(e.target.checked);
+    setCheck(e.target.checked);
+    console.log(e.target.value);
   };
+
   const onSubmitHandler = function (values) {
-    setLoading(true);
+    console.log(values);
     const { agreement, confirm, ...others } = values;
+    console.log(agreement, veri, confirm);
     others.signupDate = new Date();
     let body = others;
-    dispatch(registerUser(body)).then((response) => {
-      if (response.payload.isloading) {
-        setLoading(true);
-        console.log(response);
-      } else if (response.payload.RegisterSuccess === true) {
-        console.log(response);
-        alert('가입 성공');
-        setLoading(false);
-        navigate('/');
-      } else {
-        console.log(response);
-        alert(response.payload.message);
-      }
-    });
+    if (!veri) {
+      alert('이메일 인증을 해야합니다');
+    } else {
+      setLoading(true);
+      dispatch(registerUser(body)).then((response) => {
+        if (response.payload.isloading) {
+          setLoading(true);
+          console.log(response);
+        } else if (response.payload.RegisterSuccess === true) {
+          console.log(response);
+          alert('가입 성공');
+          setLoading(false);
+          navigate('/');
+        } else {
+          console.log(response);
+          alert(response.payload.message);
+        }
+      });
+    }
   };
   const checkEmail = async () => {
     if (form.getFieldError('email').length === 0 && form.getFieldValue('email')) {
@@ -143,6 +111,7 @@ function Register() {
         await axios.post('/api/user/checkID', email).then((res) => {
           console.log(res);
           if (!res.data.CheckID) {
+            setCheckID(false);
             form.setFields([
               {
                 name: 'email',
@@ -179,10 +148,13 @@ function Register() {
       }
     }
   };
-  console.log(checked, 'checheijdd');
-  useEffect(() => {
-    console.log('useeffect');
-  }, [checked, checkID, modal]);
+
+  // useEffect(() => {
+  //   setCheck(checked.current);
+  //   console.log(checked, check, 'useeffect');
+  // }, [modal]);
+
+  // console.log(checked, check, '모달ㅈ뒤쪽에서 클릭시에도 계속 리렌더된다');
   return (
     <div className='registerbox'>
       <Modal
@@ -197,17 +169,15 @@ function Register() {
         }}
       >
         <Agreement />
-        <Checkbox className='agreement-checkbox' defaultChecked={checked} onChange={onChange}>
+        <Checkbox
+          name='agreement'
+          className='agreement-checkbox-modal'
+          checked={check}
+          defaultChecked={check}
+          onChange={onChange}
+        >
           위의 내용을 모두 읽었으며
-          <span
-            className='agrement-check'
-            style={{
-              color: 'black',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
-          >
+          <span className='agreement-check'>
             {'  '}동의{'  '}
           </span>
           합니다
@@ -301,7 +271,7 @@ function Register() {
       >
         <Form.Item
           name='email'
-          label='E-mail'
+          label='이메일'
           className='regi-form-item'
           hasFeedback
           rules={[
@@ -317,8 +287,7 @@ function Register() {
         >
           <Input onBlur={checkEmail} className='regi-form-input' style={{ width: '240px' }} />
         </Form.Item>
-        <span> {time}</span> <button onClick={sendMail}> 인증 메일</button>
-        <Outlet />
+        <Verfiy checkID={checkID} email={emails} veri={veri} setVeri={setVeri} />
         <Form.Item
           className='regi-form-item'
           name='password'
@@ -423,7 +392,7 @@ function Register() {
         </Form.Item> */}
         <div>
           <span
-            className='agrement-check'
+            className='agreement-check'
             onClick={() => {
               setModal(true);
             }}
@@ -432,26 +401,13 @@ function Register() {
             약관 사항 읽어보기
           </span>
         </div>{' '}
-        <Form.Item
-          name='agreement'
-          valuePropName='checked'
-          style={{ textAlign: 'center' }}
-          rules={[
-            {
-              validator: (_, value) =>
-                value ? Promise.resolve() : Promise.reject(new Error('관련 약관을 읽어보신 후 동의하셔야합니다')),
-            },
-          ]}
-        >
-          <Checkbox
-            className='agreement-checkbox'
-            checked={checked}
-            defaultChecked={checked}
-            onChange={onChange}
-            style={{ width: '240px', fontSize: '0.8rem' }}
-          >
-            약관 사항 을 모두 읽었으며 동의합니다.
+        <Form.Item name='agreement'>
+          <Checkbox className='agreement-checkbox' checked={check} defaultChecked={check} onChange={onChange}>
+            <div> 약관 사항 을 모두 읽었으며 동의합니다.</div>
           </Checkbox>
+          <div style={{ fontSize: '0.75rem', color: 'red', width: '240px', textAlign: 'center' }}>
+            {check ? '' : '약관을 읽어보신 후 동의해야 합니다'}
+          </div>
         </Form.Item>
         <Form.Item>
           <Button

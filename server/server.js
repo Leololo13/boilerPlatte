@@ -104,6 +104,7 @@ app.post('/api/user/register', (req, res) => {
 //         }
 //       });
 // });
+
 //인증메일을보냄=>메일을받아서 링크를타고 옴. 그러면 verify.js통해서 인증완료하고 그 값을 보냄
 /// 어디로? reagister로 .. 근데 어케보냄?
 
@@ -111,37 +112,61 @@ app.post('/api/user/register', (req, res) => {
 app.post('/api/user/sendVmail', (req, res) => {
   let condition = req.query.params;
   let email = req.body.email;
-  let makesecretkey = Math.random.toString(36).substring(2, 10);
+  console.log(email);
+  let makesecretkey = Math.random().toString(36).substring(2, 10);
 
-  let validtime = '300';
-  console.log(req.body.email);
-
-  const mailGunsend = (email) => {
-    const auth = {
+  let validtime = '10';
+  // const mailGunsend = (email) => {
+  //   const auth = {
+  //     auth: {
+  //       api_key: process.env.MAIL_GUN_API_KEY,
+  //       domain: process.env.MAIL_GUN_DOMAIN,
+  //     },
+  //   };
+  //   const nodemailerTomailgun = nodemailer.createTransport(mg(auth));
+  //   return nodemailerTomailgun.sendMail(email, (err, info) => {
+  //     if (err) {
+  //       res.json({ sendMailSuccess: false, message: '에러가 발생했습니다', err });
+  //     } else {
+  //       res.json({ sendMailSuccess: true, info, validtime, message: '인증메일을 발송했습니다' });
+  //     }
+  //   });
+  // };
+  console.log(email);
+  const sendEMail = (email) => {
+    const smtpTransport = nodemailer.createTransport({
+      service: 'Gmail',
       auth: {
-        api_key: process.env.MAIL_GUN_API_KEY,
-        domain: process.env.MAIL_GUN_DOMAIN,
+        user: 'jgh7646@gmail.com',
+        pass: 'pakddpuovdkawlod',
       },
-    };
-    const nodemailerTomailgun = nodemailer.createTransport(mg(auth));
-    return nodemailerTomailgun.sendMail(email, (err, info) => {
+    });
+    smtpTransport.sendMail(email, (err, info) => {
       if (err) {
+        console.log(err);
         res.json({ sendMailSuccess: false, message: '에러가 발생했습니다', err });
       } else {
-        res.json({ sendMailSuccess: true, info, validtime, message: '인증메일을 발송했습니다' });
+        console.log('이메일 잘보내짐');
+        res.json({
+          sendMailSuccess: true,
+          info,
+          validtime,
+          secretkey: makesecretkey,
+          message: '인증메일을 발송했습니다',
+        });
       }
+      smtpTransport.close();
     });
   };
+
   const sendSecMail = (adress, secret) => {
     const email = {
-      from: 'ALT_Admin@gmail.com',
+      from: 'ALT_Admin',
       to: adress,
       subject: '로그인 인증 메일',
-      html: `<p>인증번호는 다음과 같습니다</p><p><a href={http://localhost:3000/user/register/verify?vemail=${adress}&validkey=${secret}&validtimes=${validtime}}>
-      인증하기
-    </a></p>`,
+      html: `<p>인증번호는 ${secret}입니다</p>`,
     };
-    return mailGunsend(email);
+    return sendEMail(email);
   };
 
   if (condition === 'verify') {
