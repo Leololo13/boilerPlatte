@@ -84,7 +84,7 @@ function Register() {
     others.signupDate = new Date();
     let body = others;
     if (!veri) {
-      alert('이메일 인증을 해야합니다');
+      alert('이메일 인증을 완료해야합니다');
     } else {
       setLoading(true);
       dispatch(registerUser(body)).then((response) => {
