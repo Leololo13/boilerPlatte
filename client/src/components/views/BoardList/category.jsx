@@ -8,7 +8,7 @@ export const valTotitle = {
   info: '정보글',
   hotdeal: '핫딜',
   enter: '연예인 및 노래',
-  lunch: '점심자랑',
+  lunch: '음식',
   AI: 'AI 대유쾌 마운틴 ',
   recommend: '아무거나 추천',
   anycomu: '아무거나',

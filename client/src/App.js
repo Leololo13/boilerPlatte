@@ -11,6 +11,7 @@ import Mypage from './components/views/Mypage/Mypage';
 import KakaoCb from './components/views/LoginPage/KakaoCb';
 import NaverCb from './components/views/LoginPage/NaverCb';
 import Verfiy from './components/views/Register/Verfiy';
+import Findpw from './components/views/LoginPage/Findpw';
 ////////////  A || B는 a가 트루면 a, false면 b
 ////////////// A && B a가 트루면 b, false면 a
 ////////////// A ?? B a가 falsy하면 즉null,undeficned.0,등등 이상한것들 이면 b, 있으면 a
@@ -70,6 +71,7 @@ function App() {
                   <Route path='register' element={Auth(Register, false)}>
                     <Route path='verify' element={<Verfiy />} />
                   </Route>
+                  <Route path='findPW' element={<Findpw />} />
                   <Route path='login' element={Auth(LoginPage, null)} />
                   <Route path='kakao/:condition' element={<KakaoCb />}></Route>
                   <Route path='naver/:act' element={<NaverCb />}></Route>

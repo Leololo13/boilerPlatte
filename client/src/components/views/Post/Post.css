@@ -131,6 +131,9 @@
   cursor: pointer;
   color: black;
 }
+.postContent-footer button:hover {
+  opacity: 0.9;
+}
 .postFooter {
   display: flex;
   gap: 10px;
@@ -158,6 +161,10 @@
   border-radius: 5px;
   padding: 10px;
 }
+.footer-editbox button:hover {
+  opacity: 0.9;
+}
+
 .postContent a {
   color: black;
   background-color: aliceblue;
@@ -287,6 +294,9 @@
   color: black;
   background-color: burlywood;
 }
+.recomment-write-main form button:hover {
+  opacity: 0.9;
+}
 .comment-write-img {
   display: flex;
   justify-content: center;
@@ -322,6 +332,9 @@
   border-radius: 5px;
   color: black;
   background-color: burlywood;
+}
+.comment-write-main form button:hover {
+  opacity: 0.9;
 }
 .comment-write-main textarea {
   height: 100%;

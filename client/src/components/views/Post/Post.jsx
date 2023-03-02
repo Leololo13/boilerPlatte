@@ -12,7 +12,11 @@ import {
   LinkOutlined,
   EyeOutlined,
   FlagOutlined,
+  LoadingOutlined,
+  LikeTwoTone,
+  DislikeTwoTone,
 } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 
 const overlayStyle = {
   position: 'fixed',
@@ -46,7 +50,7 @@ const contentStyle = {
 function Post(props) {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [loading, setLoading] = useState(false);
   console.log(props, 'in post props');
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
@@ -55,7 +59,6 @@ function Post(props) {
   const { id, category } = useParams();
   const [post, setPost] = useState({});
   const [deleteModal, setDeleteModal] = useState(false);
-
   function shareKakao() {
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
@@ -81,12 +84,13 @@ function Post(props) {
   }
   const scrapHandler = async () => {
     console.log(id, post._id);
-    await axios
-      .get(`/api/post/scrap?num=${id}&obid=${post._id}`)
-      .then((res) => {
-        console.log(res.data);
-        alert(res.data.message);
-      });
+    if (!props.isAuth) {
+      alert('로그인이 필요한 기능입니다');
+    }
+    await axios.get(`/api/post/scrap?num=${id}&obid=${post._id}`).then((res) => {
+      console.log(res.data);
+      alert(res.data.message);
+    });
   };
   const deleteModalHandler = () => {
     setDeleteModal(true);
@@ -95,9 +99,7 @@ function Post(props) {
     try {
       await axios.post(`/api/post/delete/${id}`).then((res) => {
         console.log(res.data);
-        !res.data.DeleteSuccess
-          ? alert(res.data.message)
-          : navigate('/list/all');
+        !res.data.DeleteSuccess ? alert(res.data.message) : navigate('/list/all');
       });
     } catch (error) {
       alert(error);
@@ -149,11 +151,13 @@ function Post(props) {
 
   //////포스트 받아오기
   useEffect(() => {
+    setLoading(true);
     const fetchPost = async () => {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
 
         setPost(res.data);
+        setLoading(false);
       } catch (err) {
         console.log(err);
       }
@@ -168,12 +172,16 @@ function Post(props) {
 
     fetchPost();
   }, []);
-  console.log('render');
+
+  console.log('render', post?.like?.includes(props?._id));
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
 
   let content = post?.content;
+  let pl = post?.like?.includes(props?._id);
+  let dpl = post?.hate?.includes(props?._id);
+
   return (
     <div className='post'>
       <Modal
@@ -198,10 +206,7 @@ function Post(props) {
           >
             예
           </button>
-          <button
-            className='modal-button'
-            onClick={() => setDeleteModal(false)}
-          >
+          <button className='modal-button' onClick={() => setDeleteModal(false)}>
             아니오
           </button>
         </div>
@@ -229,92 +234,107 @@ function Post(props) {
             <div>
               <LinkOutlined />
             </div>
-            <a href={location.pathname}>
-              http://localhost:3000{location.pathname}
-            </a>
+            <a href={location.pathname}>http://localhost:3000{location.pathname}</a>
           </div>
         </div>
       </header>
       <main className='postContent'>
-        {/* Dompurify 라이브러리 사용해서 설정해줘야함 */}
-        {typeof window !== 'undefined' && (
+        {loading ? (
           <div
-            className='postContent-main'
-            dangerouslySetInnerHTML={{
-              __html: Dompurify.sanitize(content, {
-                ADD_TAGS: ['iframe'],
-                ADD_ATTR: [
-                  'allow',
-                  'allowfullscreen',
-                  'frameborder',
-                  'scrolling',
-                ],
-              }),
+            style={{
+              height: '360px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          ></div>
+          >
+            <LoadingOutlined style={{ fontSize: '40px', color: 'burlywood' }} />
+          </div>
+        ) : (
+          <>
+            {' '}
+            {typeof window !== 'undefined' && (
+              <div
+                className='postContent-main'
+                dangerouslySetInnerHTML={{
+                  __html: Dompurify.sanitize(content, {
+                    ADD_TAGS: ['iframe'],
+                    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+                  }),
+                }}
+              ></div>
+            )}
+            <footer className='postContent-footer'>
+              <button className='like' name='like' onClick={likeHandler}>
+                좋아요
+                {pl ? (
+                  <LikeTwoTone twoToneColor={'orange'} style={{ fontSize: '18px' }} />
+                ) : (
+                  <LikeFilled style={{ color: 'white', fontSize: '18px' }} />
+                )}
+                {post.like?.length}
+              </button>
+              <button className='hate' name='hate' onClick={likeHandler}>
+                싫어요
+                {dpl ? (
+                  <DislikeTwoTone style={{ fontSize: '18px' }} />
+                ) : (
+                  <DislikeFilled style={{ color: 'white', fontSize: '18px' }} />
+                )}{' '}
+                {post.hate?.length}
+              </button>
+            </footer>
+          </>
         )}
-
-        <footer className='postContent-footer'>
-          <button className='like' name='like' onClick={likeHandler}>
-            좋아요 <LikeFilled style={{ color: 'white', fontSize: '15px' }} />
-            {post.like?.length}
-          </button>
-          <button className='hate' name='hate' onClick={likeHandler}>
-            싫어요{' '}
-            <DislikeFilled style={{ color: 'white', fontSize: '15px' }} />{' '}
-            {post.hate?.length}
-          </button>
-        </footer>
+        {/* Dompurify 라이브러리 사용해서 설정해줘야함 */}
       </main>
       <footer className='postFooter'>
         <div className='share-edit'>
           <div className='footer-share'>
-            <p
-              id='kakaotalk-sharing-btn'
-              style={{
-                cursor: 'pointer',
-                margin: '0',
-                padding: '0',
-                width: '40px',
-                height: '40px',
-              }}
-              onClick={shareKakao}
-            >
-              <img
-                src='https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png'
-                alt='카카오톡 공유 보내기 버튼'
-                width='100%'
-                height='100%'
+            <Tooltip placement='bottom' title={'카카오 공유하기'}>
+              <p
+                id='kakaotalk-sharing-btn'
+                style={{
+                  cursor: 'pointer',
+                  margin: '0',
+                  padding: '0',
+                  width: '40px',
+                  height: '40px',
+                }}
+                onClick={shareKakao}
+              >
+                <img
+                  src='https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png'
+                  alt='카카오톡 공유 보내기 버튼'
+                  width='100%'
+                  height='100%'
+                />
+              </p>
+            </Tooltip>
+            <Tooltip placement='bottom' title={'스크랩하기'}>
+              {' '}
+              <FlagOutlined
+                onClick={scrapHandler}
+                style={{
+                  paddingLeft: '5px',
+                  fontSize: '30px',
+                  cursor: 'pointer',
+                }}
               />
-            </p>
-            <FlagOutlined
-              onClick={scrapHandler}
-              style={{
-                paddingLeft: '5px',
-                fontSize: '30px',
-                cursor: 'pointer',
-              }}
-            />
+            </Tooltip>
           </div>
           {user?._id === post.writer?._id ? (
             <div className='footer-editbox'>
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
                 <button className='footer-editbox-edit'>수정</button>{' '}
               </Link>
-              <button
-                className='footer-editbox-delete'
-                onClick={deleteModalHandler}
-              >
+              <button className='footer-editbox-delete' onClick={deleteModalHandler}>
                 삭제
               </button>
             </div>
           ) : null}
         </div>
-        <Comment
-          p_id={post._id}
-          writer={post.writer?._id}
-          isAuth={props.isAuth}
-        />
+        <Comment p_id={post._id} writer={post.writer?._id} isAuth={props.isAuth} />
       </footer>
     </div>
   );

@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Mypage.css';
 import { message, Pagination } from 'antd';
 import Modal from 'react-modal';
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 
 const overlayStyle = {
@@ -61,6 +61,7 @@ function Mypage() {
   const IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
 
   ///page
+  const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
@@ -186,6 +187,7 @@ function Mypage() {
   }
 
   useEffect(() => {
+    setLoading(true);
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/user/mypage');
@@ -197,6 +199,7 @@ function Mypage() {
         setScraps(scrap.reverse());
         setPosts(posts.reverse());
         setTotal(act === 'post' ? posts.length : act === 'comments' ? comments.length : scrap.length);
+        setLoading(false);
       } catch (error) {
         alert(error);
         console.log(error.message);
@@ -586,10 +589,28 @@ function Mypage() {
         </Link>
       </header>
       <h3>
-        <span>{userId.current ?? ''} 님의 회원정보입니다</span>
+        {loading ? (
+          <LoadingOutlined style={{ fontSize: '20px', color: 'burlywood' }} />
+        ) : (
+          <span>{userId.current ?? ''} 님의 회원정보입니다</span>
+        )}
       </h3>
       <main className='mypage-main'>
-        {switchPage()}
+        {loading ? (
+          <div
+            style={{
+              height: '180px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <LoadingOutlined style={{ fontSize: '40px', color: 'burlywood' }} />
+          </div>
+        ) : (
+          switchPage()
+        )}
+
         {/* {act === 'userInfo' ? (
           <>
             <div className='mypage-userInfo'>

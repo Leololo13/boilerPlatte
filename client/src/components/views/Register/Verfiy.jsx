@@ -61,6 +61,10 @@ const Verfiy = (props) => {
       clearInterval(interval.current);
       setClicked(false);
     }
+    if (props.veri) {
+      clearInterval(interval.current);
+      setClicked(false);
+    }
   }, [time]);
   /////////////////////////////////////////////////
 

@@ -12,9 +12,11 @@ import {
   CheckOutlined,
   LikeOutlined,
   DislikeOutlined,
+  LikeFilled,
+  DislikeFilled,
 } from '@ant-design/icons';
 import Modal from 'react-modal';
-import { Avatar, Pagination } from 'antd';
+import { Avatar, Pagination, Tooltip } from 'antd';
 import useSubmitFetch from './useSubmitFetch';
 
 const overlayStyle = {
@@ -237,11 +239,14 @@ function Comment(props) {
                           {props.writer === comment.writer ? (
                             <span>
                               {comment.nickname}
-                              <CheckOutlined
-                                style={{
-                                  color: 'green',
-                                }}
-                              />
+                              <Tooltip placement='bottom' color='green' title={'작성자'}>
+                                {' '}
+                                <CheckOutlined
+                                  style={{
+                                    color: 'green',
+                                  }}
+                                />
+                              </Tooltip>
                             </span>
                           ) : (
                             comment.nickname
@@ -252,19 +257,37 @@ function Comment(props) {
                         <div className='comment-action'>
                           <div className='comment-likehate'>
                             <span
+                              style={{ color: 'orange' }}
                               onClick={() => {
                                 likeHandler(comment._id, comment.like);
                               }}
                             >
-                              <LikeOutlined /> {comment.like.length}
+                              {comment?.like?.includes(user?._id) ? (
+                                <>
+                                  <LikeFilled /> {comment.like.length}
+                                </>
+                              ) : (
+                                <>
+                                  <LikeOutlined /> {comment.like.length}
+                                </>
+                              )}
                             </span>
                             /
                             <span
+                              style={{ color: 'black' }}
                               onClick={() => {
                                 dislikeHandler(comment._id, comment.hate);
                               }}
                             >
-                              <DislikeOutlined /> {comment.hate.length}
+                              {comment?.like?.includes(user?._id) ? (
+                                <>
+                                  <DislikeFilled /> {comment.hate.length}
+                                </>
+                              ) : (
+                                <>
+                                  <DislikeOutlined /> {comment.hate.length}
+                                </>
+                              )}
                             </span>
                           </div>
                           <div
@@ -290,13 +313,16 @@ function Comment(props) {
                                 style={{ cursor: 'pointer' }}
                                 data-id={comment.content}
                               >
-                                <EditOutlined
-                                  style={{ fontSize: '1.2rem' }}
-                                  onClick={() => {
-                                    setEditOn(!editOn);
-                                    console.log(editOn, 'edit클릭');
-                                  }}
-                                />
+                                <Tooltip placement='bottom' title={'댓글 수정'}>
+                                  {' '}
+                                  <EditOutlined
+                                    style={{ fontSize: '1.2rem' }}
+                                    onClick={() => {
+                                      setEditOn(!editOn);
+                                      console.log(editOn, 'edit클릭');
+                                    }}
+                                  />
+                                </Tooltip>
                               </div>
                               <div
                                 className='comment-delete'
@@ -307,7 +333,10 @@ function Comment(props) {
                                   });
                                 }}
                               >
-                                <DeleteOutlined style={{ fontSize: '1.2rem' }} />
+                                <Tooltip placement='bottom' title={'댓글 삭제'}>
+                                  {' '}
+                                  <DeleteOutlined style={{ fontSize: '1.2rem' }} />
+                                </Tooltip>
                               </div>
                             </>
                           ) : null}

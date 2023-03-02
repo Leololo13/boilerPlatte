@@ -132,7 +132,7 @@ userSchema.methods.comparePassword = function (plainPassword, cb) {
   });
 };
 
-userSchema.methods.genToken = function (cb) {
+userSchema.methods.genToken = function (longlogin, cb) {
   let user = this;
   let token1 = jwt.sign(
     {
@@ -142,7 +142,7 @@ userSchema.methods.genToken = function (cb) {
     },
     process.env.ACCESS_TOKEN,
     {
-      expiresIn: '10m',
+      expiresIn: longlogin ? '24h' : '10m',
       issuer: 'About Tech',
       algorithm: 'HS256',
     }
@@ -155,7 +155,7 @@ userSchema.methods.genToken = function (cb) {
     },
     process.env.REFRESH_TOKEN,
     {
-      expiresIn: '24h',
+      expiresIn: longlogin ? '72h' : '24h',
       algorithm: 'HS256',
       issuer: 'About Tech',
     }
@@ -186,7 +186,7 @@ userSchema.statics.findByToken = function (token, cb) {
       });
     } else {
       if (err.message === 'jwt expired') {
-        console.log('jwt expireddddddddd');
+        console.log(err.message, 'jwt expireddddddddd');
         jwt.verify(token.ref_token, process.env.REFRESH_TOKEN, (err, data) => {
           if (data) {
             user.findOne({ _id: data._id, refresh_token: token.ref_token }, (error, user) => {

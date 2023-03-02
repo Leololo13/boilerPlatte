@@ -110,11 +110,11 @@ app.post('/api/user/register', (req, res) => {
 
 //=================================가입이메일 보내기
 app.post('/api/user/sendVmail', (req, res) => {
-  let condition = req.query.params;
+  let condition = req.query.condition;
   let email = req.body.email;
-  console.log(email);
+  console.log(email, condition, 'qpwelpqwlepqlwepqlweplqwpelpqwlepqlwepqlwpelqpwel');
   let makesecretkey = Math.random().toString(36).substring(2, 10);
-
+  let findpw = Math.random().toString(36).substring(2, 13);
   let validtime = '10';
   // const mailGunsend = (email) => {
   //   const auth = {
@@ -146,7 +146,6 @@ app.post('/api/user/sendVmail', (req, res) => {
         console.log(err);
         res.json({ sendMailSuccess: false, message: '에러가 발생했습니다', err });
       } else {
-        console.log('이메일 잘보내짐');
         res.json({
           sendMailSuccess: true,
           info,
@@ -166,7 +165,17 @@ app.post('/api/user/sendVmail', (req, res) => {
       subject: '로그인 인증 메일',
       html: `<p>인증번호는 ${secret}입니다</p>`,
     };
-    return sendEMail(email);
+    const findpw = {
+      from: 'ALT_Admin',
+      to: adress,
+      subject: '비밀번호 찾기',
+      html: `<p>새로운 비밀번호는 ${secret}입니다</p>`,
+    };
+    if (condition === 'findpw') {
+      return sendEMail(findpw);
+    } else {
+      return sendEMail(email);
+    }
   };
 
   if (condition === 'verify') {
@@ -179,6 +188,26 @@ app.post('/api/user/sendVmail', (req, res) => {
     } else {
       res.json({ verifySuccess: false, verify: false });
     }
+  } else if (condition === 'findpw') {
+    User.findOne({ email: email }, (err, userdata) => {
+      console.log(userdata);
+      if (err) return res.json({ findPWSuccess: false, err });
+      if (userdata?.password) {
+        userdata.chagePassword(findpw, (err, data) => {
+          if (err) return res.json({ findPWSuccess: false, err });
+          return res.json({
+            infoChangeSuccess: true,
+            message: '비밀번호 변경 메일을 발송했습니다',
+          });
+        });
+      } else {
+        return res.json({
+          findPWSuccess: false,
+          message: '구글,카카오,네이버를 통해 가입한 메일입니다. 비밀번호를 변경할수 없습니다',
+        });
+      }
+    });
+    sendSecMail(email, findpw);
   } else {
     sendSecMail(email, makesecretkey);
   }
@@ -230,15 +259,17 @@ app.post('/api/user/infochange', auth, (req, res) => {
 ////login=====================
 app.post('/api/user/login', (req, res) => {
   console.log(req.body);
+  let longLogin = req.body.longLogin;
   User.findOneAndUpdate({ email: req.body.email }, { date: req.body.date, $inc: { logintry: 1 } }, (err, userData) => {
     /////db에 이메일이 있는지?
     console.log(userData.date, userData);
     if (!userData) return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
-    if (userData.logintry >= 5)
+    if (userData.logintry >= 5) {
       return res.json({
         LoginSuccess: false,
         message: '비밀번호입력을 5회 이상 실패하였습니다. 비밀번호 찾기를 통해 새로운 비밀번호를 발급 받으십시오',
       });
+    }
     ///db에 이메일이 있으면 비번비교해서 통과시키키
     userData.comparePassword(req.body.password, (err, isMatch) => {
       if (!isMatch)
@@ -248,9 +279,8 @@ app.post('/api/user/login', (req, res) => {
             userData.logintry + 1
           }회 틀렸습니다. 5회이상 틀릴시 로그인이 제한됩니다`,
         });
-      userData.genToken((err, userData) => {
+      userData.genToken(longLogin, (err, userData) => {
         if (err) return res.status(400).send(err);
-
         res
           .cookie('accessToken', userData.access_token, {
             httpOnly: true,
@@ -328,7 +358,7 @@ app.post('/api/user/googlesignup', async (req, res) => {
 ///구글로긴
 app.post('/api/user/googlesignin', async (req, res) => {
   const date = new Date();
-
+  let longLogin = req.body.longLogin;
   try {
     console.log({ verified: verifyGoogleToken(req.body.credential) });
     if (req.body.credential) {
@@ -352,7 +382,7 @@ app.post('/api/user/googlesignin', async (req, res) => {
             message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
           });
         } else {
-          data.genToken((err, userData) => {
+          data.genToken(longLogin, (err, userData) => {
             if (err) return res.status(400).send(err);
 
             res
@@ -386,6 +416,7 @@ app.post('/api/user/googlesignin', async (req, res) => {
 
 ////카카오로그인 및 가입기능
 app.get('/api/user/kakao/:cond', async (req, res) => {
+  let longLogin = req.body.longLogin;
   let code = req.query.code;
   let date = new Date();
   let { cond } = req.params;
@@ -426,7 +457,7 @@ app.get('/api/user/kakao/:cond', async (req, res) => {
                   User.findOneAndUpdate({ id: userInfo.id }, { date: date }, (err, docs) => {
                     console.log('카카오 로그인');
                     if (err) return res.json(err);
-                    docs.genToken((err, userData) => {
+                    docs.genToken(longLogin, (err, userData) => {
                       console.log(userData);
                       if (err) return res.status(400).send(err);
 
@@ -545,6 +576,7 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
   act = req.params.act;
   code = req.query.code;
   state = req.query.state;
+  let longLogin = req.body.longLogin;
 
   let reduri = encodeURI(`http://localhost:3000/user/naver/${act}`);
   api_url =
@@ -593,7 +625,7 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
                       message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
                     });
                   } else {
-                    docs.genToken((err, userData) => {
+                    docs.genToken(longLogin, (err, userData) => {
                       if (err) return res.status(400).send(err);
                       return res
                         .cookie('accessToken', userData.access_token, {
@@ -623,7 +655,7 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
                           RegisterSuccess: false,
                           message: er,
                         });
-                      userdata.genToken((err, userData) => {
+                      userdata.genToken(longLogin, (err, userData) => {
                         if (err) return res.status(400).send(err);
                         return res
                           .cookie('accessToken', userData.access_token, {
