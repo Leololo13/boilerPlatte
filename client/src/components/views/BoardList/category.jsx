@@ -10,7 +10,7 @@ export const valTotitle = {
   enter: '연예인 및 노래',
   lunch: '음식',
   AI: 'AI 대유쾌 마운틴 ',
-  recommend: '아무거나 추천',
+  recommend: '영화,노래,만화 등 추천',
   anycomu: '아무거나',
   any: '익명 - 아무거나',
   politic: '익명 - 정치',

@@ -32,7 +32,8 @@ function LoginPage() {
 
     dispatch(loginUser(body)).then((response) => {
       if (response.payload.LoginSuccess === true) {
-        alert('Login Sucess');
+        console.log(response.payload.message);
+        alert(response.payload.message);
         navigate(location.state?.background);
         window.location.reload();
       } else {

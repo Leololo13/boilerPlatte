@@ -23,7 +23,7 @@ const useFetch = (url) => {
         throw new Error(res?.data.message || res.data);
       })
       .catch((err) => {
-        console.log(err);
+        alert(err?.message);
         setError(err?.message);
       });
   };

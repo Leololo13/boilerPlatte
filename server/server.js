@@ -295,6 +295,8 @@ app.post('/api/user/login', (req, res) => {
             LoginSuccess: true,
             userID: userData.id,
             email: userData.email,
+            message:
+              userData.role === 0 ? '로그인 성공' : userData.role === 1 ? 'Admin계정으로 로그인' : '블럭된 계정입니다',
           });
       });
     });
