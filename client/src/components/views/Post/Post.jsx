@@ -277,7 +277,7 @@ function Post(props) {
               <button className='hate' name='hate' onClick={likeHandler}>
                 싫어요
                 {dpl ? (
-                  <DislikeTwoTone style={{ fontSize: '18px' }} />
+                  <DislikeTwoTone twoToneColor={'darkgray'} style={{ fontSize: '18px' }} />
                 ) : (
                   <DislikeFilled style={{ color: 'white', fontSize: '18px' }} />
                 )}{' '}
