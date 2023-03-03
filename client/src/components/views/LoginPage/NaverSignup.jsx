@@ -16,7 +16,7 @@ const NaverSignup = () => {
   };
 
   return (
-    <div>
+    <>
       {loading ? (
         <div>...loading</div>
       ) : (
@@ -24,22 +24,14 @@ const NaverSignup = () => {
           onClick={naverLoginhandler}
           style={{
             cursor: 'pointer',
-            //   color: 'white',
-            //   display: 'flex',
-            width: '100%',
-            height: '100%',
-            //   justifyContent: 'center',
-            //   alignItems: 'center',
-            //   fontSize: '30px',
-            //   fontWeight: 'bold',
-            //   borderRadius: '5px',
-            //   backgroundColor: 'rgb(30,200,0)',
+            width: '40px',
+            height: '40px',
           }}
         >
-          <img src='/logo/naverbtn.png' width={40} alt='' />
+          <img src='/logo/naverbtn.png' width={40} height={40} alt='' />
         </span>
       )}
-    </div>
+    </>
   );
 };
 

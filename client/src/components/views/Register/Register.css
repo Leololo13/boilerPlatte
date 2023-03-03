@@ -33,6 +33,7 @@
 .agreement-check:hover {
   text-decoration: underline;
 }
+
 .registerbox {
   display: flex;
   flex-direction: column;

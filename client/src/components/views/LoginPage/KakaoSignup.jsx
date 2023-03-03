@@ -12,12 +12,11 @@ const KakaoSignup = () => {
     }
   }
   return (
-    <div>
-      {' '}
-      <span id='kakao-login-btn' style={{ cursor: 'pointer' }} onClick={kakaoSignupHnadler}>
+    <>
+      <span id='kakao-login-btn' style={{ cursor: 'pointer', height: '40px' }} onClick={kakaoSignupHnadler}>
         <img src='/logo/kakaologin.png' alt='카카오 로그인 버튼' width={40} height={40} />
       </span>
-    </div>
+    </>
   );
 };
 

@@ -138,7 +138,7 @@ app.post('/api/user/sendVmail', (req, res) => {
       service: 'Gmail',
       auth: {
         user: 'jgh7646@gmail.com',
-        pass: 'pakddpuovdkawlod',
+        pass: process.env.GOOGLE_MAILER_PW,
       },
     });
     smtpTransport.sendMail(email, (err, info) => {
@@ -160,16 +160,18 @@ app.post('/api/user/sendVmail', (req, res) => {
 
   const sendSecMail = (adress, secret) => {
     const email = {
-      from: 'ALT_Admin',
+      from: `ALT_Admin <No-reply@gmail.com>`,
       to: adress,
-      subject: '로그인 인증 메일',
+      subject: '로그인 인증 메일입니다',
       html: `<p>인증번호는 ${secret}입니다</p>`,
     };
     const findpw = {
-      from: 'ALT_Admin',
+      from: `ALT_Admin <No-reply@gmail.com>`,
       to: adress,
-      subject: '비밀번호 찾기',
-      html: `<p>새로운 비밀번호는 ${secret}입니다</p>`,
+      subject: '비밀번호 찾기 메일입니다',
+      html: `<hr /><p>현재 비밀번호는 암호화되어진 상태로 운영자도 알수 없습니다.</p>
+      <p>새로운 비밀번호는 ${secret}입니다.</p>
+      <p>로그인 하신후에 비밀번호를 바꾸시는 것을 권장합니다.</p><hr />`,
     };
     if (condition === 'findpw') {
       return sendEMail(findpw);
@@ -212,8 +214,6 @@ app.post('/api/user/sendVmail', (req, res) => {
     sendSecMail(email, makesecretkey);
   }
 });
-//////메일와서 링크누르면 인증하기
-app.get('/api/user/verify', (req, res) => {});
 
 /////  탈퇴하기
 app.post('/api/user/out', auth, (req, res) => {

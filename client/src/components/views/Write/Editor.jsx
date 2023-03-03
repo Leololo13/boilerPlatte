@@ -8,6 +8,7 @@ import { Writer } from '../../../_actions/user_action';
 import './Editor.css';
 import { Select, Checkbox, Space } from 'antd';
 import { listCategories, comuCategories, blindCategories, valTotitle } from '../BoardList/category';
+import { LoadingOutlined } from '@ant-design/icons';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
@@ -120,6 +121,7 @@ const cateData = {
 console.log(cateData);
 /////////////////////////////////////////////////////////////////////////////
 const Editor = (props) => {
+  const { tpcategory } = useParams();
   const { id } = useParams();
   const { category } = useParams();
   const location = useLocation();
@@ -127,7 +129,8 @@ const Editor = (props) => {
   const editOn = searchParams.get('editOn');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const topcategory = location.pathname.split('/')[1];
+  const [loading, setLoading] = useState(false);
+
   const quillRef = useRef(); //
 
   const user = useSelector((state) => {
@@ -147,10 +150,11 @@ const Editor = (props) => {
   const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
 
   const [categories, setCategories] = useState(
-    cateData[topCategories[0].value] ////이걸로 2번을고른다.즉 대분류에 의한 결과가나와야함
+    cateData[tpcategory] ////이걸로 2번을고른다.즉 대분류에 의한 결과가나와야함
   );
-  const [sCate, setScate] = useState(cateData[topCategories[0].value][0].value); //2번에서고른다
-
+  const [sCate, setScate] = useState(category === 'all' ? cateData[tpcategory][0].label : category); //2번에서고른다
+  // useState(cateData[topCategories[0].value][0].value);
+  console.log(cateData[tpcategory], cateData[tpcategory][0].label);
   const tophandleChange = (value) => {
     console.log(`selected ${value}`);
     ///선택하면 list,comu,blund 대분류가 들어온다.
@@ -182,10 +186,10 @@ const Editor = (props) => {
     id: user?.id,
     nickname: user?.nickname,
     postnum: 0,
-    category: editOn ? category : 'healing',
+    category: category,
     announce: false,
     image: '',
-    topcategory: editOn ? topcategory : 'list',
+    topcategory: tpcategory,
   });
 
   function dataHandler(e) {
@@ -198,7 +202,7 @@ const Editor = (props) => {
 
   function onSubmitHandler(e) {
     e.preventDefault();
-
+    setLoading(true);
     let body = writtenData;
     body.content = value;
     body.category = sCate;
@@ -208,7 +212,7 @@ const Editor = (props) => {
     if (editOn) {
       axios.post(`/api/post/${id}/edit`, body).then((res) => {
         if (res.data.EditSuccess === true) {
-          navigate(`/list/${writtenData.category}/post/${id}`);
+          navigate(`/${writtenData.topcategory}/${writtenData.category}/post/${id}`);
         } else {
           alert(res.data.err);
         }
@@ -294,79 +298,95 @@ const Editor = (props) => {
   // 위에서 설정한 모듈들 foramts을 설정한다
   const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'image', 'video', 'link'];
   useEffect(() => {
+    setLoading(true);
     const FetchEdit = async () => {
       if (editOn) {
         try {
           axios.get(`/api/list/post/${id}`).then((res) => {
             setWrittenData(res.data);
             setValue(res.data.content);
+            setLoading(false);
             console.log(res.data);
           });
         } catch (error) {
           console.log(error);
         }
+      } else {
+        setLoading(false);
       }
     };
     FetchEdit();
   }, []);
-
-  console.log(writtenData, sCate);
-
+  console.log(editOn ? writtenData.category : category === 'all' ? cateData[tpcategory][0].label : category);
   return (
     <div className='editorbox'>
-      <form action='' className='editor-form' onSubmit={onSubmitHandler}>
-        {/* <button onClick={onClickcontents}>확인하기기</button> */}
-        <div>
-          {' '}
-          <Select
-            defaultValue={editOn ? writtenData.topcategory : 'list'}
-            style={{
-              width: 120,
-            }}
-            onChange={tophandleChange}
-            options={topCategories.map((topc) => ({
-              label: topc.label,
-              value: topc.value,
-            }))}
-          />{' '}
-          <Select
-            defaultValue={editOn ? writtenData.category : 'healing'}
-            style={{
-              width: 120,
-            }}
-            value={sCate}
-            onChange={handleChange}
-            options={categories.map((cat) => ({
-              label: cat.label,
-              value: cat.value,
-            }))}
-          />
-          {user?.isAdmin ? <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox> : null}
-        </div>
-
-        <input type='text' name='title' value={writtenData.title} onChange={dataHandler} placeholder='Title' />
-        <ReactQuill
-          style={{ width: '100%', height: '480px', paddingBottom: '40px' }}
-          ref={quillRef}
-          theme='snow'
-          placeholder='Content Here'
-          value={value}
-          onChange={setValue}
-          modules={modules}
-          formats={formats}
+      {loading ? (
+        <LoadingOutlined
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontSize: '40px',
+            color: 'burlywood',
+          }}
         />
-        <footer className='footer-btn-box'>
-          <button> {editOn ? '수정하기' : '글쓰기'}</button>
-          <span
-            onClick={() => {
-              navigate(-1);
-              console.log('돌아가ㄱ클릭');
-            }}
-          >
-            돌아가기
-          </span>
-        </footer>
-      </form>
+      ) : (
+        <form action='' className='editor-form' onSubmit={onSubmitHandler}>
+          {/* <button onClick={onClickcontents}>확인하기기</button> */}
+          <div>
+            <Select
+              defaultValue={editOn ? writtenData.topcategory : tpcategory}
+              style={{
+                width: 120,
+              }}
+              onChange={tophandleChange}
+              options={topCategories.map((topc) => ({
+                label: topc.label,
+                value: topc.value,
+              }))}
+            />
+            <Select
+              defaultValue={
+                editOn ? writtenData.category : category === 'all' ? cateData[tpcategory][0].label : category
+              }
+              style={{
+                width: 120,
+              }}
+              value={sCate}
+              onChange={handleChange}
+              options={categories.map((cat) => ({
+                label: cat.label,
+                value: cat.value,
+              }))}
+            />
+            {user?.isAdmin ? <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox> : null}
+          </div>
+
+          <input type='text' name='title' value={writtenData.title} onChange={dataHandler} placeholder='Title' />
+          <ReactQuill
+            style={{ width: '100%', height: '480px', paddingBottom: '40px' }}
+            ref={quillRef}
+            theme='snow'
+            placeholder='Content Here'
+            value={value}
+            onChange={setValue}
+            modules={modules}
+            formats={formats}
+          />
+          <footer className='footer-btn-box'>
+            <button> {editOn ? '수정하기' : '글쓰기'}</button>
+            <span
+              onClick={() => {
+                navigate(-1);
+                console.log('돌아가ㄱ클릭');
+              }}
+            >
+              돌아가기
+            </span>
+          </footer>
+        </form>
+      )}
     </div>
   );
 };

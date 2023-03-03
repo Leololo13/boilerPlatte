@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Pagination, Input, Select } from 'antd';
 import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
 import { valTotitle } from './category';
-import { LoadingOutlined } from '@ant-design/icons';
+import { EditOutlined, LoadingOutlined } from '@ant-design/icons';
 
 function BoardList() {
   const location = useLocation();
@@ -293,7 +293,20 @@ function BoardList() {
               ))}
           </tbody>
         </table>
+        <div className='boardlist-footer-write'>
+          {topcategory === 'list' ? (
+            ''
+          ) : (
+            <Link className='link' to={`/${topcategory}/${category ?? 'all'}/editor`}>
+              <div className='write-icon'>
+                <EditOutlined />
+                글쓰기
+              </div>
+            </Link>
+          )}
+        </div>
       </main>
+
       <footer className='boardlist-footer'>
         <Pagination
           showQuickJumper

@@ -28,32 +28,25 @@ const GoogleSingup = () => {
   }, [handleGoogle]);
 
   return (
-    <>
+    <div style={{ width: '40px', padding: 0, margin: 0 }}>
       {/* <nav style={{ padding: '2rem' }}>
         <Link to='/'>Go Back</Link>
       </nav>
       <header style={{ textAlign: 'center' }}>
         <h1>Register to continue</h1>
       </header> */}
-      <main
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
+      <div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {loading ? (
           <div>
             <LoadingOutlined />
           </div>
         ) : (
-          <div id='signUpDiv' data-text='구글로 가입하기'></div>
+          <div style={{ margin: '0' }} id='signUpDiv' data-text='구글로 가입하기'></div>
         )}
-      </main>
+      </div>
       <footer></footer>
-    </>
+    </div>
   );
 };
 

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../../_actions/user_action';
 import './Register.css';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, Tooltip } from 'antd';
 import Modal from 'react-modal';
 import Agreement from './Agreement';
 import GoogleSingup from '../LoginPage/GoogleSingup';
@@ -431,12 +431,25 @@ function Register() {
         }}
       >
         <div>-----OR-----</div>
-        <span style={{ display: 'flex', gap: '5px' }}>
-          <GoogleSingup />
-
-          <KakaoSignup />
-          <NaverSignup />
-        </span>
+        <div>
+          <Tooltip placement='bottom' title={check ? '' : '약관을 읽어보신 후 동의해야 합니다'}>
+            <span
+              onClick={(e) => e.preventDefault()}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '10px',
+                height: '40px',
+                pointerEvents: check ? '' : 'none',
+              }}
+            >
+              <GoogleSingup />
+              <KakaoSignup />
+              <NaverSignup />
+            </span>{' '}
+          </Tooltip>
+        </div>
       </footer>
     </div>
   );

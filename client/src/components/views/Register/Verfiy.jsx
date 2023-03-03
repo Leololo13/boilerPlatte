@@ -32,6 +32,7 @@ const Verfiy = (props) => {
             setScrkey(res.data.secretkey);
             setTime(res.data.validtime);
             count.current = res.data.validtime;
+            console.log(count.current);
             setTimeron(true);
           } else {
             alert('인증메일 발송 과정에서 에러가 발생했습니다');
@@ -51,6 +52,7 @@ const Verfiy = (props) => {
     if (time >= 0) {
       interval.current = setInterval(() => {
         count.current -= 1;
+        // count.current <= 0 ? 0 : count.current;
         setTime(count.current);
       }, 1000);
     }
@@ -60,14 +62,18 @@ const Verfiy = (props) => {
     if (count.current <= 0) {
       clearInterval(interval.current);
       setClicked(false);
+      setTimeron(false);
+      console.log('들어오나');
     }
     if (props.veri) {
       clearInterval(interval.current);
       setClicked(false);
+      setTimeron(false);
     }
   }, [time]);
   /////////////////////////////////////////////////
-
+  console.log(time);
+  console.log(count.current);
   const checkHandler = () => {
     if (time > 0 && value === scrkey) {
       props.setVeri(true);
@@ -85,7 +91,7 @@ const Verfiy = (props) => {
         <div className='verify-box-left'>
           <input type='text' value={value} onChange={changeHandler} placeholder='인증번호입력' />
           <button onClick={checkHandler}>인증하기</button>
-          <span>{props.veri ? '인증완료' : !props.veri && time === 0 ? '인증시간 초과' : makeTime(time)}</span>{' '}
+          <span>{props.veri ? '인증완료' : !props.veri && time <= 0 ? '인증시간 초과' : makeTime(time)}</span>{' '}
         </div>
         <div className='verify-box-right'>
           {' '}

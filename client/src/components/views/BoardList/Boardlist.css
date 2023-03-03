@@ -47,6 +47,26 @@
 .boardlist-footer {
   flex: 1;
   padding: 10px;
+  text-align: center;
+}
+.boardlist-footer-write {
+  text-align: right;
+  font-size: 1rem;
+  justify-content: flex-end;
+  height: 50px;
+  align-items: center;
+
+  border-bottom: 1px solid lightgray;
+
+  display: flex;
+  padding: 0px 20px;
+}
+.write-icon {
+  cursor: pointer;
+  color: rgb(128, 128, 128);
+}
+.write-icon:hover {
+  color: black;
 }
 .boardlist-box {
   background-color: white;

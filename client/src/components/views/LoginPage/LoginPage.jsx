@@ -95,6 +95,8 @@ function LoginPage() {
           </Link>
         </button>
       </div>
+
+      <hr />
     </div>
   );
 }

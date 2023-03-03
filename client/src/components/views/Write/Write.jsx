@@ -2,10 +2,11 @@ import React from 'react';
 import './Write.css';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Writer } from '../../../_actions/user_action';
 
 function Write() {
+  console.log(useParams());
   let user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
@@ -46,13 +47,7 @@ function Write() {
   return (
     <div className='writebox'>
       <form action='' className='writebox-form' onSubmit={onSubmitHandler}>
-        <input
-          type='text'
-          name='title'
-          style={{ width: '100%' }}
-          placeholder='title'
-          onChange={writtenDataHandler}
-        />
+        <input type='text' name='title' style={{ width: '100%' }} placeholder='title' onChange={writtenDataHandler} />
         <textarea
           name='content'
           placeholder='Content'

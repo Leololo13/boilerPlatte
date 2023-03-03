@@ -32,7 +32,12 @@ function App() {
         <div>
           <Routes location={matchUser ? background : location}>
             <Route path='/' element={Auth(LandingPage, null)}>
-              <Route path='list/:category' element={Auth(BoardList, null)}>
+              <Route path=':tpcategory/:category' element={Auth(BoardList, null)}>
+                <Route path='post/:id' element={Auth(Post, null)} />
+                <Route path='editor' element={Auth(Editor, true)} />
+                <Route path='post/:id/edit' element={Auth(Editor, true)} />
+              </Route>
+              {/* <Route path='list/:category' element={Auth(BoardList, null)}>
                 <Route path='post/:id' element={Auth(Post, null)} />
                 <Route path='editor' element={Auth(Editor, true)} />
                 <Route path='post/:id/edit' element={Auth(Editor, true)} />
@@ -46,7 +51,7 @@ function App() {
                 <Route path='post/:id' element={Auth(Post, null)} />
                 <Route path='editor' element={Auth(Editor, true)} />
                 <Route path='post/:id/edit' element={Auth(Editor, true)} />
-              </Route>
+              </Route> */}
               <Route path='userpage' element={Auth(Mypage, true)}>
                 {/* <Route path='userinfo' element={Auth(Mypage, true)} />
                 <Route path='scrap' element={Auth(Mypage, true)} /> */}
