@@ -22,6 +22,7 @@ const { text } = require('body-parser');
 const { stringify } = require('querystring');
 const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
+const sharp = require('sharp');
 
 ///세션생성시 옵션설정 세션을설정할때 쿠키가 생성된다. 어느 라우터든 req session값이 존재하게 된다.
 app.use(
@@ -228,7 +229,12 @@ app.post('/api/user/infochange', auth, (req, res) => {
   console.log(req.user._id, pw);
   if (act === 'info') {
     User.findOne({ nickname: req.body.nickname }, (err, data) => {
-      if (data) {
+      if (data && data?.nickname === req.body.nickname) {
+        return res.json({
+          infoChangeSuccess: true,
+          message: '회원 정보 변경에 성공했습니다',
+        });
+      } else if (data && data?.nickname !== req.body.nickname) {
         return res.json({
           infoChangeSuccess: false,
           message: '중복되는 닉네임이 이미 있습니다',
@@ -829,13 +835,20 @@ app.post('/api/post/:id/edit', auth, (req, res) => {
 });
 ////스크랩하기 scrap
 app.get('/api/post/scrap', auth, (req, res) => {
-  let { num, obid } = req.query;
-  console.log(num, obid);
+  let { obid, act } = req.query;
+  console.log(obid, act, '스크랩쪽입니다.. 잘되었는지');
   if (req.user) {
-    User.findByIdAndUpdate(req.user._id, { $addToSet: { scrap: obid } }, (err, data) => {
-      if (err) throw err;
-      return res.status(200).json({ message: '스크랩 완료되었습니다' });
-    });
+    if (act === 'del') {
+      User.findByIdAndUpdate(req.user._id, { $pull: { scrap: obid } }, (err, data) => {
+        if (err) throw err;
+        return res.status(200).json({ scrapDelSuccess: true, message: '스크랩이 삭제되었습니다' });
+      });
+    } else {
+      User.findByIdAndUpdate(req.user._id, { $addToSet: { scrap: obid } }, (err, data) => {
+        if (err) throw err;
+        return res.status(200).json({ scrapSuccess: true, message: '스크랩 완료되었습니다' });
+      });
+    }
   } else {
     res.json({ message: '로그인 후 사용가능한 기능입니다.' });
   }
@@ -1264,6 +1277,17 @@ const upload = multer({
     },
   }),
   // limits: { fileSize: 5 * 1024 * 1024 } // 파일 크기 제한
+});
+app.post('/api/user/upload_profile_img', upload.single('img'), (req, res) => {
+  let id = req.query.id;
+  console.log('되긴하는거냐?', id);
+  console.log('전달받은 파일', req.file);
+  let img_url = 'http://localhost:8080/uploads/' + req.file.filename;
+  console.log(img_url);
+  User.findByIdAndUpdate(id, { image: img_url }, (err, data) => {
+    if (err) return res.json({ imgChangeSuccess: false, message: '프로파일 이미지 변경에 실패했습니다', err });
+    return res.json({ imgChangeSuccess: true, data });
+  });
 });
 
 ///img업로드 api만들기

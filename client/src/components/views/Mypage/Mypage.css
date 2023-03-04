@@ -8,12 +8,34 @@
   background-color: whitesmoke;
   text-decoration: underline;
 }
-
+.mypage-userinfo-img {
+  display: flex;
+  gap: 15px;
+}
+.mypage-userinfo-img img {
+  width: 56px;
+  border-radius: 50%;
+}
 .mypage-userpwchange {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
+.mypage-userinfochange-img {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.mypage-userInfo-img-handler {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mypage-userInfo-img-handler button {
+  width: 65px;
+}
+
 .mypage-userpwchange input {
   height: 1.5rem;
   width: 12rem;

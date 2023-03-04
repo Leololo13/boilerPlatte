@@ -13,6 +13,8 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import NaverSignup from '../LoginPage/NaverSignup';
 import Verfiy from './Verfiy';
+import Privacy from '../LandingPage/Privacy';
+import Policy from '../LandingPage/Policy';
 
 const overlayStyle = {
   position: 'fixed',
@@ -38,9 +40,8 @@ const contentStyle = {
   alignItems: 'center',
   margin: '0',
   padding: '10px',
-  paddingBottom: '20px',
   fontSize: '1.1rem',
-  gap: '10px',
+  gap: '30px',
 };
 
 const formItemLayout = {
@@ -71,10 +72,12 @@ function Register() {
   const dispatch = useDispatch();
   const [modal, setModal] = useState(false);
   const [veri, setVeri] = useState(false);
+
   let emails = form.getFieldValue('email');
+
   const onChange = (e) => {
     setCheck(e.target.checked);
-    console.log(e.target.value);
+    console.log(e.target.checked);
   };
 
   const onSubmitHandler = function (values) {
@@ -83,26 +86,31 @@ function Register() {
     console.log(agreement, veri, confirm);
     others.signupDate = new Date();
     let body = others;
-    if (!veri) {
-      alert('이메일 인증을 완료해야합니다');
+    if (check) {
+      if (!veri) {
+        alert('이메일 인증을 완료해야합니다');
+      } else {
+        setLoading(true);
+        dispatch(registerUser(body)).then((response) => {
+          if (response.payload.isloading) {
+            setLoading(true);
+            console.log(response);
+          } else if (response.payload.RegisterSuccess === true) {
+            console.log(response);
+            alert('가입 성공');
+            setLoading(false);
+            navigate('/');
+          } else {
+            console.log(response);
+            alert(response.payload.message);
+          }
+        });
+      }
     } else {
-      setLoading(true);
-      dispatch(registerUser(body)).then((response) => {
-        if (response.payload.isloading) {
-          setLoading(true);
-          console.log(response);
-        } else if (response.payload.RegisterSuccess === true) {
-          console.log(response);
-          alert('가입 성공');
-          setLoading(false);
-          navigate('/');
-        } else {
-          console.log(response);
-          alert(response.payload.message);
-        }
-      });
+      alert('필수 약관에 모두 동의해야 가입하실 수 있습니다.');
     }
   };
+
   const checkEmail = async () => {
     if (form.getFieldError('email').length === 0 && form.getFieldValue('email')) {
       let email = { email: form.getFieldValue('email') };
@@ -168,21 +176,17 @@ function Register() {
           content: contentStyle,
         }}
       >
-        <Agreement />
-        <Checkbox
-          name='agreement'
-          className='agreement-checkbox-modal'
-          checked={check}
-          defaultChecked={check}
-          onChange={onChange}
-        >
-          위의 내용을 모두 읽었으며
-          <span className='agreement-check'>
-            {'  '}동의{'  '}
-          </span>
-          합니다
-        </Checkbox>
+        <Agreement check={check} setCheck={setCheck}></Agreement>
+
         <button
+          className='agm-btn'
+          style={{
+            border: 'none',
+            cursor: 'pointer',
+            borderRadius: '5px',
+            backgroundColor: 'bisque',
+            padding: '5px 10px',
+          }}
           onClick={() => {
             setModal(false);
           }}
@@ -406,7 +410,7 @@ function Register() {
             <div> 약관 사항 을 모두 읽었으며 동의합니다.</div>
           </Checkbox>
           <div style={{ fontSize: '0.75rem', color: 'red', width: '240px', textAlign: 'center' }}>
-            {check ? '' : '약관을 읽어보신 후 동의해야 합니다'}
+            {check ? '' : '약관을 읽어보신 후 동의해야만 가입이 가능합니다'}
           </div>
         </Form.Item>
         <Form.Item>

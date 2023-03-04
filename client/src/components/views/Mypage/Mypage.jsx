@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Mypage.css';
-import { message, Pagination } from 'antd';
+import { Avatar, Pagination } from 'antd';
 import Modal from 'react-modal';
-import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
+import { CheckOutlined, LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 
 const overlayStyle = {
@@ -59,7 +59,8 @@ function Mypage() {
   const [modal, setModal] = useState(false);
   const userId = useRef(null);
   const IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
-
+  const [fileImg, setFileImg] = useState('');
+  const [profileImg, setProfileimg] = useState('');
   ///page
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(10);
@@ -114,16 +115,34 @@ function Mypage() {
   const userInfoHandler = async (e) => {
     setUserdata((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-  console.log(userdata);
+
   const datasubmitHandler = async (e) => {
     let action = e.target.dataset.action;
     console.log(e.target.dataset.action);
     if (action === 'changeinfo') {
       if (IDcondition.test(userdata.nickname)) {
         try {
+          if (fileImg) {
+            console.log('이미지 변경됨');
+            const formData = new FormData();
+            formData.append('img', profileImg[0]);
+            await axios.post(`/api/user/upload_profile_img?id=${userdata._id}`, formData).then((res) => {
+              console.log(res.data);
+              if (!res.data.imgChangeSuccess) {
+                alert(res.data.message);
+              } else {
+                // navigate('/userpage?act=userInfo');
+                console.log(res.data);
+                URL.revokeObjectURL(fileImg);
+                setFileImg('');
+                setProfileimg('');
+              }
+            });
+          }
           await axios.post(`/api/user/infochange?act=info`, userdata).then((res) => {
             if (res.data.infoChangeSuccess) {
-              alert('닉네임변경에 성공했습니다');
+              console.log(res.data);
+              alert(res.data.message);
               navigate('/userpage?act=userInfo');
             } else {
               alert(res.data.message);
@@ -131,7 +150,7 @@ function Mypage() {
             }
           });
         } catch (error) {
-          alert(message);
+          alert(error);
           console.log(error);
         }
       } else {
@@ -155,7 +174,7 @@ function Mypage() {
             }
           });
         } catch (error) {
-          alert(message);
+          alert(error);
           console.log(error);
         }
       }
@@ -208,6 +227,23 @@ function Mypage() {
 
     fetchUser();
   }, []);
+  const scrapdelHandler = async (e) => {
+    const obid = e.target.dataset.id;
+    console.log(obid);
+    await axios.get(`/api/post/scrap?obid=${obid}&act=del`).then((res) => {
+      if (res.data.scrapDelSuccess) {
+        alert(res.data.message);
+        navigate('/userpage?act=scrap');
+      } else {
+        alert('스크랩 삭제 도중 에러가 발생했습니다.');
+      }
+    });
+  };
+  const imgChanger = (e) => {
+    const file = e.target.files[0];
+    setFileImg(URL.createObjectURL(file));
+    setProfileimg(e.target.files);
+  };
 
   function switchPage() {
     switch (act) {
@@ -215,16 +251,23 @@ function Mypage() {
         return (
           <div>
             <div className='mypage-userInfo'>
-              <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>아이디 : {userdata.id}
-              </p>
-              <p>
-                <span style={{ color: 'red' }}>*{'  '}</span>닉네임 : {userdata.nickname}
-              </p>
-              <p>
+              <div className='mypage-userinfo-img'>
+                <p>
+                  <img src={userdata.image} alt='' width={56} height={56} />
+                </p>
+                <div className='mypage-userinfo-idnickname'>
+                  <p>
+                    <span style={{ color: 'red' }}>*{'  '}</span>아이디 : {userdata.id}
+                  </p>
+                  <p>
+                    <span style={{ color: 'red' }}>*{'  '}</span>닉네임 : {userdata.nickname}
+                  </p>
+                </div>
+              </div>
+              <div>
                 <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
                 {userdata.email ?? '카카오 연동으로 가입시 이메일이 없습니다'}
-              </p>
+              </div>
               <p>가입일 : {Timechanger(userdata.signupDate)}</p>
               <p>마지막 접속 일시 : {Timechanger(userdata?.date)}</p>
             </div>
@@ -253,6 +296,31 @@ function Mypage() {
         return (
           <div>
             <div className='mypage-userInfo'>
+              <p className='mypage-userinfochange-img'>
+                {userdata?.image ? (
+                  <img src={userdata.image} alt='' width={56} style={{ borderRadius: '50%' }} />
+                ) : (
+                  <Avatar
+                    style={{
+                      color: 'darkgrey',
+                      backgroundColor: 'bisque',
+                      margin: 0,
+                    }}
+                    size={56}
+                    icon={<UserOutlined />}
+                  />
+                )}
+                {fileImg ? (
+                  <span style={{ width: fileImg ? '56px' : '' }}>
+                    <img src={fileImg} width={56} height={56} alt='' />
+                  </span>
+                ) : null}
+
+                <input type='file' name='profile_img' accept='image/*' onChange={imgChanger} />
+                <span style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
+                  파일 용량 제한: 200.0KB, 가로 제한 길이: 90px, 세로 제한 길이: 90px{' '}
+                </span>
+              </p>
               <p>
                 <span style={{ color: 'red' }}>*{'  '}</span>아이디 :{' '}
                 <input type='text' disabled={true} value={userdata.id} />
@@ -492,26 +560,25 @@ function Mypage() {
                 </tr>
               </thead>
               <tbody>
-                {scraps
-
-                  .slice(offset < 0 ? 0 : offset, offset + limit)
-
-                  .map((scrap, idx) => {
-                    return (
-                      <tr key={idx + offset + 1} className='mypage-post-each'>
-                        <td>{idx + offset + 1}</td>
-                        <td>
-                          <Link className='link' to={`/${scrap.topcategory}/${scrap.category}/post/${scrap.postnum}`}>
-                            {scrap.title}
-                          </Link>
-                        </td>
-                        <td>{elapsedTime(scrap.date)}</td>
-                        <td>
-                          {scrap.like.length}/{scrap.hate.length}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                {scraps.slice(offset < 0 ? 0 : offset, offset + limit).map((scrap, idx) => {
+                  return (
+                    <tr key={idx + offset + 1} className='mypage-post-each'>
+                      <td>{idx + offset + 1}</td>
+                      <td>
+                        <Link className='link' to={`/${scrap.topcategory}/${scrap.category}/post/${scrap.postnum}`}>
+                          {scrap.title}
+                        </Link>
+                        <button data-id={scrap._id} onClick={scrapdelHandler}>
+                          삭제
+                        </button>
+                      </td>
+                      <td>{elapsedTime(scrap.date)}</td>
+                      <td>
+                        {scrap.like.length}/{scrap.hate.length}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <Pagination
@@ -533,7 +600,10 @@ function Mypage() {
         return (
           <div>
             <p>잘못된 요청입니다</p>
-            <button>메인화면으로 돌아가기</button>
+            <Link to={'/'} className='link'>
+              <button>메인화면으로 돌아가기</button>
+            </Link>
+
             <button
               onClick={() => {
                 setModal(true);

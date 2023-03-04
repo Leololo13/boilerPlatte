@@ -87,9 +87,12 @@ function Post(props) {
     if (!props.isAuth) {
       alert('로그인이 필요한 기능입니다');
     }
-    await axios.get(`/api/post/scrap?num=${id}&obid=${post._id}`).then((res) => {
-      console.log(res.data);
-      alert(res.data.message);
+    await axios.get(`/api/post/scrap?&obid=${post._id}`).then((res) => {
+      if (res.data.scrapSuccess) {
+        alert(res.data.message);
+      } else {
+        alert('스크랩 도중 에러가 발생했습니다.');
+      }
     });
   };
   const deleteModalHandler = () => {
@@ -110,19 +113,20 @@ function Post(props) {
 
     if (!user) {
       alert('로그인이 필요한 기능입니다');
-    }
-    try {
-      await axios
-        .post(`/api/post/${modal}/${id}`, {
-          user: user,
-          like: post.like,
-          hate: post.hate,
-        })
-        .then((res) => {
-          window.location.reload();
-        });
-    } catch (error) {
-      alert(error);
+    } else {
+      try {
+        await axios
+          .post(`/api/post/${modal}/${id}`, {
+            user: user,
+            like: post.like,
+            hate: post.hate,
+          })
+          .then((res) => {
+            navigate(0);
+          });
+      } catch (error) {
+        alert(error);
+      }
     }
   };
   function elapsedTime(date) {

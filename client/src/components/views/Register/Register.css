@@ -18,8 +18,17 @@
 .agreement-checkbox:hover {
   text-decoration: underline;
 }
+.agreement-checkbox-modal {
+  margin-top: 20px;
+}
 .agreement-checkbox-modal:hover {
   text-decoration: underline;
+}
+.privacy:hover {
+  background-color: bisque;
+}
+.policy:hover {
+  background-color: bisque;
 }
 .agreement-check {
   color: black;

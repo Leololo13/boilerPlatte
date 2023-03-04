@@ -85,6 +85,10 @@
   border-bottom: 1px solid lightgray;
   font-size: 0.8rem;
 }
+.agm-btn:hover {
+  opacity: 0.9;
+  font-weight: bold;
+}
 .ant-input-search
   :where(.css-dev-only-do-not-override-26rdvq).ant-input-group
   .ant-input-affix-wrapper:not(:last-child) {
