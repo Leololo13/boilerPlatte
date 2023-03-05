@@ -3,6 +3,9 @@ export const listCategories = ['healing', 'humor', 'info', 'enter', 'hotdeal'];
 export const comuCategories = ['lunch', 'AI', 'recommend', 'anycomu'];
 export const blindCategories = ['any', 'politic'];
 export const valTotitle = {
+  list: '힐링시간',
+  comu: '커뮤니티',
+  blind: '블라인드',
   healing: '힐링',
   humor: '유머',
   info: '정보글',
@@ -15,3 +18,4 @@ export const valTotitle = {
   any: '익명 - 아무거나',
   politic: '익명 - 정치',
 };
+export const ALLCATEGORIES = [listCategories, comuCategories, blindCategories];

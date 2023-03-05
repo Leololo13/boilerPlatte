@@ -219,7 +219,10 @@ app.post('/api/user/sendVmail', (req, res) => {
 /////  탈퇴하기
 app.post('/api/user/out', auth, (req, res) => {
   let userID = req.user._id;
-  User.findById(userID);
+  User.findByIdAndUpdate(userID, { out: true }, (err, data) => {
+    if (err) return res.json(err);
+    return res.json({ outSuccess: true, message: '탈퇴 완료, 3개월 후 재가입이 가능합니다' });
+  });
 });
 
 //유저 정보 변경하기
@@ -265,11 +268,15 @@ app.post('/api/user/infochange', auth, (req, res) => {
 ////login=====================
 app.post('/api/user/login', (req, res) => {
   console.log(req.body);
+
   let longLogin = req.body.longLogin;
   User.findOneAndUpdate({ email: req.body.email }, { date: req.body.date, $inc: { logintry: 1 } }, (err, userData) => {
     /////db에 이메일이 있는지?
     console.log(userData.date, userData);
     if (!userData) return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
+    if (userData.out) {
+      return res.json({ LoginSuccess: false, message: '탈퇴한 계정입니다. 탈퇴날로부터 3개월 후 재가입이 가능합니다' });
+    }
     if (userData.logintry >= 5) {
       return res.json({
         LoginSuccess: false,
@@ -463,6 +470,12 @@ app.get('/api/user/kakao/:cond', async (req, res) => {
                 let user = new User(userInfo);
                 if (cond === 'oauth') {
                   User.findOneAndUpdate({ id: userInfo.id }, { date: date }, (err, docs) => {
+                    if (docs.out) {
+                      return res.json({
+                        LoginSuccess: false,
+                        message: '탈퇴한 계정입니다. 탈퇴한 날로부터 3개월 후에 재가입이 가능합니다',
+                      });
+                    }
                     console.log('카카오 로그인');
                     if (err) return res.json(err);
                     docs.genToken(longLogin, (err, userData) => {

@@ -288,7 +288,9 @@ function Mypage() {
                   <button className='mypage-button'>비밀번호 변경하기</button>
                 </Link>
               )}
-              <button className='mypage-button'> 회원 탈퇴</button>
+              <Link className='link' to={'/userpage?act=out'}>
+                <button className='mypage-button'>회원 탈퇴</button>
+              </Link>
             </div>
           </div>
         );
@@ -541,6 +543,62 @@ function Mypage() {
           </div>
         );
       case 'scrap':
+        return (
+          <div className='mypage-posts'>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>스크랩글 보기</h3>
+            <div className='mypage-postsInfo'>
+              <span>총 스크랩 수: {total} </span>
+              <span>
+                Page {page}/{Math.ceil(total / limit)}
+              </span>
+            </div>
+            <table className='mypage-post-table'>
+              <thead>
+                <tr>
+                  <th>번호</th>
+                  <th>제목</th>
+                  <th>작성일</th>
+                  <th>추천수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scraps.slice(offset < 0 ? 0 : offset, offset + limit).map((scrap, idx) => {
+                  return (
+                    <tr key={idx + offset + 1} className='mypage-post-each'>
+                      <td>{idx + offset + 1}</td>
+                      <td>
+                        <Link className='link' to={`/${scrap.topcategory}/${scrap.category}/post/${scrap.postnum}`}>
+                          {scrap.title}
+                        </Link>
+                        <button data-id={scrap._id} onClick={scrapdelHandler}>
+                          삭제
+                        </button>
+                      </td>
+                      <td>{elapsedTime(scrap.date)}</td>
+                      <td>
+                        {scrap.like.length}/{scrap.hate.length}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <Pagination
+              showQuickJumper
+              showTotal={(total) => `총 ${total} 게시물`}
+              defaultPageSize={limit}
+              size={'small'}
+              defaultCurrent={1}
+              showSizeChanger={false}
+              total={total}
+              current={page}
+              onChange={(page) => {
+                setPage(page);
+              }}
+            />
+          </div>
+        );
+      case 'out':
         return (
           <div className='mypage-posts'>
             <h3 style={{ padding: '0px', margin: '10px 0px' }}>스크랩글 보기</h3>

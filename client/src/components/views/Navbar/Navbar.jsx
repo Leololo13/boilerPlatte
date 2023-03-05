@@ -7,6 +7,7 @@ import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 import { UserOutlined, MenuOutlined } from '@ant-design/icons';
 import Listmodal from './Listmodal';
+import Rlistmodal from './Rlistmodal';
 
 /////////////////네브바
 function Navbar(props) {
@@ -17,6 +18,7 @@ function Navbar(props) {
   const location = useLocation();
   const navigate = useNavigate();
   const [listModal, setListModal] = useState(false);
+  const [rlistModal, setRlistmodal] = useState(false);
 
   console.log(props, 'navBar props from auth APP.js');
 
@@ -132,7 +134,7 @@ function Navbar(props) {
         listModal={listModal}
         setListModal={setListModal}
       />
-
+      <Rlistmodal rlistModal={rlistModal} setRlistmodal={setRlistmodal} />
       <div className='leftbox'>
         <span className='leftbox-modal'>
           <MenuOutlined
@@ -159,10 +161,9 @@ function Navbar(props) {
             </Link>
           ) : null}
 
-          <Link to={'/list/all'} className='link'>
-            {' '}
-            <p className='right-icon'>List</p>
-          </Link>
+          <p onClick={() => setRlistmodal(!rlistModal)} className='right-icon'>
+            List
+          </p>
         </div>
         <div className='userprofile-box'>
           <Space direction='vertical'>

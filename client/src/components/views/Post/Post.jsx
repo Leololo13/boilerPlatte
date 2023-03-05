@@ -34,7 +34,6 @@ const contentStyle = {
   background: '#fff',
   overflow: 'auto',
   WebkitOverflowScrolling: 'touch',
-
   outline: 'none',
   height: '120px',
   width: '360px',

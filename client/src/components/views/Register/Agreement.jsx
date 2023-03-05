@@ -2,24 +2,17 @@ import React from 'react';
 import Privacy from '../LandingPage/Privacy';
 import Policy from '../LandingPage/Policy';
 import { Checkbox, Divider } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Agreement = (props) => {
   const [checkedList, setCheckedList] = useState([props.check, props.check]);
-  const [indeterminate, setIndeterminate] = useState(true);
-  const [checkAll, setCheckAll] = useState(false);
+
   const onChange = (e) => {
-    console.log(e.target.name);
+    console.log(e.target.name, e.target.name === 'ag1');
     if (e.target.name === 'ag1') {
       setCheckedList((prev) => [e.target.checked, prev[1]]);
     } else {
       setCheckedList((prev) => [prev[0], e.target.checked]);
-    }
-    if (checkedList === [true, true]) {
-      props.setCheck(true);
-    } else {
-      console.log('?', checkedList);
-      props.setCheck(false);
     }
 
     // checkedList[0] === true && checkedList[1] === true ? props.setCheck(true) : props.setCheck(false);
@@ -27,11 +20,16 @@ const Agreement = (props) => {
     // setIndeterminate(!!list.length && list.length < 2);
     // setCheckAll(list.length === 2);
   };
-  const onCheckAllChange = (e) => {
-    setCheckedList(e.target.checked ? [true, true] : [false, false]);
-    setIndeterminate(false);
-    setCheckAll(e.target.checked);
-  };
+
+  useEffect(() => {
+    console.log(checkedList);
+    if (checkedList[0] && checkedList[1]) {
+      props.setCheck(true);
+    } else {
+      props.setCheck(false);
+    }
+  }, [checkedList]);
+
   return (
     <div
       style={{
@@ -54,7 +52,7 @@ const Agreement = (props) => {
         }}
       >
         <div style={{ padding: '10px' }}>
-          <span style={{ color: 'red' }}>*</span>이용약관(필수사항)
+          <span style={{ color: 'red' }}>*</span> 개인정보 수집 및 이용에 대한 동의 (필수)
         </div>
         <div
           style={{
@@ -65,7 +63,7 @@ const Agreement = (props) => {
           }}
           className='policy'
         >
-          <Policy></Policy>{' '}
+          <Privacy></Privacy>{' '}
         </div>{' '}
         <Checkbox
           name='ag1'

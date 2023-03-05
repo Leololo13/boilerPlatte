@@ -35,6 +35,7 @@ const contentStyle = {
   outline: 'none',
   height: '80vh',
   width: '69vw',
+
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
@@ -436,7 +437,7 @@ function Register() {
       >
         <div>-----OR-----</div>
         <div>
-          <Tooltip placement='bottom' title={check ? '' : '약관을 읽어보신 후 동의해야 합니다'}>
+          <Tooltip placement='bottom' title={check ? '' : '약관을 읽어보신 후 동의해야 가입이 가능합니다'}>
             <span
               onClick={(e) => e.preventDefault()}
               style={{
