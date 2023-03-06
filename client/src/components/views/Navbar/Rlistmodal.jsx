@@ -11,9 +11,11 @@ const contentStyle = {
   left: '50%',
   transform: 'translate(-50%,-50%)',
   background: '#fff',
-  overflow: 'auto',
+  overflow: 'hidden',
   WebkitOverflowScrolling: 'touch',
   outline: 'none',
+  width: '69vw',
+  height: '81vh',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContents: 'center',
@@ -67,7 +69,8 @@ const Rlistmodal = (props) => {
       setCntStyle((prev) => ({
         ...prev,
         width: '40vw',
-        height: '30vh',
+        minHeight: '20vh',
+        height: 'fit-content',
         transition: 'all 0.5s',
       }));
     }
@@ -89,16 +92,16 @@ const Rlistmodal = (props) => {
         <div className='rlist-box'>
           {topCategories.map((tp, i) => {
             return (
-              <div className='rlist-card'>
+              <div key={i} className='rlist-card'>
                 <div className='rlist-title'>
                   {' '}
                   <Link to={`/${tp}/all`} className='link'>
                     {valTotitle[tp]}{' '}
                   </Link>
                 </div>
-                {ALLCATEGORIES[i].map((c) => {
+                {ALLCATEGORIES[i].map((c, idx) => {
                   return (
-                    <div className='rlist-list'>
+                    <div key={idx} className='rlist-list'>
                       {' '}
                       <Link className='link' to={`/${tp}/${c}`}>
                         {valTotitle[c]}{' '}

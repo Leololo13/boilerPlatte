@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Policy from '../LandingPage/Policy';
-import Privacy from '../LandingPage/Privacy';
 
 function Footer() {
   return (
-    <div style={{ height: '100%', fontSize: '0.8rem  ' }}>
-      <div>Copyright (c) DogDrip.net All rights reserved.</div>
-      <div>Contact us, dogdripper at gmail dot com</div>
+    <div style={{ height: '100%', fontSize: '0.8rem ', textAlign: 'center' }}>
+      <div>Copyright (c) A'LT.com All rights reserved.</div>
+      <div>Contact us, alt_admin at gmail dot com</div>
       <div className='policy+privacy'>
         <Link to={'/policy'} style={{ color: 'blue' }} className='link'>
           이용약관

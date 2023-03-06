@@ -158,7 +158,6 @@ function Post(props) {
     const fetchPost = async () => {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
-
         setPost(res.data);
         setLoading(false);
       } catch (err) {
@@ -326,7 +325,7 @@ function Post(props) {
               />
             </Tooltip>
           </div>
-          {user?._id === post.writer?._id ? (
+          {user?._id === post.writer?._id || props.isAdmin ? (
             <div className='footer-editbox'>
               <Link to={`/list/${category}/post/${id}/edit?editOn=true`}>
                 <button className='footer-editbox-edit'>수정</button>{' '}

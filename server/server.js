@@ -265,56 +265,82 @@ app.post('/api/user/infochange', auth, (req, res) => {
   }
 });
 
+////
+function levelSystem(exp, lv) {
+  let needExp = 0;
+  for (let i = lv; i < 99; i++) {
+    needExp += 10 * (2 * i);
+    if (needExp >= exp) {
+      lv = i;
+      exp = exp - needExp + 10 * (2 * i);
+      needExp = 10 * (2 * i);
+      break;
+    }
+  }
+  return [lv, exp, needExp];
+}
+
 ////login=====================
 app.post('/api/user/login', (req, res) => {
   console.log(req.body);
 
   let longLogin = req.body.longLogin;
-  User.findOneAndUpdate({ email: req.body.email }, { date: req.body.date, $inc: { logintry: 1 } }, (err, userData) => {
-    /////db에 이메일이 있는지?
-    console.log(userData.date, userData);
-    if (!userData) return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
-    if (userData.out) {
-      return res.json({ LoginSuccess: false, message: '탈퇴한 계정입니다. 탈퇴날로부터 3개월 후 재가입이 가능합니다' });
-    }
-    if (userData.logintry >= 5) {
-      return res.json({
-        LoginSuccess: false,
-        message: '비밀번호입력을 5회 이상 실패하였습니다. 비밀번호 찾기를 통해 새로운 비밀번호를 발급 받으십시오',
-      });
-    }
-    ///db에 이메일이 있으면 비번비교해서 통과시키키
-    userData.comparePassword(req.body.password, (err, isMatch) => {
-      if (!isMatch)
+  User.findOneAndUpdate(
+    { email: req.body.email },
+    { date: req.body.date, $inc: { logintry: 1, exp: 2 } },
+    (err, userData) => {
+      /////db에 이메일이 있는지?
+      console.log(userData.date, userData);
+      if (!userData) return res.json({ LoginSuccess: false, message: '이메일이 없습니다' });
+      if (userData.out) {
         return res.json({
           LoginSuccess: false,
-          message: `비밀번호가 틀렸습니다. 현재 ${
-            userData.logintry + 1
-          }회 틀렸습니다. 5회이상 틀릴시 로그인이 제한됩니다`,
+          message: '탈퇴한 계정입니다. 탈퇴날로부터 3개월 후 재가입이 가능합니다',
         });
-      userData.genToken(longLogin, (err, userData) => {
-        if (err) return res.status(400).send(err);
-        res
-          .cookie('accessToken', userData.access_token, {
-            httpOnly: true,
-            secure: true,
-          })
-          .cookie('refreshToken', userData.refresh_token, {
-            httpOnly: true,
-            secure: true,
-          })
-          .status(200)
-          .json({
-            LoginSuccess: true,
-            userID: userData.id,
-            email: userData.email,
-            message:
-              userData.role === 0 ? '로그인 성공' : userData.role === 1 ? 'Admin계정으로 로그인' : '블럭된 계정입니다',
+      }
+      if (userData.logintry >= 5) {
+        return res.json({
+          LoginSuccess: false,
+          message: '비밀번호입력을 5회 이상 실패하였습니다. 비밀번호 찾기를 통해 새로운 비밀번호를 발급 받으십시오',
+        });
+      }
+      ///db에 이메일이 있으면 비번비교해서 통과시키키
+      userData.comparePassword(req.body.password, (err, isMatch) => {
+        if (!isMatch)
+          return res.json({
+            LoginSuccess: false,
+            message: `비밀번호가 틀렸습니다. 현재 ${
+              userData.logintry + 1
+            }회 틀렸습니다. 5회이상 틀릴시 로그인이 제한됩니다`,
           });
+        userData.genToken(longLogin, (err, userData) => {
+          if (err) return res.status(400).send(err);
+          res
+            .cookie('accessToken', userData.access_token, {
+              httpOnly: true,
+              secure: true,
+            })
+            .cookie('refreshToken', userData.refresh_token, {
+              httpOnly: true,
+              secure: true,
+            })
+            .status(200)
+            .json({
+              LoginSuccess: true,
+              userID: userData.id,
+              email: userData.email,
+              message:
+                userData.role === 0
+                  ? '로그인 성공'
+                  : userData.role === 1
+                  ? 'Admin계정으로 로그인'
+                  : '블럭된 계정입니다',
+            });
+        });
       });
-    });
-    ///그리고 token만들어서 주기
-  });
+      ///그리고 token만들어서 주기
+    }
+  );
 });
 ////구글 로그인하기====================================googlegleglegleglgllgglgleeeeeee
 
@@ -739,6 +765,7 @@ app.get('/api/user/auth', auth, (req, res) => {
       nickname: req.user.nickname,
     });
 });
+
 app.post('/api/user/pwcheck', (req, res) => {
   console.log(req.body);
   User.findOneAndUpdate({ email: req.body.email }, { date: new Date() }, (err, userData) => {
@@ -800,7 +827,7 @@ app.post('/api/list/write', auth, (req, res) => {
         console.log(data?._id, req.user._id, '세이브전에정보확인');
         if (err) return res.json({ Writesuccess: false, err });
         ////유저정보에 post넣어주기
-        User.findByIdAndUpdate(req.user._id, { $addToSet: { posts: data._id } }, (err, data) => {
+        User.findByIdAndUpdate(req.user._id, { $addToSet: { posts: data._id }, $inc: { exp: 10 } }, (err, data) => {
           if (err) {
             console.log(err);
           } else {
@@ -879,7 +906,7 @@ app.post('/api/post/comment', auth, (req, res) => {
     comment.save((err, data) => {
       if (err) return res.json({ CommentSuccess: false, err });
       console.log(data);
-      User.findByIdAndUpdate(req.user._id, { $addToSet: { comments: data._id } }, (err, data) => {
+      User.findByIdAndUpdate(req.user._id, { $addToSet: { comments: data._id }, $inc: { exp: 3 } }, (err, data) => {
         console.log('저장이안되네?');
         if (err) throw err;
       });
@@ -1150,6 +1177,7 @@ app.get('/api/list/post/:id', (req, res) => {
     res.cookie(cookie_name, true, {
       expires: expires,
     });
+
     console.log('쿠키가없으니 view를 하나 추가');
     List.findOneAndUpdate({ postnum: id }, { $inc: { views: 1 } })
       .populate('writer', { nickname: 1, _id: 2 })
@@ -1252,7 +1280,9 @@ app.get('/api/user/mypage', auth, (req, res) => {
     })
     .then((err, data) => {
       if (err) return res.json(err);
-      return res.json({ data });
+      return res.json({
+        data,
+      });
     });
 
   // List.findOne({ postnum: 123 })

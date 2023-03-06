@@ -293,18 +293,19 @@ function BoardList() {
               ))}
           </tbody>
         </table>
-        <div className='boardlist-footer-write'>
-          {topcategory === 'list' ? (
-            ''
-          ) : (
+
+        {topcategory === 'list' ? (
+          ''
+        ) : (
+          <div className='boardlist-footer-write'>
             <Link className='link' to={`/${topcategory}/${category ?? 'all'}/editor`}>
               <div className='write-icon'>
                 <EditOutlined />
                 글쓰기
               </div>
-            </Link>
-          )}
-        </div>
+            </Link>{' '}
+          </div>
+        )}
       </main>
 
       <footer className='boardlist-footer'>

@@ -5,7 +5,7 @@ import './Mypage.css';
 import { Avatar, Pagination } from 'antd';
 import Modal from 'react-modal';
 import { CheckOutlined, LoadingOutlined, UserOutlined } from '@ant-design/icons';
-import { Tooltip } from 'antd';
+import { Tooltip, Progress } from 'antd';
 
 const overlayStyle = {
   position: 'fixed',
@@ -61,6 +61,7 @@ function Mypage() {
   const IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
   const [fileImg, setFileImg] = useState('');
   const [profileImg, setProfileimg] = useState('');
+  const [lvInfo, setLvinfo] = useState([]);
   ///page
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(10);
@@ -75,6 +76,20 @@ function Mypage() {
     message: '',
     check: false,
   });
+
+  function levelSystem(exp, lv) {
+    let needExp = 0;
+    for (let i = lv; i < 99; i++) {
+      needExp += 10 * (2 * i);
+      if (needExp >= exp) {
+        lv = i;
+        exp = exp - needExp + 10 * (2 * i);
+        needExp = 10 * (2 * i);
+        break;
+      }
+    }
+    return [lv, exp, needExp];
+  }
 
   const logoutHandler = async () => {
     try {
@@ -214,6 +229,7 @@ function Mypage() {
         setUserdata(others);
         console.log(scrap);
         userId.current = others?.nickname;
+        setLvinfo(levelSystem(others.exp, others.lv));
         setComments(comments.reverse());
         setScraps(scrap.reverse());
         setPosts(posts.reverse());
@@ -244,7 +260,6 @@ function Mypage() {
     setFileImg(URL.createObjectURL(file));
     setProfileimg(e.target.files);
   };
-
   function switchPage() {
     switch (act) {
       case 'userInfo':
@@ -265,8 +280,41 @@ function Mypage() {
                 </div>
               </div>
               <div>
-                <span style={{ color: 'red' }}>*{'  '}</span>E-mail :{' '}
-                {userdata.email ?? '카카오 연동으로 가입시 이메일이 없습니다'}
+                {userdata.email ? (
+                  <>
+                    <span style={{ color: 'red' }}>*{'  '}</span>E-mail : {userdata.email}
+                  </>
+                ) : (
+                  '카카오 연동으로 가입시 이메일이 없습니다'
+                )}
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  width: '100%',
+                  height: '36px',
+                  alignItems: 'center',
+                  margin: '14px 0px',
+                }}
+              >
+                레벨 :
+                <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '10px' }}>
+                  <div
+                    style={{
+                      height: '12px',
+                      width: '160px',
+                      fontSize: '0.7rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <span>LV : {lvInfo[0]} </span> <span>{lvInfo[1] + ' point' + ' / ' + lvInfo[2] + ' point'}</span>
+                  </div>
+                  <div>
+                    {' '}
+                    <Progress style={{ width: '160px' }} percent={(lvInfo[1] / lvInfo[2]) * 100} size='small' />
+                  </div>
+                </div>
               </div>
               <p>가입일 : {Timechanger(userdata.signupDate)}</p>
               <p>마지막 접속 일시 : {Timechanger(userdata?.date)}</p>

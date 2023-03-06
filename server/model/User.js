@@ -92,6 +92,10 @@ const userSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  lv: {
+    type: Number,
+    default: 0,
+  },
 });
 ///되나
 userSchema.pre('save', function (next) {

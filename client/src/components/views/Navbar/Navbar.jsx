@@ -11,7 +11,7 @@ import Rlistmodal from './Rlistmodal';
 
 /////////////////네브바
 function Navbar(props) {
-  const { category } = useParams();
+  const { tpcategory, category } = useParams();
   const [cookies, setCookie, removeCookies] = useCookies([]);
   const [data, setData] = useState({});
 
@@ -156,7 +156,7 @@ function Navbar(props) {
       <div className='rightbox'>
         <div className='iconbox'>
           {props.isAuth ? (
-            <Link to={`/list/${category ?? 'all'}/editor`} className='link'>
+            <Link to={`/${tpcategory}/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>
             </Link>
           ) : null}

@@ -238,7 +238,11 @@ function Comment(props) {
                           {' '}
                           {props.writer === comment.writer ? (
                             <span>
-                              {comment.nickname}
+                              {comment.nickname === user?.nickname ? (
+                                <span style={{ color: 'orange' }}> {comment.nickname}</span>
+                              ) : (
+                                comment.nickname
+                              )}
                               <Tooltip placement='bottom' color='green' title={'작성자'}>
                                 {' '}
                                 <CheckOutlined
@@ -248,6 +252,8 @@ function Comment(props) {
                                 />
                               </Tooltip>
                             </span>
+                          ) : comment.nickname === user?.nickname ? (
+                            <span style={{ color: 'orange' }}> {comment.nickname}</span>
                           ) : (
                             comment.nickname
                           )}

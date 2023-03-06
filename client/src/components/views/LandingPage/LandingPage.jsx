@@ -5,6 +5,7 @@ import { Outlet, useOutlet } from 'react-router-dom';
 import Main from '../Main/Main';
 import './Landingpage.css';
 import NaverSignin from '../LoginPage/NaverSignin';
+import { fword } from '../../../hoc/Fword';
 
 function LandingPage(props) {
   const outlet = useOutlet();
@@ -32,7 +33,7 @@ function LandingPage(props) {
           // }}
         >
           <aside>
-            <div>aasaide</div>
+            <div></div>
           </aside>
           <article className='landingpage-main-content'>{outlet ? <Outlet /> : <Main />}</article>
           <aside>
@@ -40,7 +41,7 @@ function LandingPage(props) {
           </aside>
         </div>
       </main>
-      <footer className='landingpage-footer'>
+      <footer className='landingpage-footer' style={{ height: '100%' }}>
         <Footer />
       </footer>
     </div>
