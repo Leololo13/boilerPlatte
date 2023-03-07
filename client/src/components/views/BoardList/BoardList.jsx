@@ -7,6 +7,7 @@ import { Pagination, Input, Select } from 'antd';
 import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
 import { valTotitle } from './category';
 import { EditOutlined, LoadingOutlined } from '@ant-design/icons';
+import Usermodal from './Usermodal';
 
 function BoardList() {
   const location = useLocation();
@@ -27,6 +28,9 @@ function BoardList() {
   const topcategory = location.pathname.split('/')[1];
   const [searchOption, setSearchOption] = useState(ssoption);
   const [loading, setLoading] = useState(false);
+  const [userModal, setUsermodal] = useState(false);
+  const [mPosition, setMposition] = useState([0, 0]);
+  const [writer, setWriter] = useState('');
 
   const optionHandler = (e) => {
     setSearchOption(e);
@@ -74,6 +78,7 @@ function BoardList() {
   useEffect(() => {
     setLoading(true);
     const fetchAllLists = async () => {
+      console.log('렌더가 두번되나요?');
       try {
         const res = await axios.get(
           `/api/list?page=${page}&category=${
@@ -99,19 +104,27 @@ function BoardList() {
 
   return (
     <div className='boardlist'>
+      <Usermodal writer={writer} position={mPosition} userModal={userModal} setUsermodal={setUsermodal} />
       <header className='boardlist-header'>
         <div className='boardlist-header-left'>
-          {' '}
           <h4>
-            {topcategory === 'list'
+            {/* {topcategory === 'list'
               ? '힐링시간'
               : topcategory === 'comu'
               ? '커뮤니티'
               : topcategory === 'blind'
               ? '블라인드'
-              : ''}
+              : ''} */}
+            <Link to={`/${topcategory}/all`} className='link'>
+              {valTotitle[topcategory]}
+            </Link>
           </h4>
-          <section className='boardlist-header-section'> {valTotitle[category] ?? 'ALL'}</section>
+          <div className='boardlist-header-section'>
+            <Link to={`/${topcategory}/${category}`} className='link'>
+              {' '}
+              {valTotitle[category] ?? 'ALL'}
+            </Link>
+          </div>
         </div>
         <div className='boardlist-header-right'>
           {' '}
@@ -275,9 +288,15 @@ function BoardList() {
                       flex: 2,
                       textAlign: 'center',
                       minWidth: '70px',
+                      cursor: 'pointer',
+                    }}
+                    onClick={(e) => {
+                      setMposition([e.clientX, e.clientY]);
+                      setWriter(list.nickname);
+                      setUsermodal(!userModal);
                     }}
                   >
-                    {list.nickname ?? list.id}
+                    {list.nickname}
                   </td>
                   <td
                     style={{

@@ -18,6 +18,7 @@ import {
 import Modal from 'react-modal';
 import { Avatar, Pagination, Tooltip } from 'antd';
 import useSubmitFetch from './useSubmitFetch';
+import Usermodal from '../BoardList/Usermodal';
 
 const overlayStyle = {
   position: 'fixed',
@@ -64,6 +65,9 @@ function Comment(props) {
     hate: [],
     image: '',
   };
+  const [userModal, setUsermodal] = useState(false);
+  const [mPosition, setMposition] = useState([0, 0]);
+  const [writer, setWriter] = useState('');
 
   const [limit, setLimit] = useState(20);
   const [page, setPage] = useState(1);
@@ -186,6 +190,8 @@ function Comment(props) {
 
   return (
     <div>
+      <Usermodal writer={writer} position={mPosition} userModal={userModal} setUsermodal={setUsermodal} />
+
       <Modal
         isOpen={deleteModal.open}
         ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
@@ -234,8 +240,15 @@ function Comment(props) {
                     </div>
                     <div className='comment-main-main'>
                       <div className='comment-info'>
-                        <div className='comment-writer'>
-                          {' '}
+                        <div
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => {
+                            setMposition([e.clientX, e.clientY]);
+                            setWriter(comment.nickname);
+                            setUsermodal(!userModal);
+                          }}
+                          className='comment-writer'
+                        >
                           {props.writer === comment.writer ? (
                             <span>
                               {comment.nickname === user?.nickname ? (

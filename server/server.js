@@ -282,12 +282,12 @@ function levelSystem(exp, lv) {
 
 ////login=====================
 app.post('/api/user/login', (req, res) => {
-  console.log(req.body);
+  console.log(req.body, '로그인입니다 어떤정보가오나요');
 
   let longLogin = req.body.longLogin;
   User.findOneAndUpdate(
     { email: req.body.email },
-    { date: req.body.date, $inc: { logintry: 1, exp: 2 } },
+    { date: req.body.date, $inc: { logintry: 1, exp: 5 } },
     (err, userData) => {
       /////db에 이메일이 있는지?
       console.log(userData.date, userData);
@@ -664,35 +664,39 @@ app.get('/api/user/naverCB/:act', async function (req, res) {
               };
               let user = new User(userInfo);
               if (act === 'signin') {
-                User.findOneAndUpdate({ email: userInfo.email }, { date: new Date() }, (err, docs) => {
-                  if (err) return res.json({ LoginSuccess: false, message: err });
-                  if (!docs) {
-                    return res.json({
-                      LoginSuccess: false,
-                      message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
-                    });
-                  } else {
-                    docs.genToken(longLogin, (err, userData) => {
-                      if (err) return res.status(400).send(err);
-                      return res
-                        .cookie('accessToken', userData.access_token, {
-                          httpOnly: true,
-                          secure: true,
-                        })
-                        .cookie('refreshToken', userData.refresh_token, {
-                          httpOnly: true,
-                          secure: true,
-                        })
-                        .status(200)
-                        .json({
-                          message: '로그인 성공',
-                          LoginSuccess: true,
-                          userID: userData.id,
-                          email: userData.email,
-                        });
-                    });
+                User.findOneAndUpdate(
+                  { email: userInfo.email },
+                  { date: new Date(), $inc: { exp: 5 } },
+                  (err, docs) => {
+                    if (err) return res.json({ LoginSuccess: false, message: err });
+                    if (!docs) {
+                      return res.json({
+                        LoginSuccess: false,
+                        message: '가입하신 메일이 없습니다. 가입하시겠습니까?',
+                      });
+                    } else {
+                      docs.genToken(longLogin, (err, userData) => {
+                        if (err) return res.status(400).send(err);
+                        return res
+                          .cookie('accessToken', userData.access_token, {
+                            httpOnly: true,
+                            secure: true,
+                          })
+                          .cookie('refreshToken', userData.refresh_token, {
+                            httpOnly: true,
+                            secure: true,
+                          })
+                          .status(200)
+                          .json({
+                            message: '로그인 성공',
+                            LoginSuccess: true,
+                            userID: userData.id,
+                            email: userData.email,
+                          });
+                      });
+                    }
                   }
-                });
+                );
               } else {
                 User.findOne({ email: userInfo.email }, (err, docs) => {
                   if (!docs) {
@@ -907,7 +911,6 @@ app.post('/api/post/comment', auth, (req, res) => {
       if (err) return res.json({ CommentSuccess: false, err });
       console.log(data);
       User.findByIdAndUpdate(req.user._id, { $addToSet: { comments: data._id }, $inc: { exp: 3 } }, (err, data) => {
-        console.log('저장이안되네?');
         if (err) throw err;
       });
       return res.status(200).json({ CommentSuccess: true, data });
@@ -1062,7 +1065,7 @@ app.get('/api/list', (req, res) => {
             },
           },
           {
-            $match: { topcategory: topc },
+            $match: { topcategory: topc, announce: false },
           },
         ];
 

@@ -152,9 +152,9 @@ const Editor = (props) => {
   const [categories, setCategories] = useState(
     cateData[tpcategory] ////이걸로 2번을고른다.즉 대분류에 의한 결과가나와야함
   );
-  const [sCate, setScate] = useState(category === 'all' ? cateData[tpcategory][0].label : category); //2번에서고른다
+  const [sCate, setScate] = useState(category === 'all' ? cateData[tpcategory][0]?.label : category); //2번에서고른다
   // useState(cateData[topCategories[0].value][0].value);
-  console.log(cateData[tpcategory], cateData[tpcategory][0].label);
+  console.log(cateData[tpcategory], cateData[tpcategory][0]?.label);
   const tophandleChange = (value) => {
     console.log(`selected ${value}`);
     ///선택하면 list,comu,blund 대분류가 들어온다.

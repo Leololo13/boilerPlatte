@@ -156,7 +156,7 @@ function Navbar(props) {
       <div className='rightbox'>
         <div className='iconbox'>
           {props.isAuth ? (
-            <Link to={`/${tpcategory}/${category ?? 'all'}/editor`} className='link'>
+            <Link to={`/${tpcategory ?? 'list'}/${category ?? 'all'}/editor`} className='link'>
               <p className='right-icon'>Write</p>
             </Link>
           ) : null}

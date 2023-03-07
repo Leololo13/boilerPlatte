@@ -17,6 +17,7 @@ import {
   DislikeTwoTone,
 } from '@ant-design/icons';
 import { Tooltip } from 'antd';
+import Usermodal from '../BoardList/Usermodal';
 
 const overlayStyle = {
   position: 'fixed',
@@ -54,6 +55,9 @@ function Post(props) {
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
+  const [userModal, setUsermodal] = useState(false);
+  const [mPosition, setMposition] = useState([0, 0]);
+  const [writer, setWriter] = useState('');
 
   const { id, category } = useParams();
   const [post, setPost] = useState({});
@@ -186,6 +190,7 @@ function Post(props) {
 
   return (
     <div className='post'>
+      <Usermodal writer={writer} position={mPosition} userModal={userModal} setUsermodal={setUsermodal} />
       <Modal
         isOpen={deleteModal}
         ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
@@ -213,6 +218,7 @@ function Post(props) {
           </button>
         </div>
       </Modal>
+
       <header className='postHead'>
         <h3 className='post-title'>
           <Link className='link' to={location.pathname + location.search}>
@@ -222,7 +228,17 @@ function Post(props) {
         <div className='postInfo'>
           <div className='postInfo-info'>
             {' '}
-            <p className='id'>{post.nickname}</p>
+            <p
+              className='id'
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => {
+                setMposition([e.clientX, e.clientY]);
+                setWriter(post.nickname);
+                setUsermodal(!userModal);
+              }}
+            >
+              {post.nickname}
+            </p>
             <p className='date'>{elapsedTime(post.date)}</p>
             <p className='views'>
               {' '}
