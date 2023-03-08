@@ -348,7 +348,7 @@ function Mypage() {
             <div className='mypage-userInfo'>
               <p className='mypage-userinfochange-img'>
                 {userdata?.image ? (
-                  <img src={userdata.image} alt='' width={56} style={{ borderRadius: '50%' }} />
+                  <img src={userdata.image} alt='' width={56} height={56} style={{ borderRadius: '50%' }} />
                 ) : (
                   <Avatar
                     style={{
