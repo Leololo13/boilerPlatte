@@ -5,7 +5,7 @@ import { Button, Dropdown, Space, Avatar } from 'antd';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined, MenuOutlined } from '@ant-design/icons';
+import { UserOutlined, MenuOutlined, AlignLeftOutlined, AlignRightOutlined, AppstoreOutlined } from '@ant-design/icons';
 import Listmodal from './Listmodal';
 import Rlistmodal from './Rlistmodal';
 
@@ -137,7 +137,8 @@ function Navbar(props) {
       <Rlistmodal rlistModal={rlistModal} setRlistmodal={setRlistmodal} />
       <div className='leftbox'>
         <span className='leftbox-modal'>
-          <MenuOutlined
+          <AlignRightOutlined
+            rotate={180}
             onClick={() => {
               setListModal(!listModal);
             }}
@@ -161,9 +162,9 @@ function Navbar(props) {
             </Link>
           ) : null}
 
-          <p onClick={() => setRlistmodal(!rlistModal)} className='right-icon'>
-            List
-          </p>
+          <span onClick={() => setRlistmodal(!rlistModal)} className='right-icon'>
+            <AppstoreOutlined />
+          </span>
         </div>
         <div className='userprofile-box'>
           <Space direction='vertical'>

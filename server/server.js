@@ -224,6 +224,47 @@ app.post('/api/user/out', auth, (req, res) => {
     return res.json({ outSuccess: true, message: '탈퇴 완료, 3개월 후 재가입이 가능합니다' });
   });
 });
+//유저 블럭하기
+app.post('/api/user/block', auth, (req, res) => {
+  let isAuth = req.user.role === 0 ?? false;
+  let { id, target_id } = req.body;
+  console.log(isAuth, id, target_id);
+  User.findOneAndUpdate({ _id: target_id, block: { $lte: 3 } }, { $inc: { block: 1 } }, (err, data) => {
+    if (!data) {
+      return res.json({ blockSuccess: false, message: '영구 블럭 중인 대상입니다.' });
+    }
+    if (err) return res.json({ blockSuccess: false, err, message: '블럭중 에러가 발생했습니다' });
+    return res.json({
+      blockSuccess: true,
+      message: `블럭에 성공했습니다. 현재 대상은 ${data.block + 1}번째 블럭 중입니다.`,
+    });
+  });
+});
+//유저 블럭해제하기
+app.post('/api/user/blockdel', auth, (req, res) => {
+  let isAuth = req.user.role === 0 ?? false;
+  let number = req.body.number ?? 0;
+  let { id, target_id } = req.body;
+  if (!isAuth) {
+    return res.json({ blockdelSuccess: false, message: '관리자만 가능한 권한입니다' });
+  }
+  User.findByIdAndUpdate(target_id, { block: number }, (err, data) => {
+    console.log('들어오긴함');
+    if (err) {
+      return res.json({ blockdelSuccess: false, err: err, message: '블럭중 에러가 발생했습니다' });
+    } else {
+      if (!data) {
+        console.log('들어오긴함11111111');
+        return res.json({ blockdelSuccess: false, message: '존재하지 않거나 탈퇴한 아이디입니다.' });
+      } else {
+        return res.json({
+          blockdelSuccess: true,
+          message: `블럭 설정에 성공했습니다. 현재 대상은 ${number}번째 블럭 중입니다.`,
+        });
+      }
+    }
+  });
+});
 
 //유저 정보 변경하기
 app.post('/api/user/infochange', auth, (req, res) => {

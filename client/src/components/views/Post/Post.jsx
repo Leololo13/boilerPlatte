@@ -187,10 +187,16 @@ function Post(props) {
   let content = post?.content;
   let pl = post?.like?.includes(props?._id);
   let dpl = post?.hate?.includes(props?._id);
-
   return (
     <div className='post'>
-      <Usermodal writer={writer} position={mPosition} userModal={userModal} setUsermodal={setUsermodal} />
+      <Usermodal
+        target_id={post.writer?._id}
+        isAuth={props.isAuth}
+        writer={writer}
+        position={mPosition}
+        userModal={userModal}
+        setUsermodal={setUsermodal}
+      />
       <Modal
         isOpen={deleteModal}
         ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.

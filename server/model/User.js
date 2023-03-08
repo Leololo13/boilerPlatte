@@ -96,6 +96,10 @@ const userSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  block: {
+    type: Number,
+    default: 0, //////0 은 당연히 블록x, 1은미세한 경고 1~2주 블록으로 잡자,로그인불가능, 2는 3달, 3는 영구정지
+  },
 });
 ///되나
 userSchema.pre('save', function (next) {
