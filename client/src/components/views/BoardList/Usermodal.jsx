@@ -69,7 +69,9 @@ const Usermodal = (props) => {
 
   const moveTouserSearch = () => {
     navigate(
-      `/${tpcategory}/${category}?page=${1}&category=search&limit=20&search=${id}&topc=${tpcategory}&soption=nickname`
+      `/${tpcategory ?? 'comu'}/${
+        category ?? 'all'
+      }?page=${1}&category=search&limit=20&search=${id}&topc=${tpcategory}&soption=nickname`
     );
   };
   const userBlockhandler = async (e) => {
@@ -94,7 +96,6 @@ const Usermodal = (props) => {
     let body = { id, target_id, number: value };
     try {
       await axios.post('/api/user/blockdel', body).then((res) => {
-        alert(res.data.message);
         if (res.data.blockdelSuccess) {
           alert(res.data.message);
         } else {

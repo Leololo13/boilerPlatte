@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Navbar.css';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Button, Dropdown, Space, Avatar } from 'antd';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined, MenuOutlined, AlignLeftOutlined, AlignRightOutlined, AppstoreOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  MenuOutlined,
+  AlignLeftOutlined,
+  AlignRightOutlined,
+  AppstoreOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import Listmodal from './Listmodal';
 import Rlistmodal from './Rlistmodal';
 
@@ -13,14 +20,13 @@ import Rlistmodal from './Rlistmodal';
 function Navbar(props) {
   const { tpcategory, category } = useParams();
   const [cookies, setCookie, removeCookies] = useCookies([]);
-  const [data, setData] = useState({});
 
   const location = useLocation();
   const navigate = useNavigate();
   const [listModal, setListModal] = useState(false);
   const [rlistModal, setRlistmodal] = useState(false);
 
-  console.log(props, 'navBar props from auth APP.js');
+  console.log(props ? 'done' : 'loading', 'navBar props from auth APP.js');
 
   //////////////////////////////
 
@@ -35,15 +41,6 @@ function Navbar(props) {
   };
 
   ////일단은 인증용. refreshtoken잘되는지 확인용으로 쓰다 삭제
-  const tryAuth = async () => {
-    try {
-      await axios.get(`/api/user/auth`).then((res) => {
-        setData(res.data);
-      });
-    } catch (err) {
-      console.log(err, 'navbar auth err발생함');
-    }
-  };
 
   ////////////////요청을 페이지 새로고침이나 이런거할때 계속 확인해서 버튼을보여줄지 말지 정한다.
 
@@ -110,19 +107,6 @@ function Navbar(props) {
       key: '5',
       label: <p onClick={logoutHandler}> 로그아웃</p>,
     },
-    {
-      key: '4',
-      label: (
-        <button
-          onClick={() => {
-            tryAuth();
-          }}
-        >
-          {' '}
-          <p rel='noopener noreferrer'>Auth test</p>
-        </button>
-      ),
-    },
   ];
 
   return (
@@ -158,7 +142,7 @@ function Navbar(props) {
         <div className='iconbox'>
           {props.isAuth ? (
             <Link to={`/${tpcategory ?? 'list'}/${category ?? 'all'}/editor`} className='link'>
-              <p className='right-icon'>Write</p>
+              <p className='right-icon'>글쓰기(관리자)</p>
             </Link>
           ) : null}
 
@@ -193,7 +177,9 @@ function Navbar(props) {
                     height: '3.5rem',
                   }}
                 >
-                  {props?.isAdmin ? 'Admin' : 'User'}
+                  {props ? props?.isAdmin ? 'Admin' : 'User' : <LoadingOutlined />}
+
+                  {/* {props?.isAdmin ? 'Admin' : 'User'} */}
                 </Button>
               </Dropdown>
             </Space>

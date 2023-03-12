@@ -47,7 +47,6 @@ const listSchema = mongoose.Schema({
   },
   topcategory: {
     type: String,
-    default: 'list',
   },
   writer: {
     type: mongoose.Schema.Types.ObjectId,
@@ -62,6 +61,16 @@ const listSchema = mongoose.Schema({
   announce: {
     type: Boolean,
     default: false,
+  },
+  report: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
+  report_count: {
+    type: Number,
+    default: 0,
   },
 });
 

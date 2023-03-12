@@ -158,7 +158,7 @@ const Listmodal = (props) => {
       })
     ),
   ];
-  console.log(items);
+
   function timedelay(now) {
     setModal(now);
     setCntStyle((prev) => ({
@@ -173,7 +173,7 @@ const Listmodal = (props) => {
     }));
     setTimeout(() => {
       props.setListModal(now);
-      console.log(modal, '모달바뀐다 느리게');
+
       setOvstyle(overlayStyle);
     }, 500);
   }
@@ -182,7 +182,6 @@ const Listmodal = (props) => {
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
-      console.log(keys);
       setOpenKeys(keys);
     } else {
       setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
@@ -190,7 +189,6 @@ const Listmodal = (props) => {
   };
   useEffect(() => {
     if (!props.listModal) {
-      console.log('클로즈상태');
       setCntStyle((prev) => ({
         ...prev,
         width: '0px',

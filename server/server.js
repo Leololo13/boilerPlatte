@@ -23,6 +23,7 @@ const { stringify } = require('querystring');
 const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const sharp = require('sharp');
+const { match } = require('assert');
 
 ///세션생성시 옵션설정 세션을설정할때 쿠키가 생성된다. 어느 라우터든 req session값이 존재하게 된다.
 app.use(
@@ -265,9 +266,24 @@ app.post('/api/user/blockdel', auth, (req, res) => {
     }
   });
 });
+///악질 유저 및 신고자 찾기
+app.get('/api/user/troubler', async (req, res) => {
+  const report_condition = parseInt(1);
+  try {
+    const rpl = await List.find({ report_count: { $gte: report_condition } }).populate('writer', {
+      _id: 1,
+      nickname: 2,
+      block: 3,
+    });
+    res.json({ troublerFind: true, rpl, message: '신고 누적 목록찾기에 성공했습니다' });
+  } catch (error) {
+    res.json({ troublerFind: false, error, message: '신고 누적 목록찾기에 실패했습니다' });
+  }
+});
 
 //유저 정보 변경하기
 app.post('/api/user/infochange', auth, (req, res) => {
+  s;
   let { act } = req.query;
   let pw = req.body.pw;
   console.log(req.user._id, pw);
@@ -307,19 +323,6 @@ app.post('/api/user/infochange', auth, (req, res) => {
 });
 
 ////
-function levelSystem(exp, lv) {
-  let needExp = 0;
-  for (let i = lv; i < 99; i++) {
-    needExp += 10 * (2 * i);
-    if (needExp >= exp) {
-      lv = i;
-      exp = exp - needExp + 10 * (2 * i);
-      needExp = 10 * (2 * i);
-      break;
-    }
-  }
-  return [lv, exp, needExp];
-}
 
 ////login=====================
 app.post('/api/user/login', (req, res) => {
@@ -876,7 +879,7 @@ app.post('/api/list/write', auth, (req, res) => {
           if (err) {
             console.log(err);
           } else {
-            console.log(data, '유저정보에 posts_Id입력함');
+            console.log('유저정보에 posts_Id입력함');
           }
         });
         return res.status(200).json({ Writesuccess: true, postnum: req.body.postnum });
@@ -969,29 +972,49 @@ app.post('/api/post/comment/:id/edit', auth, (req, res) => {
   });
 });
 ///comment가져오기 postnum으로 가져옴 모든 comment
-app.get('/api/post/:id/comment', (req, res) => {
+app.get('/api/post/:id/comment', async (req, res) => {
   let id = req.params.id;
-  Comment.find({ postnum: id }, (err, data) => {
-    let sortedData = [];
+  let sortedData = [];
+  console.log('코멘트 불러오기', id);
 
-    data
+  try {
+    const cmt = await Comment.find({ postnum: id }).populate('writer', { _id: 1, exp: 2 });
+    cmt
       .filter((maincmt) => maincmt.parentcommentnum === 0)
       .map((maincmt) => {
         sortedData.push(maincmt);
-        data
+        cmt
           .filter((r) => r.parentcommentnum === maincmt.commentnum)
           .map((rc) => {
             console.log(rc);
             sortedData.push(rc);
           });
-
-        // console.log(maincmt, '메인코멘트');
-        // console.log(rcmt, 'qwodkqwodkqowdkowqdk');
       });
+    // console.log(sortedData);
+    res.json({ sortedData });
+  } catch (error) {
+    res.json(error);
+  }
 
-    if (err) return res.json(err);
-    return res.json({ sortedData });
-  });
+  // await Comment.find({ postnum: id })
+  //   .populate('writer')
+  //   .then((err, data) => {
+  //     let sortedData = [];
+  //     data
+  //       .filter((maincmt) => maincmt.parentcommentnum === 0)
+  //       .map((maincmt) => {
+  //         sortedData.push(maincmt);
+  //         data
+  //           .filter((r) => r.parentcommentnum === maincmt.commentnum)
+  //           .map((rc) => {
+  //             console.log(rc);
+  //             sortedData.push(rc);
+  //           });
+  //       });
+
+  //     if (err) return res.json(err);
+  //     return res.json({ sortedData });
+  //   });
 });
 /////comment삭제하기
 app.post('/api/comment/delete', auth, (req, res) => {
@@ -1212,7 +1235,7 @@ app.get('/api/list/post/:id', (req, res) => {
   if (exist_cookie) {
     console.log('쿠키가있으니 view를 하나 추가XXXXX');
     List.findOne({ postnum: id })
-      .populate('writer', { nickname: 1, _id: 2 })
+      .populate('writer', { nickname: 1, _id: 2, exp: 3 })
       .then((err, data) => {
         if (err) return res.json(err);
         return res.json({ data });
@@ -1224,11 +1247,43 @@ app.get('/api/list/post/:id', (req, res) => {
 
     console.log('쿠키가없으니 view를 하나 추가');
     List.findOneAndUpdate({ postnum: id }, { $inc: { views: 1 } })
-      .populate('writer', { nickname: 1, _id: 2 })
+      .populate('writer', { nickname: 1, _id: 2, exp: 3 })
       .then((err, data) => {
         if (err) return res.json(err);
         return res.json({ data });
       });
+  }
+});
+
+///post신고하기
+app.post('/api/post/report/:id', auth, (req, res) => {
+  let id = req.params.id;
+  console.log(req.body, 'req.body');
+  let userID = req.user._id.toString();
+  let reportList = req.body.report;
+
+  if (!req.body.user) {
+    console.log('유저로그인안함');
+    return res.json({
+      ReportSuccess: false,
+      message: '로그인이 필요한 기능입니다',
+    });
+  }
+  if (reportList.includes(userID)) {
+    List.findOneAndUpdate({ postnum: id }, { $pull: { report: userID }, $inc: { report_count: -1 } }, (err, data) => {
+      if (err) return res.json(err);
+      return res.json({ data: data.report, message: '신고를 취소했습니다' });
+    });
+  } else {
+    console.log('안들어있다');
+    List.findOneAndUpdate(
+      { postnum: id },
+      { $addToSet: { report: userID }, $inc: { report_count: 1 } },
+      (err, data) => {
+        if (err) return res.json(err);
+        return res.json({ data: data.report, message: '신고를 완료했습니다' });
+      }
+    );
   }
 });
 
@@ -1293,7 +1348,7 @@ app.post('/api/post/hate/:id', auth, (req, res) => {
 
 ////mypage===========================================ㅡmypage=========
 ////mypage===========================================ㅡmypage=========
-app.get('/api/user/mypage', auth, (req, res) => {
+app.post('/api/user/mypage', auth, (req, res) => {
   let id = req.user._id;
 
   User.findById(id)
@@ -1370,7 +1425,7 @@ app.post('/api/user/upload_profile_img', upload.single('img'), (req, res) => {
   console.log('되긴하는거냐?', id);
   console.log('전달받은 파일', req.file);
   let img_url = 'http://localhost:8080/uploads/' + req.file.filename;
-  console.log(img_url);
+
   User.findByIdAndUpdate(id, { image: img_url }, (err, data) => {
     if (err) return res.json({ imgChangeSuccess: false, message: '프로파일 이미지 변경에 실패했습니다', err });
     return res.json({ imgChangeSuccess: true, data });

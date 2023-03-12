@@ -45,6 +45,29 @@ function BoardList() {
     setSearchModal(false);
   };
   const offset = (page - 1) * limit;
+
+  const selectOption = [
+    { label: '제목', value: 'title' },
+    { label: '제목+내용', value: 'title,content' },
+    { label: '작성자', value: 'nickname' },
+    { label: '댓글', value: 'comment' },
+  ];
+
+  function levelSystem(exp) {
+    let needExp = 0;
+    let lv = 0;
+    for (let i = 0; i < 99; i++) {
+      needExp += 10 * (2 * i);
+      if (needExp >= exp) {
+        lv = i;
+        exp = exp - needExp + 10 * (2 * i);
+        needExp = 10 * (2 * i);
+        break;
+      }
+    }
+    return [lv, exp, needExp];
+  }
+
   ////시간 함수 ~~전으로 표현하기
   function elapsedTime(date) {
     const start = new Date(date);
@@ -130,11 +153,16 @@ function BoardList() {
           {' '}
           <div>
             <Input.Group compact style={{ width: '280px' }}>
-              <Select defaultValue={searchOption ?? 'title'} onChange={optionHandler} style={{ width: '100px' }}>
-                <Select value='title'>제목</Select>
+              <Select
+                options={selectOption.map((o) => ({ label: o.label, value: o.value }))}
+                defaultValue={searchOption ?? 'title'}
+                onChange={optionHandler}
+                style={{ width: '100px' }}
+              >
+                {/* <Select value='title'>제목</Select>
                 <Select value='title,content'>제목+내용</Select>
                 <Select value='nickname'>작성자</Select>
-                <Select value='comment'>댓글</Select>
+                <Select value='comment'>댓글</Select> */}
               </Select>
               <Input.Search
                 allowClear
@@ -216,7 +244,7 @@ function BoardList() {
               );
             })}
             {loading ? (
-              <div
+              <tr
                 style={{
                   height: '180px',
                   display: 'flex',
@@ -224,19 +252,25 @@ function BoardList() {
                   justifyContent: 'center',
                 }}
               >
-                <LoadingOutlined style={{ fontSize: '40px', color: 'burlywood' }} />
-              </div>
+                <td>
+                  <LoadingOutlined style={{ fontSize: '40px', color: 'burlywood' }} />
+                </td>
+              </tr>
             ) : lists?.length === 0 ? (
-              <h4
-                style={{
-                  justifyContent: 'center',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
-                찾으시는 데이터가 없습니다.
-              </h4>
+              <tr>
+                <td>
+                  <h4
+                    style={{
+                      justifyContent: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    찾으시는 데이터가 없습니다.
+                  </h4>
+                </td>
+              </tr>
             ) : null}
 
             {lists
@@ -287,8 +321,13 @@ function BoardList() {
                     style={{
                       flex: 2,
                       textAlign: 'center',
+                      display: 'flex',
+
                       minWidth: '70px',
                       cursor: 'pointer',
+                      height: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                     onClick={(e) => {
                       setMposition([e.clientX, e.clientY]);
@@ -296,7 +335,10 @@ function BoardList() {
                       setUsermodal(!userModal);
                     }}
                   >
-                    {list.nickname}
+                    <div>
+                      <span style={{ width: '15px' }}> {levelSystem(list.exp)[0]}</span>
+                      <span>{list.nickname}</span>
+                    </div>
                   </td>
                   <td
                     style={{

@@ -50,6 +50,16 @@ const commentSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  report: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
+  report_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 commentSchema.methods.addRecomment = function (data) {

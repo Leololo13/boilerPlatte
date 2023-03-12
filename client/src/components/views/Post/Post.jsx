@@ -18,6 +18,7 @@ import {
 } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import Usermodal from '../BoardList/Usermodal';
+import { levelSystem } from '../Mypage/Lvsystem';
 
 const overlayStyle = {
   position: 'fixed',
@@ -55,10 +56,13 @@ function Post(props) {
   const user = useSelector((state) => {
     return state.rootReducer.user.userData;
   });
+  /////유저 모달용 props/////////////////
   const [userModal, setUsermodal] = useState(false);
   const [mPosition, setMposition] = useState([0, 0]);
-  const [writer, setWriter] = useState('');
 
+  ////////////////////////////
+  const [writer, setWriter] = useState('');
+  const [blockmodal, setBlockmodal] = useState([false, false]);
   const { id, category } = useParams();
   const [post, setPost] = useState({});
   const [deleteModal, setDeleteModal] = useState(false);
@@ -132,6 +136,26 @@ function Post(props) {
       }
     }
   };
+  const reportHandler = async (e) => {
+    if (!user) {
+      alert('로그인이 필요한 기능입니다');
+    } else {
+      try {
+        await axios
+          .post(`/api/post/report/${id}`, {
+            user: user,
+            report: post.report,
+          })
+          .then((res) => {
+            alert(res.data.message);
+            navigate(0);
+          });
+      } catch (error) {
+        alert(error);
+      }
+    }
+  };
+
   function elapsedTime(date) {
     const start = new Date(date);
     const end = new Date();
@@ -163,7 +187,11 @@ function Post(props) {
       try {
         const res = await axios.get(`/api/list/post/${id}`);
         setPost(res.data);
+        console.log(res.data.writer);
         setLoading(false);
+        if (res.data.report >= 10) {
+          setBlockmodal([true, true]);
+        }
       } catch (err) {
         console.log(err);
       }
@@ -179,7 +207,6 @@ function Post(props) {
     fetchPost();
   }, []);
 
-  console.log('render', post?.like?.includes(props?._id));
   // iframe.setAttribute('allow', 'loop');
   // console.log(iframe?.style.height);
   // console.log(iframe?.contentWindow.document.body.scrollHeight);
@@ -189,14 +216,6 @@ function Post(props) {
   let dpl = post?.hate?.includes(props?._id);
   return (
     <div className='post'>
-      <Usermodal
-        target_id={post.writer?._id}
-        isAuth={props.isAuth}
-        writer={writer}
-        position={mPosition}
-        userModal={userModal}
-        setUsermodal={setUsermodal}
-      />
       <Modal
         isOpen={deleteModal}
         ariaHideApp={false} /// 모달창이 열릴경우 배경컨텐츠를 메인으로 하지않기위해 숨겨줘야한다.
@@ -226,6 +245,14 @@ function Post(props) {
       </Modal>
 
       <header className='postHead'>
+        <Usermodal
+          target_id={post.writer?._id}
+          isAuth={props.isAuth}
+          writer={writer}
+          position={mPosition}
+          userModal={userModal}
+          setUsermodal={setUsermodal}
+        />
         <h3 className='post-title'>
           <Link className='link' to={location.pathname + location.search}>
             {post.title}
@@ -233,16 +260,19 @@ function Post(props) {
         </h3>
         <div className='postInfo'>
           <div className='postInfo-info'>
-            {' '}
             <p
               className='id'
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', margin: 0 }}
               onClick={(e) => {
                 setMposition([e.clientX, e.clientY]);
                 setWriter(post.nickname);
                 setUsermodal(!userModal);
               }}
             >
+              <span style={{ width: '25px', height: '15px', backgroundColor: 'white' }}>
+                {levelSystem(post.writer?.exp).lv}
+              </span>
+
               {post.nickname}
             </p>
             <p className='date'>{elapsedTime(post.date)}</p>
@@ -274,9 +304,23 @@ function Post(props) {
           >
             <LoadingOutlined style={{ fontSize: '40px', color: 'burlywood' }} />
           </div>
+        ) : blockmodal[0] || blockmodal[1] ? (
+          <div style={{ cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setBlockmodal([false, true])}>
+            신고누적으로 블록된 게시글입니다. 정말 보시겠습니까?
+            {blockmodal[1] && !blockmodal[0] ? (
+              <div
+                style={{ cursor: 'pointer', fontWeight: 'bold', padding: ' 20px 0px' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setBlockmodal([false, false]);
+                }}
+              >
+                정말 보시겠습니까?
+              </div>
+            ) : null}
+          </div>
         ) : (
           <>
-            {' '}
             {typeof window !== 'undefined' && (
               <div
                 className='postContent-main'
@@ -357,8 +401,14 @@ function Post(props) {
               </button>
             </div>
           ) : null}
+          <button className='footer-editbox-report' onClick={reportHandler}>
+            신고하기(아이콘해주기)
+          </button>
+
+          {post.report_count}
         </div>
-        <Comment p_id={post._id} writer={post.writer?._id} isAuth={props.isAuth} />
+
+        <Comment lv={levelSystem(user?.exp)[0]} p_id={post._id} writer={post.writer?._id} isAuth={props.isAuth} />
       </footer>
     </div>
   );

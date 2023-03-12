@@ -6,6 +6,7 @@ import { Avatar, Pagination } from 'antd';
 import Modal from 'react-modal';
 import { CheckOutlined, LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import { Tooltip, Progress } from 'antd';
+import Usermodal from '../BoardList/Usermodal';
 
 const overlayStyle = {
   position: 'fixed',
@@ -52,16 +53,32 @@ function Mypage() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const act = searchParams.get('act');
+
+  //////////////////////////변수들
+  ////사용자///
   const [userdata, setUserdata] = useState({});
-  const [posts, setPosts] = useState([]);
-  const [comments, setComments] = useState([]);
-  const [scraps, setScraps] = useState([]);
-  const [modal, setModal] = useState(false);
-  const userId = useRef(null);
-  const IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
   const [fileImg, setFileImg] = useState('');
   const [profileImg, setProfileimg] = useState('');
   const [lvInfo, setLvinfo] = useState([]);
+  //사용자 작성글
+  const [posts, setPosts] = useState([]);
+  ///사용자가 쓴 댓글
+  const [comments, setComments] = useState([]);
+  ///사용자 스크랩 글
+  const [scraps, setScraps] = useState([]);
+  //각종 액션들 정보. 비번변경,아이디변경,
+  const userId = useRef(null);
+  const IDcondition = /^[a-zA-Zㄱ-힣0-9][a-zA-Zㄱ-힣0-9 ]{2,9}$/;
+  ///////페이지 모달
+  const [modal, setModal] = useState(false);
+  ////관리자 전용
+  const [troubler, setTroubler] = useState([]);
+  const [modalinfo, setModalinfo] = useState({});
+  /////유저 모달용 props/////////////////
+  const [userModal, setUsermodal] = useState(false);
+  const [mPosition, setMposition] = useState([0, 0]);
+
+  //////////////////////////
   ///page
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(10);
@@ -76,10 +93,11 @@ function Mypage() {
     message: '',
     check: false,
   });
-
-  function levelSystem(exp, lv) {
+  //////////////////////
+  function levelSystem(exp) {
     let needExp = 0;
-    for (let i = lv; i < 99; i++) {
+    let lv = 0;
+    for (let i = 0; i < 99; i++) {
       needExp += 10 * (2 * i);
       if (needExp >= exp) {
         lv = i;
@@ -133,7 +151,6 @@ function Mypage() {
 
   const datasubmitHandler = async (e) => {
     let action = e.target.dataset.action;
-    console.log(e.target.dataset.action);
     if (action === 'changeinfo') {
       if (IDcondition.test(userdata.nickname)) {
         try {
@@ -222,18 +239,33 @@ function Mypage() {
 
   useEffect(() => {
     setLoading(true);
-    const fetchUser = async () => {
+    const fetchTroubler = async () => {
       try {
-        const res = await axios.get('/api/user/mypage');
+        const res1 = await axios.get('/api/user/troubler');
+        const res = await axios.post('/api/user/mypage');
         const { password, refresh_token, access_token, scrap, posts, comments, ...others } = res.data;
         setUserdata(others);
-        console.log(scrap);
         userId.current = others?.nickname;
-        setLvinfo(levelSystem(others.exp, others.lv));
+        setTroubler(res1.data.rpl);
+        setTotal(res1.data.rpl.length);
+        setLoading(false);
+        console.log(userdata);
+      } catch (error) {
+        console.log(error);
+        alert(error);
+      }
+    };
+    const fetchUser = async () => {
+      try {
+        const res = await axios.post('/api/user/mypage');
+        const { password, refresh_token, access_token, scrap, posts, comments, ...others } = res.data;
+        setUserdata(others);
+        userId.current = others?.nickname;
+        setLvinfo(levelSystem(others.exp));
         setComments(comments.reverse());
         setScraps(scrap.reverse());
         setPosts(posts.reverse());
-        setTotal(act === 'post' ? posts.length : act === 'comments' ? comments.length : scrap.length);
+        setTotal(act === 'post' ? posts.length : act === 'comment' ? comments.length : scrap.length);
         setLoading(false);
       } catch (error) {
         alert(error);
@@ -241,8 +273,14 @@ function Mypage() {
       }
     };
 
-    fetchUser();
-  }, []);
+    if (act === 'findTroublemaker') {
+      console.log('ㅂ재아뱆아ㅐㅂ자앱자앱자앱자애ㅏㅂ재아뱆아ㅐㅈ방');
+      fetchTroubler();
+    } else {
+      fetchUser();
+    }
+  }, [act]);
+
   const scrapdelHandler = async (e) => {
     const obid = e.target.dataset.id;
     console.log(obid);
@@ -702,6 +740,79 @@ function Mypage() {
             />
           </div>
         );
+      case 'findTroublemaker':
+        return (
+          <div className='mypage-posts'>
+            <h3 style={{ padding: '0px', margin: '10px 0px' }}>신고누적 보기</h3>
+            <div className='mypage-postsInfo'>
+              <span>총 신고된 게시글 수: {total} </span>
+              <span>
+                Page {page}/{Math.ceil(total / limit)}
+              </span>
+            </div>
+            <table className='mypage-post-table'>
+              <thead>
+                <tr>
+                  <th>번호</th>
+                  <th>제목</th>
+                  <th>작성자</th>
+                  <th>신고수</th>
+                  <th>블럭수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {troubler.slice(offset < 0 ? 0 : offset, offset + limit).map((trb, idx) => {
+                  return (
+                    <tr key={idx + offset + 1} className='mypage-post-each'>
+                      <td>{idx + offset + 1}</td>
+                      <td>
+                        <Link className='link' to={`/${trb.topcategory}/${trb.category}/post/${trb.postnum}`}>
+                          {trb.title}
+                        </Link>
+                      </td>
+                      <td>
+                        <p
+                          className='id'
+                          data-id={trb.writer._id}
+                          data-nickname={trb.writer.nickname}
+                          style={{ cursor: 'pointer', margin: 0 }}
+                          onClick={(e) => {
+                            console.log(e.target.dataset.id);
+                            setModalinfo({ _id: e.target.dataset.id, nickname: e.target.dataset.nickname });
+                            setMposition([e.clientX, e.clientY]);
+                            setUsermodal(!userModal);
+                          }}
+                        >
+                          {/* <span style={{ width: '25px', height: '15px', backgroundColor: 'white' }}>
+                {levelSystem(post.writer?.exp).lv}
+              </span> */}
+
+                          {trb.writer.nickname}
+                        </p>
+                      </td>
+                      <td>{trb.report_count}</td>
+                      <td>{trb.writer.block}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <Pagination
+              showQuickJumper
+              showTotal={(total) => `총 ${total} 게시물`}
+              defaultPageSize={limit}
+              size={'small'}
+              defaultCurrent={1}
+              showSizeChanger={false}
+              total={total}
+              current={page}
+              onChange={(page) => {
+                setPage(page);
+              }}
+            />
+          </div>
+        );
+
       default:
         return (
           <div>
@@ -721,7 +832,7 @@ function Mypage() {
         );
     }
   }
-
+  console.log(troubler);
   return (
     <div style={{ width: '95%' }}>
       <Modal
@@ -750,6 +861,14 @@ function Mypage() {
           </button>
         </div>
       </Modal>
+      <Usermodal
+        target_id={modalinfo._id}
+        isAuth={userdata?.role === 0 ? true : false}
+        writer={modalinfo.nickname}
+        position={mPosition}
+        userModal={userModal}
+        setUsermodal={setUsermodal}
+      />
       <header className='mypage-headerbox'>
         <Link to={'/userpage?act=userInfo'} className='link'>
           회원 정보 보기
@@ -763,6 +882,11 @@ function Mypage() {
         <Link to={'/userpage?act=comment'} className='link'>
           작성 댓글 보기
         </Link>
+        {userdata?.role === 0 ? (
+          <Link to={'/userpage?act=findTroublemaker'} className='link'>
+            게시글 관리
+          </Link>
+        ) : null}
       </header>
       <h3>
         {loading ? (

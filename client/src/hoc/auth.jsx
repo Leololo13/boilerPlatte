@@ -31,10 +31,7 @@ export default function Auth(SpecificComponent, option, adminRoute = null) {
         }
         ///logged In
         else {
-          console.log(
-            response.payload.isAdmin,
-            '로그인은 완료했다. 관리자입니까???????????'
-          );
+          console.log(response.payload.isAdmin, '로그인은 완료했다. 관리자입니까???????????');
           if (adminRoute && !response.payload.isAdmin) {
             console.log('로그인은햇지만 관리자가아니다, 관리자화면은ㄷ안됨');
 

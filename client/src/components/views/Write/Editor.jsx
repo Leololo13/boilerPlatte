@@ -118,7 +118,30 @@ const cateData = {
     };
   }),
 };
-console.log(cateData);
+
+///////이미지 url->이미지로
+
+function dataToBlob(dataURI) {
+  const splitDataURI = dataURI.split(',');
+  console.log(splitDataURI[0]);
+  const byteString = splitDataURI[0].indexOf('base64') >= 0 ? atob(splitDataURI[1]) : decodeURI(splitDataURI[1]);
+  const mimeString = splitDataURI[0].split(':')[1].split(';')[0];
+  const ia = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ia], { type: mimeString });
+}
+
+const searchSrc = (root) => {
+  const arr1 = root.split('img').map((v) => v.includes('src') === true && v.split('src='));
+
+  const arr2 = arr1.map((v) => v && v[1]?.split('></p'));
+
+  const arr3 = arr2.map((v) => v && v[0].slice(1, v[0]?.length - 1)).filter((v) => v !== false);
+  return arr3;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 const Editor = (props) => {
   const { tpcategory } = useParams();
@@ -130,6 +153,8 @@ const Editor = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [imgurl, setImgurl] = useState([]);
 
   const quillRef = useRef(); //
 
@@ -138,6 +163,83 @@ const Editor = (props) => {
       return state.rootReducer.user.userData;
     }
   });
+  const [writtenData, setWrittenData] = useState({
+    title: '',
+    content: '',
+    writer: user?._id,
+    id: user?.id,
+    nickname: user?.nickname,
+    postnum: 0,
+    category: category ?? 'all',
+    announce: false,
+    image: '',
+    topcategory: tpcategory ?? 'list',
+  });
+
+  const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
+
+  const [categories, setCategories] = useState(
+    cateData[tpcategory] ?? 'list' ////이걸로 2번을고른다.즉 대분류에 의한 결과가나와야함
+  );
+  const [sCate, setScate] = useState(category === 'all' ? cateData[tpcategory][0]?.label : category); //2번에서고른다
+  // useState(cateData[topCategories[0].value][0].value);
+  function earaseURI_IMG(value, url) {
+    const imgReg = /<img[^>]+src=[^>]*/;
+    let i = 0;
+    if (url?.length > 0) {
+      const changeStr = value
+        .split('>')
+        .map((v) => {
+          if (v.includes('<p')) {
+            return v + '>';
+          } else if (v.includes('</p')) {
+            return v + '>';
+          } else if (v.includes('<img ')) {
+            i += 1;
+            console.log(url[i - 1], i);
+            return `<img src=${url[i - 1]} />`;
+          } else {
+            return false;
+          }
+        })
+        .filter((v) => v !== false)
+        .join('');
+      setValue(changeStr);
+    }
+  }
+  console.log(imgurl);
+  async function changeURItoIMG(value) {
+    const arrayurl = searchSrc(value);
+    const imgReg = /data:[^">]*/g;
+    //// match(/<img[^>]+src=[^>]*>/).join('')
+    let img_url = [];
+    let files = [];
+    arrayurl.map((v, i) => {
+      if (v?.length >= 1000) {
+        ////arrayurl 이거를 잘못쪼갠다.
+        const dataURI = v.match(imgReg).join('');
+        const file = dataToBlob(dataURI);
+        const formData = new FormData();
+        formData.append('img', file);
+        try {
+          axios.post('/api/list/write/upload_img', formData).then((res) => {
+            console.log('성공시 백엔드가 데이터보내줌 복사붙혀넣기', res.data);
+            const FILES = res.data.files;
+            img_url.push(res.data.url);
+            console.log(res.data.url);
+            files.push(FILES);
+            setImgurl(img_url);
+            earaseURI_IMG(value, imgurl);
+            setFiles(files);
+          });
+          // setWrittenData((prev) => ({ ...prev, image: IMG_URL[0] }));
+          ///퀼의 가지고있는 에디터 가져오기!
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
+  }
 
   const onChangeCheck = (e) => {
     console.log(`checked = ${e.target.checked}`);
@@ -147,14 +249,6 @@ const Editor = (props) => {
     }));
   };
 
-  const [value, setValue] = useState(''); // 에디터 속 콘텐츠를 저장하는 state
-
-  const [categories, setCategories] = useState(
-    cateData[tpcategory] ////이걸로 2번을고른다.즉 대분류에 의한 결과가나와야함
-  );
-  const [sCate, setScate] = useState(category === 'all' ? cateData[tpcategory][0]?.label : category); //2번에서고른다
-  // useState(cateData[topCategories[0].value][0].value);
-  console.log(cateData[tpcategory], cateData[tpcategory][0]?.label);
   const tophandleChange = (value) => {
     console.log(`selected ${value}`);
     ///선택하면 list,comu,blund 대분류가 들어온다.
@@ -178,19 +272,6 @@ const Editor = (props) => {
       category: value,
     }));
   };
-
-  const [writtenData, setWrittenData] = useState({
-    title: '',
-    content: '',
-    writer: user?._id,
-    id: user?.id,
-    nickname: user?.nickname,
-    postnum: 0,
-    category: category,
-    announce: false,
-    image: '',
-    topcategory: tpcategory,
-  });
 
   function dataHandler(e) {
     e.preventDefault();
@@ -287,6 +368,7 @@ const Editor = (props) => {
           ['link', 'image', 'video'],
           [{ header: [1, 2, 3, false] }],
           ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+          [{ color: ['red', 'orange', 'black', 'darkgray'] }],
         ],
         handlers: {
           // 이미지 처리는 우리가 직접 imageHandler라는 함수로 처리할 것이다.
@@ -296,7 +378,7 @@ const Editor = (props) => {
     };
   }, []);
   // 위에서 설정한 모듈들 foramts을 설정한다
-  const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'image', 'video', 'link'];
+  const formats = ['header', 'color', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'image', 'video', 'link'];
   useEffect(() => {
     setLoading(true);
     const FetchEdit = async () => {
@@ -317,7 +399,11 @@ const Editor = (props) => {
     };
     FetchEdit();
   }, []);
-  console.log(editOn ? writtenData.category : category === 'all' ? cateData[tpcategory][0].label : category);
+  useEffect(() => {
+    changeURItoIMG(value);
+    console.log('이게 2번들가나');
+  }, [searchSrc(value)]);
+  // console.log(editOn ? writtenData.category : category === 'all' ? cateData[tpcategory][0].label : category);
   return (
     <div className='editorbox'>
       {loading ? (
@@ -355,12 +441,15 @@ const Editor = (props) => {
               }}
               value={sCate}
               onChange={handleChange}
-              options={categories.map((cat) => ({
+              options={categories?.map((cat) => ({
                 label: cat.label,
                 value: cat.value,
               }))}
             />
             {user?.isAdmin ? <Checkbox onChange={onChangeCheck}> 공지 사항</Checkbox> : null}
+            {files.map((f, i) => (
+              <div key={i}>{f[0].filename}</div>
+            ))}
           </div>
 
           <input type='text' name='title' value={writtenData.title} onChange={dataHandler} placeholder='Title' />

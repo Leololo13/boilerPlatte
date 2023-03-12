@@ -14,11 +14,13 @@ import {
   DislikeOutlined,
   LikeFilled,
   DislikeFilled,
+  CommentOutlined,
 } from '@ant-design/icons';
 import Modal from 'react-modal';
 import { Avatar, Pagination, Tooltip } from 'antd';
 import useSubmitFetch from './useSubmitFetch';
 import Usermodal from '../BoardList/Usermodal';
+import { levelSystem } from '../Mypage/Lvsystem';
 
 const overlayStyle = {
   position: 'fixed',
@@ -106,21 +108,32 @@ function Comment(props) {
   }
   /////
 
+  function levelSystem(exp) {
+    let needExp = 0;
+    let lv = 0;
+    for (let i = 0; i < 99; i++) {
+      needExp += 10 * (2 * i);
+      if (needExp >= exp) {
+        lv = i;
+        exp = exp - needExp + 10 * (2 * i);
+        needExp = 10 * (2 * i);
+        break;
+      }
+    }
+    return [lv, exp, needExp];
+  }
+
   //////
   async function likeHandler(_id, like) {
-    console.log(_id);
-    console.log(like, typeof like);
     try {
       await axios.post('/api/comment/like', { _id, like: like }).then((res) => {
-        console.log(res.data);
         if (res.data.cmtlikeSuccess) {
-          console.log(res.data);
           alert(res.data.message);
           navigate(0);
         }
       });
     } catch (error) {
-      console.log(error);
+      alert('댓글 불러오기에 실패했습니다');
     }
   }
   async function dislikeHandler(_id, dislike) {
@@ -219,7 +232,8 @@ function Comment(props) {
       <div className='footer-comment'>
         <div className='comment-title'>
           <p className='comment-modal' onClick={commentModalHandler}>
-            댓글 <span>{comments.length}</span>
+            <CommentOutlined />
+            <span style={{ paddingLeft: '5px' }}>댓글</span> <span>{comments.length}</span>
           </p>
         </div>
         {commentOpen ? (
@@ -249,15 +263,20 @@ function Comment(props) {
                           }}
                           className='comment-writer'
                         >
-                          {props.writer === comment.writer ? (
+                          {props.writer === comment.writer._id ? (
                             <span>
-                              {comment.nickname === user?.nickname ? (
-                                <span style={{ color: 'orange' }}> {comment.nickname}</span>
+                              {comment.writer._id === user?._id ? (
+                                <>
+                                  <span style={{ width: '10px', backgroundColor: 'red' }}>
+                                    {' '}
+                                    {levelSystem(comment.writer.exp)[0]}
+                                  </span>{' '}
+                                  <span style={{ color: 'orange' }}>{comment.nickname}</span>
+                                </>
                               ) : (
-                                comment.nickname
+                                levelSystem(comment.writer.exp)[0] + comment.nickname
                               )}
                               <Tooltip placement='bottom' color='green' title={'작성자'}>
-                                {' '}
                                 <CheckOutlined
                                   style={{
                                     color: 'green',
@@ -265,8 +284,11 @@ function Comment(props) {
                                 />
                               </Tooltip>
                             </span>
-                          ) : comment.nickname === user?.nickname ? (
-                            <span style={{ color: 'orange' }}> {comment.nickname}</span>
+                          ) : comment.writer._id === user?._id ? (
+                            <span style={{ color: 'orange' }}>
+                              {levelSystem(comment.writer.exp)[0]}
+                              {comment.nickname}
+                            </span>
                           ) : (
                             comment.nickname
                           )}
@@ -312,7 +334,7 @@ function Comment(props) {
                           <div
                             onClick={() => {
                               setEditOn(false);
-                              console.log('닶댓글가즈아', editOn);
+
                               modalVisibleId ? setModalVisibleId('') : recommentModalHandler(comment._id);
                             }}
                             style={{ cursor: 'pointer', fontWeight: 'bold' }}
@@ -322,7 +344,7 @@ function Comment(props) {
                             답댓글달기
                           </div>
 
-                          {(comment.writer === user?._id && comment.role === 1) || user?.isAdmin ? (
+                          {(comment.writer._id === user?._id && comment.role === 1) || user?.isAdmin ? (
                             <>
                               <div
                                 className='comment-edit'
@@ -338,7 +360,6 @@ function Comment(props) {
                                     style={{ fontSize: '1.2rem' }}
                                     onClick={() => {
                                       setEditOn(!editOn);
-                                      console.log(editOn, 'edit클릭');
                                     }}
                                   />
                                 </Tooltip>
@@ -364,7 +385,11 @@ function Comment(props) {
 
                       <div className='comment-content'>
                         {comment.target ? <span className='targetID'>{'@' + comment.target}</span> : null}
-                        {comment.content}
+                        {comment.report >= 10 ? (
+                          <span style={{ fontWeight: 'bold' }}>신고 누적으로 블록된 내용입니다</span>
+                        ) : (
+                          comment.content
+                        )}
                       </div>
                     </div>
                   </div>
