@@ -24,6 +24,7 @@ const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const sharp = require('sharp');
 const { match } = require('assert');
+const fs = require('fs');
 
 ///세션생성시 옵션설정 세션을설정할때 쿠키가 생성된다. 어느 라우터든 req session값이 존재하게 된다.
 app.use(
@@ -283,7 +284,6 @@ app.get('/api/user/troubler', async (req, res) => {
 
 //유저 정보 변경하기
 app.post('/api/user/infochange', auth, (req, res) => {
-  s;
   let { act } = req.query;
   let pw = req.body.pw;
   console.log(req.user._id, pw);
@@ -1420,16 +1420,33 @@ const upload = multer({
   }),
   // limits: { fileSize: 5 * 1024 * 1024 } // 파일 크기 제한
 });
-app.post('/api/user/upload_profile_img', upload.single('img'), (req, res) => {
+app.post('/api/user/upload_profile_img', upload.single('img'), async (req, res) => {
   let id = req.query.id;
   console.log('되긴하는거냐?', id);
   console.log('전달받은 파일', req.file);
-  let img_url = 'http://localhost:8080/uploads/' + req.file.filename;
-
-  User.findByIdAndUpdate(id, { image: img_url }, (err, data) => {
-    if (err) return res.json({ imgChangeSuccess: false, message: '프로파일 이미지 변경에 실패했습니다', err });
-    return res.json({ imgChangeSuccess: true, data });
-  });
+  let img_url;
+  try {
+    await sharp(req.file.path, { failOn: 'truncated' }) // 리사이징할 파일의 경로
+      .resize({ width: 90, height: 90 }) // 원본 비율 유지하면서 width 크기만 설정
+      .withMetadata()
+      .toFile(`${req.file.destination}/resize${req.file.filename}`, (err, info) => {
+        if (err) throw err;
+        console.log(`info : ${info[0]}${info[1]}`);
+        fs.unlink(`${req.file.path}`, (err) => {
+          // 원본파일은 삭제해줍니다
+          // 원본파일을 삭제하지 않을거면 생략해줍니다
+          if (err) throw err;
+        });
+        img_url = 'http://localhost:8080/uploads/' + 'resize' + req.file.filename;
+        console.log(img_url, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+        User.findByIdAndUpdate(id, { image: img_url }, (err, data) => {
+          if (err) return res.json({ imgChangeSuccess: false, message: '프로파일 이미지 변경에 실패했습니다', err });
+          return res.json({ imgChangeSuccess: true, data });
+        });
+      });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 ///img업로드 api만들기

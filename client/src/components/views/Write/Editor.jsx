@@ -9,7 +9,6 @@ import './Editor.css';
 import { Select, Checkbox, Space } from 'antd';
 import { listCategories, comuCategories, blindCategories, valTotitle } from '../BoardList/category';
 import { LoadingOutlined } from '@ant-design/icons';
-import { stringify } from 'rc-field-form/es/useWatch';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');

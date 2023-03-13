@@ -159,7 +159,7 @@ function Mypage() {
             const formData = new FormData();
             formData.append('img', profileImg[0]);
             await axios.post(`/api/user/upload_profile_img?id=${userdata._id}`, formData).then((res) => {
-              console.log(res.data);
+              console.log(res.data, 'imgchangeaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
               if (!res.data.imgChangeSuccess) {
                 alert(res.data.message);
               } else {
