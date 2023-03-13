@@ -9,6 +9,7 @@ import './Editor.css';
 import { Select, Checkbox, Space } from 'antd';
 import { listCategories, comuCategories, blindCategories, valTotitle } from '../BoardList/category';
 import { LoadingOutlined } from '@ant-design/icons';
+import { stringify } from 'rc-field-form/es/useWatch';
 
 const Video = Quill.import('formats/video');
 const Link = Quill.import('formats/link');
@@ -135,9 +136,7 @@ function dataToBlob(dataURI) {
 
 const searchSrc = (root) => {
   const arr1 = root.split('img').map((v) => v.includes('src') === true && v.split('src='));
-
   const arr2 = arr1.map((v) => v && v[1]?.split('></p'));
-
   const arr3 = arr2.map((v) => v && v[0].slice(1, v[0]?.length - 1)).filter((v) => v !== false);
   return arr3;
 };
@@ -155,7 +154,6 @@ const Editor = (props) => {
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
   const [imgurl, setImgurl] = useState([]);
-
   const quillRef = useRef(); //
 
   const user = useSelector((state) => {
@@ -183,39 +181,64 @@ const Editor = (props) => {
   );
   const [sCate, setScate] = useState(category === 'all' ? cateData[tpcategory][0]?.label : category); //2번에서고른다
   // useState(cateData[topCategories[0].value][0].value);
+
+  ///아 너무 어렵다 이상한거만 찾아서 바꿔줘야하는데..
   function earaseURI_IMG(value, url) {
-    const imgReg = /<img[^>]+src=[^>]*/;
-    let i = 0;
-    if (url?.length > 0) {
-      const changeStr = value
-        .split('>')
-        .map((v) => {
-          if (v.includes('<p')) {
-            return v + '>';
-          } else if (v.includes('</p')) {
-            return v + '>';
-          } else if (v.includes('<img ')) {
-            i += 1;
-            console.log(url[i - 1], i);
-            return `<img src=${url[i - 1]} />`;
-          } else {
-            return false;
-          }
-        })
-        .filter((v) => v !== false)
-        .join('');
-      setValue(changeStr);
+    const imgReg = /<img[^>]+src=[\"']?[^>]*/g;
+    const blobdata = /data:[^"]*/g;
+    let match = value.match(imgReg);
+    let blobmatch = value.match(blobdata);
+    console.log(match, blobmatch, url, 'oooooooooooooooooooooooooooooooooo');
+
+    for (let i = 0; i < blobmatch.length; i++) {
+      if (match[i + files.length].length >= 300) {
+        value = value.replace(blobmatch[i], url[i + files.length]);
+        setValue(value);
+        console.log(
+          i + files.length,
+          i,
+          match[i].slice(0, 5),
+          blobmatch[i].slice(0, 5),
+          url[i],
+          'insideeeeeeeeeeeeeeeeeeee'
+        );
+      } else {
+        continue;
+      }
     }
+
+    // for (let i = url.length; i < blobmatch.length; i++) {
+    //   const changeStr = value
+    //     .split('>')
+    //     .map((v) => {
+    //       if (v.includes('<p')) {
+    //         return v + '>';
+    //       } else if (v.includes('</p')) {
+    //         return v + '>';
+    //       } else if (v.includes('<img ') && v.length >= 1000) {
+    //         console.log(v, v.length);
+    //         console.log(url[i], i, 'qpwdokqwdkoqwkdoqwkdoqwkdoqwokdowqdk');
+    //         return v.replace(imgReg, `<img src=${url[i]} />`);
+    //         // return `<img src=${url[i]} />`;
+    //       } else {
+    //         return false;
+    //       }
+    //     })
+    //     .filter((v) => v !== false)
+    //     .join('');
+    //   setValue(changeStr);
+    //   console.log(value, '바꼈어요요요요용ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ');
+    // }
   }
-  console.log(imgurl);
+
   async function changeURItoIMG(value) {
     const arrayurl = searchSrc(value);
+    console.log(arrayurl.length);
     const imgReg = /data:[^">]*/g;
     //// match(/<img[^>]+src=[^>]*>/).join('')
-    let img_url = [];
-    let files = [];
+    let img_url = [...imgurl];
     arrayurl.map((v, i) => {
-      if (v?.length >= 1000) {
+      if (v?.length >= 500 || v.includes('data:')) {
         ////arrayurl 이거를 잘못쪼갠다.
         const dataURI = v.match(imgReg).join('');
         const file = dataToBlob(dataURI);
@@ -224,19 +247,19 @@ const Editor = (props) => {
         try {
           axios.post('/api/list/write/upload_img', formData).then((res) => {
             console.log('성공시 백엔드가 데이터보내줌 복사붙혀넣기', res.data);
-            const FILES = res.data.files;
-            img_url.push(res.data.url);
-            console.log(res.data.url);
-            files.push(FILES);
+            img_url.push(res.data.url[0]);
             setImgurl(img_url);
-            earaseURI_IMG(value, imgurl);
-            setFiles(files);
+            setFiles((prev) => [...prev, res.data.files]);
+            earaseURI_IMG(value, img_url);
           });
+
           // setWrittenData((prev) => ({ ...prev, image: IMG_URL[0] }));
           ///퀼의 가지고있는 에디터 가져오기!
         } catch (error) {
           console.log(error);
         }
+      } else {
+        console.log(v);
       }
     });
   }
@@ -283,6 +306,7 @@ const Editor = (props) => {
 
   function onSubmitHandler(e) {
     e.preventDefault();
+
     setLoading(true);
     let body = writtenData;
     body.content = value;
@@ -402,7 +426,7 @@ const Editor = (props) => {
   useEffect(() => {
     changeURItoIMG(value);
     console.log('이게 2번들가나');
-  }, [searchSrc(value)]);
+  }, [searchSrc(value).length]);
   // console.log(editOn ? writtenData.category : category === 'all' ? cateData[tpcategory][0].label : category);
   return (
     <div className='editorbox'>
@@ -450,6 +474,7 @@ const Editor = (props) => {
             {files.map((f, i) => (
               <div key={i}>{f[0].filename}</div>
             ))}
+            {files?.length}
           </div>
 
           <input type='text' name='title' value={writtenData.title} onChange={dataHandler} placeholder='Title' />
